@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.os.Bundle;
 
 public class faust extends Activity {
-    /** Called when the activity is first created. */
 	Thread thread;
 	boolean on = true; // process on/off
 	faustObject faustCpp = new faustObject();
@@ -23,11 +22,12 @@ public class faust extends Activity {
 				while(on){
 					faustCpp.processDSP();
 				}
-				faustCpp.startAudio();
+				faustCpp.stopAudio();
 			}
 		};
 		thread.start();   
     }
+    
     public void onDestroy(){
     	super.onDestroy();
     	on = false;
@@ -38,6 +38,5 @@ public class faust extends Activity {
 			e.printStackTrace();
 		}
     	thread = null;
-    	
     }
 }
