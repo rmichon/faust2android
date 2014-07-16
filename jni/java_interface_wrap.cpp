@@ -214,9 +214,79 @@ static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionC
 #include "faust_dsp.h"
 
 
+static float *new_floatArray(int nelements) { 
+  return new float[nelements]; 
+}
+
+static void delete_floatArray(float *ary) { 
+  delete [] ary; 
+}
+
+static float floatArray_getitem(float *ary, int index) {
+    return ary[index];
+}
+static void floatArray_setitem(float *ary, int index, float value) {
+    ary[index] = value;
+}
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+SWIGEXPORT jlong JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_new_1floatArray(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  jlong jresult = 0 ;
+  int arg1 ;
+  float *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (int)jarg1; 
+  result = (float *)new_floatArray(arg1);
+  *(float **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_delete_1floatArray(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  float *arg1 = (float *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(float **)&jarg1; 
+  delete_floatArray(arg1);
+}
+
+
+SWIGEXPORT jfloat JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_floatArray_1getitem(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2) {
+  jfloat jresult = 0 ;
+  float *arg1 = (float *) 0 ;
+  int arg2 ;
+  float result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(float **)&jarg1; 
+  arg2 = (int)jarg2; 
+  result = (float)floatArray_getitem(arg1,arg2);
+  jresult = (jfloat)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_floatArray_1setitem(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2, jfloat jarg3) {
+  float *arg1 = (float *) 0 ;
+  int arg2 ;
+  float arg3 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(float **)&jarg1; 
+  arg2 = (int)jarg2; 
+  arg3 = (float)jarg3; 
+  floatArray_setitem(arg1,arg2,arg3);
+}
+
 
 SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cnt_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
   Para *arg1 = (Para *) 0 ;

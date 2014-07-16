@@ -19,6 +19,10 @@ public class faust_dspJNI {
     }
   }
 
+  public final static native long new_floatArray(int jarg1);
+  public final static native void delete_floatArray(long jarg1);
+  public final static native float floatArray_getitem(long jarg1, int jarg2);
+  public final static native void floatArray_setitem(long jarg1, int jarg2, float jarg3);
   public final static native void Para_cnt_set(long jarg1, Para jarg1_, int jarg2);
   public final static native int Para_cnt_get(long jarg1, Para jarg1_);
   public final static native void Para_zone_set(long jarg1, Para jarg1_, long jarg2);

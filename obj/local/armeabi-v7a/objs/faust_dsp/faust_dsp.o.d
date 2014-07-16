@@ -50,8 +50,7 @@ obj/local/armeabi-v7a/objs/faust_dsp/faust_dsp.o: jni/faust_dsp.cpp \
  /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/math.h \
  /opt/android/android-ndk-r9d/sources/cxx-stl/gnu-libstdc++/4.6/include/algorithm \
  /opt/android/android-ndk-r9d/sources/cxx-stl/gnu-libstdc++/4.6/include/map \
- /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/stdio.h \
- /opt/android/android-ndk-r9d/sources/cxx-stl/gnu-libstdc++/4.6/include/string
+ /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/stdio.h
 
 /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/android/log.h:
 
@@ -158,5 +157,3 @@ jni/mydsp.cpp:
 /opt/android/android-ndk-r9d/sources/cxx-stl/gnu-libstdc++/4.6/include/map:
 
 /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/stdio.h:
-
-/opt/android/android-ndk-r9d/sources/cxx-stl/gnu-libstdc++/4.6/include/string:

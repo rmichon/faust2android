@@ -22,7 +22,7 @@
 #include "faust_dsp.h"
 #include "mydsp.cpp"
 #include <stdio.h>
-#include <string>
+#include <string.h>
 
 #define FAUSTFLOAT float
 #define BUFFERFRAMES 1024
@@ -58,6 +58,8 @@ Para faustObject::initFaust(){
 		bufferin = new float *[1];
 		bufferin[0] = new float [VECSAMPS];
 	}
+
+	params.cnt = interface->params.cnt;
 
 	/*
 	// layout elements initialization
@@ -137,6 +139,7 @@ void faustObject::stopAudio(){
 
 void faustObject::setParam(float *params){
 	for(int i = 0; i<interface->params.cnt; i++){
+		//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %f", params[i]);
 		*interface->params.value[i] = params[i];
 	}
 }

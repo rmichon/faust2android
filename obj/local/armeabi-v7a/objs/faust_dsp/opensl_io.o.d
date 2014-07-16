@@ -1,6 +1,5 @@
-/home/romain/android/workspace/Faust/obj/local/armeabi-v7a/objs/faust_dsp/opensl_io.o: \
- /home/romain/android/workspace/Faust/jni/opensl_io.c \
- /home/romain/android/workspace/Faust/jni/opensl_io.h \
+obj/local/armeabi-v7a/objs/faust_dsp/opensl_io.o: jni/opensl_io.c \
+ jni/opensl_io.h \
  /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/SLES/OpenSLES.h \
  /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/SLES/OpenSLES_Platform.h \
  /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/SLES/OpenSLES_Android.h \
@@ -48,7 +47,7 @@
  /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/strings.h \
  /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/memory.h
 
-/home/romain/android/workspace/Faust/jni/opensl_io.h:
+jni/opensl_io.h:
 
 /opt/android/android-ndk-r9d/platforms/android-19/arch-arm/usr/include/SLES/OpenSLES.h:
 
