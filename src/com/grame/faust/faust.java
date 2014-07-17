@@ -18,7 +18,7 @@ public class faust extends Activity {
 	faustObject faustClass = new faustObject();
 	faust_dsp faustObject = new faust_dsp();
 	
-	ui UI = new ui();
+	ui UI = new ui(); 
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
