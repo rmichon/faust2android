@@ -1,4 +1,4 @@
-const int numbParams = 3;
+const int numbParams = 2;
 //-----------------------------------------------------
 //
 // Code generated with Faust 0.9.67 (http://faust.grame.fr)
@@ -313,13 +313,12 @@ class GUI : public UI {
 // DSP class
 //**************************************************************
 
+
 #ifndef FAUSTFLOAT
 #define FAUSTFLOAT float
 #endif  
 
 typedef long double quad;
-/* link with  */
-#include <math.h>
 
 #ifndef FAUSTCLASS 
 #define FAUSTCLASS mydsp
@@ -351,13 +350,9 @@ class mydsp : public dsp {
 
 	static float 	ftbl0[65536];
 	FAUSTFLOAT 	fslider0;
-	float 	fRec2[2];
 	float 	fConst0;
 	float 	fRec1[2];
-	FAUSTFLOAT 	fbutton0;
-	float 	fRec3[2];
 	FAUSTFLOAT 	fslider1;
-	float 	fRec4[2];
   public:
 	static void metadata(Meta* m) 	{ 
 		m->declare("music.lib/name", "Music Library");
@@ -370,12 +365,6 @@ class mydsp : public dsp {
 		m->declare("math.lib/copyright", "GRAME");
 		m->declare("math.lib/version", "1.0");
 		m->declare("math.lib/license", "LGPL with exception");
-		m->declare("filter.lib/name", "Faust Filter Library");
-		m->declare("filter.lib/author", "Julius O. Smith (jos at ccrma.stanford.edu)");
-		m->declare("filter.lib/copyright", "Julius O. Smith III");
-		m->declare("filter.lib/version", "1.29");
-		m->declare("filter.lib/license", "STK-4.3");
-		m->declare("filter.lib/reference", "https://ccrma.stanford.edu/~jos/filters/");
 	}
 
 	virtual int getNumInputs() 	{ return 0; }
@@ -388,13 +377,9 @@ class mydsp : public dsp {
 	virtual void instanceInit(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
 		fslider0 = 1e+03f;
-		for (int i=0; i<2; i++) fRec2[i] = 0;
 		fConst0 = (1.0f / float(min(192000, max(1, fSamplingFreq))));
 		for (int i=0; i<2; i++) fRec1[i] = 0;
-		fbutton0 = 0.0;
-		for (int i=0; i<2; i++) fRec3[i] = 0;
 		fslider1 = 0.0f;
-		for (int i=0; i<2; i++) fRec4[i] = 0;
 	}
 	virtual void init(int samplingFreq) {
 		classInit(samplingFreq);
@@ -402,32 +387,20 @@ class mydsp : public dsp {
 	}
 	virtual void buildUserInterface(UI* interface) {
 		interface->openVerticalBox("osc");
-		interface->openVerticalBox("Frequency Group");
 		interface->addHorizontalSlider("freq", &fslider0, 1e+03f, 2e+01f, 2.4e+04f, 1.0f);
-		interface->closeBox();
-		interface->openVerticalBox("Gain Group");
 		interface->addHorizontalSlider("volume", &fslider1, 0.0f, -96.0f, 0.0f, 0.1f);
-		interface->closeBox();
-		interface->addButton("gate", &fbutton0);
 		interface->closeBox();
 	}
 	virtual void compute (int count, FAUSTFLOAT** input, FAUSTFLOAT** output) {
-		float 	fSlow0 = (0.0010000000000000009f * float(fslider0));
-		float 	fSlow1 = (0.0010000000000000009f * float(fbutton0));
-		float 	fSlow2 = (0.0010000000000000009f * powf(10,(0.05f * float(fslider1))));
+		float 	fSlow0 = (fConst0 * float(fslider0));
+		float 	fSlow1 = powf(10,(0.05f * float(fslider1)));
 		FAUSTFLOAT* output0 = output[0];
 		for (int i=0; i<count; i++) {
-			fRec2[0] = ((0.999f * fRec2[1]) + fSlow0);
-			float fTemp0 = (fRec1[1] + (fConst0 * fRec2[0]));
+			float fTemp0 = (fRec1[1] + fSlow0);
 			fRec1[0] = (fTemp0 - floorf(fTemp0));
-			fRec3[0] = ((0.999f * fRec3[1]) + fSlow1);
-			fRec4[0] = ((0.999f * fRec4[1]) + fSlow2);
-			output0[i] = (FAUSTFLOAT)((fRec4[0] * fRec3[0]) * ftbl0[int((65536.0f * fRec1[0]))]);
+			output0[i] = (FAUSTFLOAT)(fSlow1 * ftbl0[int((65536.0f * fRec1[0]))]);
 			// post processing
-			fRec4[1] = fRec4[0];
-			fRec3[1] = fRec3[0];
 			fRec1[1] = fRec1[0];
-			fRec2[1] = fRec2[0];
 		}
 	}
 };

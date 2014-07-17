@@ -15,7 +15,8 @@
         android:label="@string/app_name" >
         <activity
             android:name="com.grame.faust.faust"
-            android:label="@string/app_name" >
+            android:label="@string/app_name" 
+            android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

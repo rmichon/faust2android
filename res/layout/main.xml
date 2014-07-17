@@ -1,4 +1,4 @@
-<!-- 
+<!--
  FAUST Architecture File for Android
  Copyright (C) 2013 GRAME, Romain Michon, CCRMA Stanford University
  Copyright (C) 2003-2013 GRAME, Centre National de Creation Musicale
@@ -12,7 +12,8 @@
  This sample code is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- -->
+-->
+
 
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"

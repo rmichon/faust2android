@@ -7,8 +7,11 @@ import com.grame.faust_dsp.faust_dsp;
 import com.grame.faust_dsp.Para;
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 
 public class faust extends Activity {
+	static final String SAVED_PARAMETERS = "savedParameters";
+	
 	Thread thread;
 	boolean on = true; // process on/off
 	
@@ -17,30 +20,30 @@ public class faust extends Activity {
 	
 	ui UI = new ui();
 	
-	private volatile float[] par;
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         final Para faustDspParameters = faustClass.initFaust();
         final int nParameters = faustDspParameters.getCnt();
-        par = new float[nParameters];
         
-        UI.getJSONParameters(this);
+        LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
+        
+        if (savedInstanceState != null) UI.initUI(nParameters,savedInstanceState.getFloatArray(SAVED_PARAMETERS));
+        else UI.initUI(nParameters,null);
+        	
+        UI.buildUI(this, mainGroup);
         
         thread = new Thread() {
 			public void run() {
 				setPriority(Thread.MAX_PRIORITY);
 				faustClass.startAudio();
 				SWIGTYPE_p_float paramValues = faustObject.new_floatArray(nParameters);
-				par[0] = 2000.0f;
-				par[1] = -10.0f;
 				
 				//System.out.println("Here:" + nbParams);
 				while(on){
 					for(int i = 0; i<nParameters; i++){
-						faustObject.floatArray_setitem(paramValues, i, par[i]);
+						faustObject.floatArray_setitem(paramValues, i, UI.parametersValues[i]);
 					}
 					faustClass.setParam(paramValues);
 					faustClass.processDSP();
@@ -69,6 +72,12 @@ public class faust extends Activity {
 		};
 		test.start();
 		*/
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putFloatArray(SAVED_PARAMETERS, UI.parametersValues);
+        super.onSaveInstanceState(savedInstanceState);
     }
     
     public void onDestroy(){
