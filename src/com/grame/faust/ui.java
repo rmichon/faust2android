@@ -33,6 +33,8 @@ import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.VerticalSeekBar;
 
+//import com.triggertrap.seekarc.SeekArc; 
+
 public class ui{
 	/*
 	 * Global Variables (accessible from outside the class).
@@ -42,14 +44,15 @@ public class ui{
 	// the values of the different UI elements 
 	float[] parametersValues;
 	// incremented every time a new parameter is created
-	int parameterNumber = 0;//, screenSizeX = 0, screenSizeY = 0;
+	int parameterNumber = 0, horizontalZoom = 0;
 	boolean isSavedParameters;
 	
 	/*
 	 * Initialize parametersValues in function of the total
 	 * number of parameters.
 	 */
-	public void initUI(int nParameters, float[] savedParameters){
+	public void initUI(int nParameters, float[] savedParameters, int viewZoom){
+		horizontalZoom = viewZoom;
 		parametersValues = new float[nParameters];
 		if(savedParameters != null){ 
 			parametersValues = savedParameters;
@@ -106,7 +109,7 @@ public class ui{
 		Point size = new Point();
 		display.getSize(size);
 		JSONArray uiArray = getJSONui(c);
-		parseJSON(c,uiArray,mainGroup,groupLevel,0,size.x);
+		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(size.x*(1+horizontalZoom*0.1f)));
 	}
 
 	public void parseJSON(Context c, JSONArray uiArray, LinearLayout currentGroup, 
@@ -267,6 +270,12 @@ public class ui{
 	    sliderLayout.addView(slider);
 	    localVerticalGroup.addView(sliderLayout);
 	    currentGroup.addView(localVerticalGroup);
+	}
+	
+	public void knob(Context c, LinearLayout currentGroup, final String label, float init, 
+			final float min, final float max, final float step, int currentGroupLevel, 
+			int nItemsUpperLevel, int currentScreenSize){
+		//SeekArc slider = new SeekArc(c);
 	}
 	
 	/*

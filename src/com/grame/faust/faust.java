@@ -7,15 +7,20 @@ import com.grame.faust_dsp.faust_dsp;
 import com.grame.faust_dsp.Para;
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 public class faust extends Activity {
 	static final String SAVED_PARAMETERS = "savedParameters";
+	static final String VIEW_ZOOM = "viewZoom";
 	
 	Thread thread;
 	boolean on = true; // process on/off
+	int viewZoom = 0;
 	
-	faustObject faustClass = new faustObject();
+	faustObject faustClass = new faustObject(); 
 	faust_dsp faustObject = new faust_dsp();
 	
 	ui UI = new ui(); 
@@ -29,8 +34,11 @@ public class faust extends Activity {
         
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
         
-        if (savedInstanceState != null) UI.initUI(nParameters,savedInstanceState.getFloatArray(SAVED_PARAMETERS));
-        else UI.initUI(nParameters,null);
+        if (savedInstanceState != null){
+        	viewZoom = savedInstanceState.getInt(VIEW_ZOOM);
+        	UI.initUI(nParameters,savedInstanceState.getFloatArray(SAVED_PARAMETERS),viewZoom);
+        }
+        else UI.initUI(nParameters,null,viewZoom);
         	
         UI.buildUI(this, mainGroup);
         
@@ -75,8 +83,36 @@ public class faust extends Activity {
     }
     
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_activity_actions, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_zoomin:
+            	viewZoom++;
+                recreate();
+                return true;
+            case R.id.action_zoomout:
+            	if(viewZoom > 0){
+            		viewZoom--;
+            		recreate();
+            	}
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putFloatArray(SAVED_PARAMETERS, UI.parametersValues);
+        savedInstanceState.putInt(VIEW_ZOOM, viewZoom);
         super.onSaveInstanceState(savedInstanceState);
     }
     

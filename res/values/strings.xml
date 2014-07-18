@@ -1,5 +1,7 @@
 <resources>
 
     <string name="app_name">Faust</string>
+    <string name="zoomin">Zoom In</string>
+    <string name="zoomout">Zoom Out</string>
 
 </resources>
