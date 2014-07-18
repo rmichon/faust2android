@@ -24,48 +24,292 @@
 	"ui": [ 
 		{
 			"type": "vgroup",
-			"label":"osc",
+			"label":"multiOsc",
 			"items": [ 
 				{
 					"type": "hgroup",
-					"label":"Parameters",
+					"label":"Synth",
 					"items": [ 
 						{
 							"type": "vgroup",
-							"label":"Frequency Group",
+							"label":"Band0",
 							"items": [ 
 								{
 									"type": "hslider",
-									"label": "freq",
-									"address": "/osc/Parameters/Frequency_Group/freq",
-									"init": "1000",
-									"min": "300",
-									"max": "3000",
-									"step": "1"
+									"label": "freq 0",
+									"address": "/multiOsc/Synth/Band0/freq_0",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "300",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band0/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
 								}
 							]
 						},
 						{
 							"type": "vgroup",
-							"label":"Gain Group",
+							"label":"Band1",
 							"items": [ 
 								{
 									"type": "hslider",
-									"label": "volume",
-									"address": "/osc/Parameters/Gain_Group/volume",
-									"init": "-10",
-									"min": "-96",
-									"max": "0",
+									"label": "freq 1",
+									"address": "/multiOsc/Synth/Band1/freq_1",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "600",
+									"min": "200",
+									"max": "5000",
 									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band1/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
+								}
+							]
+						},
+						{
+							"type": "vgroup",
+							"label":"Band2",
+							"items": [ 
+								{
+									"type": "hslider",
+									"label": "freq 2",
+									"address": "/multiOsc/Synth/Band2/freq_2",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "900",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band2/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
+								}
+							]
+						},
+						{
+							"type": "vgroup",
+							"label":"Band3",
+							"items": [ 
+								{
+									"type": "hslider",
+									"label": "freq 3",
+									"address": "/multiOsc/Synth/Band3/freq_3",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "1200",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band3/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
+								}
+							]
+						},
+						{
+							"type": "vgroup",
+							"label":"Band4",
+							"items": [ 
+								{
+									"type": "hslider",
+									"label": "freq 4",
+									"address": "/multiOsc/Synth/Band4/freq_4",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "1500",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band4/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
+								}
+							]
+						},
+						{
+							"type": "vgroup",
+							"label":"Band5",
+							"items": [ 
+								{
+									"type": "hslider",
+									"label": "freq 5",
+									"address": "/multiOsc/Synth/Band5/freq_5",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "1800",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band5/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
+								}
+							]
+						},
+						{
+							"type": "vgroup",
+							"label":"Band6",
+							"items": [ 
+								{
+									"type": "hslider",
+									"label": "freq 6",
+									"address": "/multiOsc/Synth/Band6/freq_6",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "2100",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band6/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
+								}
+							]
+						},
+						{
+							"type": "vgroup",
+							"label":"Band7",
+							"items": [ 
+								{
+									"type": "hslider",
+									"label": "freq 7",
+									"address": "/multiOsc/Synth/Band7/freq_7",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "2400",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band7/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
+								}
+							]
+						},
+						{
+							"type": "vgroup",
+							"label":"Band8",
+							"items": [ 
+								{
+									"type": "hslider",
+									"label": "freq 8",
+									"address": "/multiOsc/Synth/Band8/freq_8",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "2700",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band8/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
+								}
+							]
+						},
+						{
+							"type": "vgroup",
+							"label":"Band9",
+							"items": [ 
+								{
+									"type": "hslider",
+									"label": "freq 9",
+									"address": "/multiOsc/Synth/Band9/freq_9",
+									"meta": [
+										{ "style": "knob"}
+									],
+									"init": "3000",
+									"min": "200",
+									"max": "5000",
+									"step": "0.1"
+								},
+								{
+									"type": "vslider",
+									"label": "gain",
+									"address": "/multiOsc/Synth/Band9/gain",
+									"init": "0.8",
+									"min": "0",
+									"max": "1",
+									"step": "0.01"
 								}
 							]
 						}
 					]
 				},
 				{
-					"type": "button",
-					"label": "gate",
-					"address": "/osc/gate"
+					"type": "hslider",
+					"label": "mainGain",
+					"address": "/multiOsc/mainGain",
+					"init": "0.8",
+					"min": "0",
+					"max": "1",
+					"step": "0.01"
 				}
 			]
 		}

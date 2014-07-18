@@ -11,9 +11,11 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.VerticalSeekBar;
 
 public class ui{
 	/*
@@ -39,7 +42,7 @@ public class ui{
 	// the values of the different UI elements 
 	float[] parametersValues;
 	// incremented every time a new parameter is created
-	int parameterNumber = 0;
+	int parameterNumber = 0;//, screenSizeX = 0, screenSizeY = 0;
 	boolean isSavedParameters;
 	
 	/*
@@ -98,33 +101,51 @@ public class ui{
 	 */
 	public void buildUI(Context c, LinearLayout mainGroup){
 		int groupLevel = 0;
+		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
 		JSONArray uiArray = getJSONui(c);
-		parseJSON(c,uiArray,mainGroup,groupLevel);
+		parseJSON(c,uiArray,mainGroup,groupLevel,0,size.x);
 	}
-	
 
-	public void parseJSON(Context c, JSONArray uiArray, LinearLayout currentGroup, int currentGroupLevel){
-		int nItemsTopLevel = uiArray.length();
+	public void parseJSON(Context c, JSONArray uiArray, LinearLayout currentGroup, 
+			int currentGroupLevel, int currentGroupType, int currentScreenSize){
+		int nItemsTopLevel = uiArray.length(), groupDivisions;
 		JSONObject currentObject = new JSONObject();
 		JSONArray currentArray = new JSONArray();
+		if(currentGroupType == 0) groupDivisions = 1;
+		else groupDivisions = nItemsTopLevel;
 		try {
 			for(int i=0; i<nItemsTopLevel; i++){
 				currentObject = uiArray.getJSONObject(i);
 				//System.out.println("voila: " + currentObject.getString("type"));
 				if(currentObject.getString("type").equals("vgroup")){
 					currentArray = currentObject.getJSONArray("items");
-					vgroup(c,currentArray,currentGroup,currentObject.getString("label"),currentGroupLevel);
+					vgroup(c,currentArray,currentGroup,currentObject.getString("label"),
+							currentGroupLevel,groupDivisions,currentScreenSize);
 				}
 				else if(currentObject.getString("type").equals("hgroup")){
 					currentArray = currentObject.getJSONArray("items");
-					hgroup(c,currentArray,currentGroup,currentObject.getString("label"),currentGroupLevel);
+					hgroup(c,currentArray,currentGroup,currentObject.getString("label"),
+							currentGroupLevel,groupDivisions,currentScreenSize);
+				}
+				else if(currentObject.getString("type").equals("vslider")){
+					vslider(c,currentGroup,currentObject.getString("label"), 
+							Float.parseFloat(currentObject.getString("init")), 
+							Float.parseFloat(currentObject.getString("min")), 
+							Float.parseFloat(currentObject.getString("max")),
+							Float.parseFloat(currentObject.getString("step")),
+							currentGroupLevel,groupDivisions,currentScreenSize);
+					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("hslider")){
 					hslider(c,currentGroup,currentObject.getString("label"), 
 							Float.parseFloat(currentObject.getString("init")), 
 							Float.parseFloat(currentObject.getString("min")), 
 							Float.parseFloat(currentObject.getString("max")),
-							Float.parseFloat(currentObject.getString("step")));
+							Float.parseFloat(currentObject.getString("step")),
+							currentGroupLevel,groupDivisions,currentScreenSize);
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("nentry")){
@@ -132,15 +153,18 @@ public class ui{
 							Float.parseFloat(currentObject.getString("init")), 
 							Float.parseFloat(currentObject.getString("min")), 
 							Float.parseFloat(currentObject.getString("max")),
-							Float.parseFloat(currentObject.getString("step")));
+							Float.parseFloat(currentObject.getString("step")),
+							currentGroupLevel,groupDivisions,currentScreenSize);
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("button")){
-					button(c,currentGroup,currentObject.getString("label"));
+					button(c,currentGroup,currentObject.getString("label"),
+							currentGroupLevel,groupDivisions,currentScreenSize);
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("checkbox")){
-					checkbox(c,currentGroup,currentObject.getString("label"));
+					checkbox(c,currentGroup,currentObject.getString("label"),
+							currentGroupLevel,groupDivisions,currentScreenSize);
 					parameterNumber++;
 				}
 			}
@@ -153,14 +177,21 @@ public class ui{
 	 * Create a horizontal slider and add it to currentGroup
 	 */
 	public void hslider(Context c, LinearLayout currentGroup, final String label, float init, 
-			final float min, final float max, final float step){
-		// TODO: we're still using the old style, the overall design of the interface should be improved
+			final float min, final float max, final float step, int currentGroupLevel, 
+			int nItemsUpperLevel, int currentScreenSize){
 		final int currentParameterNumber = parameterNumber;
+		LinearLayout localVerticalGroup = new LinearLayout(c);
 		SeekBar slider = new SeekBar(c);
+		int padding = 10*currentScreenSize/800;
+		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		
 		LayoutParams sliderParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
 		slider.setLayoutParams(sliderParameters);
-		slider.setPadding(20, 8, 8, 20);
+		
+		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		
+		//slider.setPadding(20, 8, 8, 20); TODO: not sure why this is here...
 		slider.setMax(Math.round((max-min)*(1/step)));
 		if(isSavedParameters) init = parametersValues[currentParameterNumber];
 		else parametersValues[currentParameterNumber] = init;
@@ -170,7 +201,7 @@ public class ui{
 		final TextView textLabel = new TextView(c);
 		textLabel.setLayoutParams(sliderParameters);
 		textLabel.setText(label+": " + Float.toString(init));
-		currentGroup.addView(textLabel);
+		localVerticalGroup.addView(textLabel);
 		
 		OnSeekBarChangeListener sliderListener = new OnSeekBarChangeListener() {
 			public void onStopTrackingTouch(SeekBar seekBar) {}
@@ -181,17 +212,79 @@ public class ui{
 	          }
 	    };
 	    slider.setOnSeekBarChangeListener(sliderListener);
-	    currentGroup.addView(slider);
+	    localVerticalGroup.addView(slider);
+	    currentGroup.addView(localVerticalGroup);
+	}
+	
+	public void vslider(Context c, LinearLayout currentGroup, final String label, float init, 
+			final float min, final float max, final float step, int currentGroupLevel, 
+			int nItemsUpperLevel, int currentScreenSize){
+		final int currentParameterNumber = parameterNumber;
+		LinearLayout localVerticalGroup = new LinearLayout(c);
+		LinearLayout sliderLayout = new LinearLayout(c);
+		VerticalSeekBar slider = new VerticalSeekBar(c);
+		int padding = 10*currentScreenSize/800;
+		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		int sliderHeight = 300;
+		//System.out.println("voila: " + slider.getHeight());
+		
+		LayoutParams sliderParameters = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, sliderHeight);
+		slider.setLayoutParams(sliderParameters);
+		sliderLayout.setGravity(Gravity.CENTER);
+		
+		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		LayoutParams localVerticalGroupParameters = new ViewGroup.LayoutParams(
+				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
+		localVerticalGroup.setLayoutParams(localVerticalGroupParameters);
+		
+		slider.setMax(Math.round((max-min)*(1/step)));
+		if(isSavedParameters) init = parametersValues[currentParameterNumber];
+		else parametersValues[currentParameterNumber] = init;
+		if(init<=0 && min<0) slider.setProgress(Math.round((init-min)*(1/step)));
+		else slider.setProgress(Math.round((init+min)*(1/step)));
+		
+		final TextView textValue = new TextView(c);
+		final TextView textLabel = new TextView(c);
+		textValue.setLayoutParams(localVerticalGroupParameters);
+		textLabel.setLayoutParams(localVerticalGroupParameters);
+		textValue.setText(Float.toString(init));
+		textLabel.setText(label);
+		textValue.setGravity(Gravity.CENTER);
+		textLabel.setGravity(Gravity.CENTER);
+		localVerticalGroup.addView(textLabel);
+		localVerticalGroup.addView(textValue);
+		
+		OnSeekBarChangeListener sliderListener = new OnSeekBarChangeListener() {
+			public void onStopTrackingTouch(SeekBar seekBar) {}
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				parametersValues[currentParameterNumber] = (float) progress*step + min;
+				textValue.setText(Float.toString(parametersValues[currentParameterNumber]));
+	          }
+	    };
+	    slider.setOnSeekBarChangeListener(sliderListener);
+	    sliderLayout.addView(slider);
+	    localVerticalGroup.addView(sliderLayout);
+	    currentGroup.addView(localVerticalGroup);
 	}
 	
 	/*
 	 * Create a nentry and add it to the current group
 	 */
+	// TODO: nentry are not centered in their group: should try to find a way
+	// to do that but not really trivial...
+	// TODO: instead of building the whole interface using with LinearLayouts,
+	// it might be a better choice to use a TableLayout...
 	public void nentry(Context c, LinearLayout currentGroup, final String label, 
-			final float init, final float min, final float max, final float step){
-		// TODO: old interface... should be updated
+			final float init, final float min, final float max, final float step,
+			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
 		final int currentParameterNumber = parameterNumber;
+		LinearLayout localHorizontalGroup = new LinearLayout(c);
 		final EditText nentry = new EditText(c);
+		int padding = 10*currentScreenSize/800;
+		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		
 		LayoutParams nentryParameters = new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		nentry.setLayoutParams(nentryParameters);
@@ -199,10 +292,15 @@ public class ui{
 		nentry.setText(Float.toString(init));
 		parametersValues[currentParameterNumber] = init;
 		
+		LayoutParams localHorizontalGroupParameters = new ViewGroup.LayoutParams(
+				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
+		localHorizontalGroup.setLayoutParams(localHorizontalGroupParameters);
+		localHorizontalGroup.setOrientation(LinearLayout.HORIZONTAL);		
+		
 		TextView textLabel = new TextView(c);
 		textLabel.setLayoutParams(nentryParameters);
 		textLabel.setText(label+":");
-		currentGroup.addView(textLabel);
+		localHorizontalGroup.addView(textLabel);
 		
 		TextWatcher textWatcher = new TextWatcher() { 
 		    @Override
@@ -223,21 +321,25 @@ public class ui{
 		};
 		nentry.addTextChangedListener(textWatcher);
 		
-		currentGroup.addView(nentry);
+		localHorizontalGroup.addView(nentry);
+		currentGroup.addView(localHorizontalGroup);
 	}
 	
 	/*
 	 * Create a button and add it to currentGroup
 	 */
-	public void button(Context c, LinearLayout currentGroup, final String label){
-		// TODO: same story than for the other UI elements: should be improved
+	public void button(Context c, LinearLayout currentGroup, final String label,
+			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
 		final int currentParameterNumber = parameterNumber;
 		Button button = new Button(c);
+		int padding = 10*currentScreenSize/800;
+		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		
 		LayoutParams buttonParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
 		button.setLayoutParams(buttonParameters);
 		button.setText(label);
-        button.setTextColor(Color.BLACK);
+        button.setTextColor(Color.WHITE);
         
         button.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -257,11 +359,15 @@ public class ui{
 	/*
 	 * Create a checkbox and it to currentGroup
 	 */
-	public void checkbox(Context c, LinearLayout currentGroup, final String label){
+	public void checkbox(Context c, LinearLayout currentGroup, final String label,
+			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
 		final int currentParameterNumber = parameterNumber;
 		CheckBox checkbox = new CheckBox(c);
+		int padding = 10*currentScreenSize/800;
+		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		
 		LayoutParams checkboxParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
 		checkbox.setLayoutParams(checkboxParameters);
 		checkbox.setText(label);
 		parametersValues[currentParameterNumber] = 0.0f;
@@ -280,65 +386,62 @@ public class ui{
 	/*
 	 * Create a vertical group and add it to currentGroup
 	 */
+	// TODO we think that the padding issue has been solved...
 	public void vgroup(Context c, JSONArray currentArray, LinearLayout currentGroup, String label, 
-			int currentGroupLevel){
+			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
 		LinearLayout localGroup = new LinearLayout(c);
 		int localGroupLevel = currentGroupLevel+1;
-		
-		/*
+		int padding = 10*currentScreenSize/800;
+		// TODO: but why 0.15?
+		int localScreenSize = Math.round(currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel*0.15f));
+			
 		LayoutParams localGroupParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
 		localGroup.setLayoutParams(localGroupParameters);
-		*/
 		
-		// TODO: reusing previous template but this could be improved 
 		localGroup.setOrientation(LinearLayout.VERTICAL);
 		localGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
-		localGroup.setPadding(10,10,10,10);
+		localGroup.setPadding(padding,padding,padding,padding);
 		
-		// TODO: reusing previous template but this could be improved
 		TextView textLabel = new TextView(c);
-		LayoutParams textLabelParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		textLabel.setLayoutParams(textLabelParameters);
+		textLabel.setLayoutParams(localGroupParameters);
 		textLabel.setText(label);
-		textLabel.setTextSize(24.f);
+		textLabel.setTextSize(22.f);
 		localGroup.addView(textLabel);
 		
 		currentGroup.addView(localGroup);
-		parseJSON(c,currentArray,localGroup,localGroupLevel);
+		parseJSON(c,currentArray,localGroup,localGroupLevel,0,localScreenSize);
 	}
 	
 	/*
 	 * Create a horizontal group and add it to currentGroup
 	 */
 	public void hgroup(Context c, JSONArray currentArray, LinearLayout currentGroup, String label, 
-			int currentGroupLevel){
+			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
 		LinearLayout localGroup = new LinearLayout(c);
+		LinearLayout localVerticalGroup = new LinearLayout(c);
 		int localGroupLevel = currentGroupLevel+1;
+		int padding = 10*currentScreenSize/800;
+		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
 		
-		/*
 		LayoutParams localGroupParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
 		localGroup.setLayoutParams(localGroupParameters);
-		*/
+		localGroup.setOrientation(LinearLayout.HORIZONTAL);
 		
-		// TODO: reusing previous template but this could be improved 
-		localGroup.setOrientation(LinearLayout.VERTICAL);
-		localGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
-		localGroup.setPadding(10,10,10,10);
+		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		localVerticalGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
+		localVerticalGroup.setPadding(padding,padding,padding,padding);
 		
-		// TODO: reusing previous template but this could be improved
 		TextView textLabel = new TextView(c);
-		LayoutParams textLabelParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		textLabel.setLayoutParams(textLabelParameters);
+		textLabel.setLayoutParams(localGroupParameters);
 		textLabel.setText(label);
-		textLabel.setTextSize(24.f);
-		localGroup.addView(textLabel);
+		textLabel.setTextSize(22.f);
 		
-		currentGroup.addView(localGroup);
-		parseJSON(c,currentArray,localGroup,localGroupLevel);
+		localVerticalGroup.addView(textLabel);
+		localVerticalGroup.addView(localGroup);
+		currentGroup.addView(localVerticalGroup);
+		parseJSON(c,currentArray,localGroup,localGroupLevel,1,localScreenSize);
 	}
 	
 	/*
