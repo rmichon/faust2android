@@ -12,6 +12,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.shapes.RectShape;
+import android.graphics.drawable.shapes.Shape;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -33,7 +35,8 @@ import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.VerticalSeekBar;
 
-//import com.triggertrap.seekarc.SeekArc; 
+import com.triggertrap.seekarc.SeekArc; 
+import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
 
 public class ui{
 	/*
@@ -275,7 +278,41 @@ public class ui{
 	public void knob(Context c, LinearLayout currentGroup, final String label, float init, 
 			final float min, final float max, final float step, int currentGroupLevel, 
 			int nItemsUpperLevel, int currentScreenSize){
-		//SeekArc slider = new SeekArc(c);
+		final int currentParameterNumber = parameterNumber;
+		LinearLayout localVerticalGroup = new LinearLayout(c);
+		SeekArc slider = new SeekArc(c);
+		int padding = 10*currentScreenSize/800;
+		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		
+		LayoutParams sliderParameters = new ViewGroup.LayoutParams(
+				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
+		slider.setLayoutParams(sliderParameters);
+		
+		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		
+		//slider.setMax(Math.round((max-min)*(1/step)));
+		if(isSavedParameters) init = parametersValues[currentParameterNumber];
+		else parametersValues[currentParameterNumber] = init;
+		if(init<=0 && min<0) slider.setProgress(Math.round((init-min)*(1/step)));
+		else slider.setProgress(Math.round((init+min)*(1/step)));
+		
+		final TextView textLabel = new TextView(c);
+		textLabel.setLayoutParams(sliderParameters);
+		textLabel.setText(label+": " + Float.toString(init));
+		localVerticalGroup.addView(textLabel);
+		
+		OnSeekArcChangeListener sliderListener = new OnSeekArcChangeListener() {
+			public void onStopTrackingTouch(SeekArc seekArc) {}
+			public void onStartTrackingTouch(SeekArc seekArc) {}
+			public void onProgressChanged(SeekArc seekArc, int progress, boolean fromUser) {
+				parametersValues[currentParameterNumber] = (float) progress*step + min;
+				textLabel.setText(label+": " + Float.toString(parametersValues[currentParameterNumber]));
+	          }
+	    };
+	    
+	    slider.setOnSeekArcChangeListener(sliderListener);
+	    localVerticalGroup.addView(slider);
+	    currentGroup.addView(localVerticalGroup);
 	}
 	
 	/*
@@ -395,18 +432,25 @@ public class ui{
 	/*
 	 * Create a vertical group and add it to currentGroup
 	 */
-	// TODO we think that the padding issue has been solved...
+	// TODO the frame around the layout is created using a sub layout:
+	// not sure if this is the most efficient way to do it...
 	public void vgroup(Context c, JSONArray currentArray, LinearLayout currentGroup, String label, 
 			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
+		LinearLayout frame = new LinearLayout(c);
 		LinearLayout localGroup = new LinearLayout(c);
 		int localGroupLevel = currentGroupLevel+1;
 		int padding = 10*currentScreenSize/800;
-		// TODO: but why 0.15?
-		int localScreenSize = Math.round(currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel*0.15f));
+		// TODO: but why 0.151?
+		int localScreenSize = Math.round(currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel*0.151f));
 			
 		LayoutParams localGroupParameters = new ViewGroup.LayoutParams(
 				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
 		localGroup.setLayoutParams(localGroupParameters);
+		
+		frame.setLayoutParams(localGroupParameters);
+		frame.setOrientation(LinearLayout.VERTICAL);
+		frame.setBackgroundColor(Color.rgb(100,100,100));
+		frame.setPadding(1,1,1,1);
 		
 		localGroup.setOrientation(LinearLayout.VERTICAL);
 		localGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
@@ -418,7 +462,8 @@ public class ui{
 		textLabel.setTextSize(22.f);
 		localGroup.addView(textLabel);
 		
-		currentGroup.addView(localGroup);
+		frame.addView(localGroup);
+		currentGroup.addView(frame);
 		parseJSON(c,currentArray,localGroup,localGroupLevel,0,localScreenSize);
 	}
 	
@@ -427,6 +472,7 @@ public class ui{
 	 */
 	public void hgroup(Context c, JSONArray currentArray, LinearLayout currentGroup, String label, 
 			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
+		LinearLayout frame = new LinearLayout(c);
 		LinearLayout localGroup = new LinearLayout(c);
 		LinearLayout localVerticalGroup = new LinearLayout(c);
 		int localGroupLevel = currentGroupLevel+1;
@@ -437,6 +483,10 @@ public class ui{
 				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
 		localGroup.setLayoutParams(localGroupParameters);
 		localGroup.setOrientation(LinearLayout.HORIZONTAL);
+		
+		frame.setOrientation(LinearLayout.VERTICAL);
+		frame.setBackgroundColor(Color.rgb(100,100,100));
+		frame.setPadding(1,1,1,1);
 		
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
 		localVerticalGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
@@ -449,7 +499,8 @@ public class ui{
 		
 		localVerticalGroup.addView(textLabel);
 		localVerticalGroup.addView(localGroup);
-		currentGroup.addView(localVerticalGroup);
+		frame.addView(localVerticalGroup);
+		currentGroup.addView(frame);
 		parseJSON(c,currentArray,localGroup,localGroupLevel,1,localScreenSize);
 	}
 	
