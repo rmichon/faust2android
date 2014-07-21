@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -29,6 +32,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -37,6 +41,13 @@ import android.widget.VerticalSeekBar;
 
 import com.triggertrap.seekarc.SeekArc; 
 import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
+
+/*
+ * TODO: make sure that all the elements of the interface have a size that
+ * varies in function of the definition of the screen...
+ * TODO: find a way to adjust the screen size in function of the number of 
+ * elements present in it.
+ */
 
 public class ui{
 	/*
@@ -47,7 +58,7 @@ public class ui{
 	// the values of the different UI elements 
 	float[] parametersValues;
 	// incremented every time a new parameter is created
-	int parameterNumber = 0, horizontalZoom = 0;
+	int parameterNumber = 0, horizontalZoom = 0, screenSizeX = 0;
 	boolean isSavedParameters;
 	
 	/*
@@ -111,8 +122,30 @@ public class ui{
 		Display display = wm.getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
+		screenSizeX = size.x;
 		JSONArray uiArray = getJSONui(c);
-		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(size.x*(1+horizontalZoom*0.1f)));
+		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(screenSizeX*(1+horizontalZoom*0.1f)));
+	}
+	
+	public String parseJSONMetaData(JSONObject object, String member){	
+		JSONArray currentArray = new JSONArray();
+		JSONObject currentObject = new JSONObject();
+		String value = new String();
+		try {
+			currentArray = object.getJSONArray("meta");
+			int length = currentArray.length();
+			for(int i=0; i<length; i++){
+				currentObject = currentArray.getJSONObject(i);
+				try{
+					value = currentObject.getString(member);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return value;
 	}
 
 	public void parseJSON(Context c, JSONArray uiArray, LinearLayout currentGroup, 
@@ -125,7 +158,6 @@ public class ui{
 		try {
 			for(int i=0; i<nItemsTopLevel; i++){
 				currentObject = uiArray.getJSONObject(i);
-				//System.out.println("voila: " + currentObject.getString("type"));
 				if(currentObject.getString("type").equals("vgroup")){
 					currentArray = currentObject.getJSONArray("items");
 					vgroup(c,currentArray,currentGroup,currentObject.getString("label"),
@@ -137,21 +169,41 @@ public class ui{
 							currentGroupLevel,groupDivisions,currentScreenSize);
 				}
 				else if(currentObject.getString("type").equals("vslider")){
-					vslider(c,currentGroup,currentObject.getString("label"), 
-							Float.parseFloat(currentObject.getString("init")), 
-							Float.parseFloat(currentObject.getString("min")), 
-							Float.parseFloat(currentObject.getString("max")),
-							Float.parseFloat(currentObject.getString("step")),
-							currentGroupLevel,groupDivisions,currentScreenSize);
+					if(parseJSONMetaData(currentObject, "style").equals("knob")){
+						knob(c,currentGroup,currentObject.getString("label"), 
+								Float.parseFloat(currentObject.getString("init")), 
+								Float.parseFloat(currentObject.getString("min")), 
+								Float.parseFloat(currentObject.getString("max")), 
+								Float.parseFloat(currentObject.getString("step")), 
+								currentGroupLevel,groupDivisions,currentScreenSize);
+					}
+					else{
+						vslider(c,currentGroup,currentObject.getString("label"), 
+								Float.parseFloat(currentObject.getString("init")), 
+								Float.parseFloat(currentObject.getString("min")), 
+								Float.parseFloat(currentObject.getString("max")), 
+								Float.parseFloat(currentObject.getString("step")), 
+								currentGroupLevel,groupDivisions,currentScreenSize);	
+					}
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("hslider")){
-					hslider(c,currentGroup,currentObject.getString("label"), 
-							Float.parseFloat(currentObject.getString("init")), 
-							Float.parseFloat(currentObject.getString("min")), 
-							Float.parseFloat(currentObject.getString("max")),
-							Float.parseFloat(currentObject.getString("step")),
-							currentGroupLevel,groupDivisions,currentScreenSize);
+					if(parseJSONMetaData(currentObject, "style").equals("knob")){
+						knob(c,currentGroup,currentObject.getString("label"), 
+								Float.parseFloat(currentObject.getString("init")), 
+								Float.parseFloat(currentObject.getString("min")), 
+								Float.parseFloat(currentObject.getString("max")), 
+								Float.parseFloat(currentObject.getString("step")), 
+								currentGroupLevel,groupDivisions,currentScreenSize);
+					}
+					else{
+						hslider(c,currentGroup,currentObject.getString("label"), 
+								Float.parseFloat(currentObject.getString("init")), 
+								Float.parseFloat(currentObject.getString("min")), 
+								Float.parseFloat(currentObject.getString("max")), 
+								Float.parseFloat(currentObject.getString("step")), 
+								currentGroupLevel,groupDivisions,currentScreenSize);	
+					}
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("nentry")){
@@ -177,6 +229,13 @@ public class ui{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		// TODO: apparently, that's the normal way to handle this, but it's not very practical
+		// in our case.
+		/*
+		catch (JSONException e) {
+	         throw new RuntimeException(e);
+	     }
+	     */
 	}
 	
 	/*
@@ -225,129 +284,214 @@ public class ui{
 	public void vslider(Context c, LinearLayout currentGroup, final String label, float init, 
 			final float min, final float max, final float step, int currentGroupLevel, 
 			int nItemsUpperLevel, int currentScreenSize){
-		final int currentParameterNumber = parameterNumber;
+		// the main layout for this view (containing both the slider, its value and its name)
 		LinearLayout localVerticalGroup = new LinearLayout(c);
+		// layout containing the slider and its value
 		LinearLayout sliderLayout = new LinearLayout(c);
+		// the slider
 		VerticalSeekBar slider = new VerticalSeekBar(c);
-		int padding = 10*currentScreenSize/800;
-		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
-		int sliderHeight = 300;
-		//System.out.println("voila: " + slider.getHeight());
+		// the value of the slider
+		final TextView textValue = new TextView(c);
+		// the name of the parameter
+		final TextView textLabel = new TextView(c);
 		
-		LayoutParams sliderParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, sliderHeight);
-		slider.setLayoutParams(sliderParameters);
+		// index for the parameters values array
+		final int currentParameterNumber = parameterNumber;
+		
+		// the slider height is hard coded and adapted in function
+		// of the screen size
+		int sliderHeight = 230*screenSizeX/800;
+		
+		slider.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, sliderHeight));
+
 		sliderLayout.setGravity(Gravity.CENTER);
+		sliderLayout.setOrientation(LinearLayout.VERTICAL);
 		
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		LayoutParams localVerticalGroupParameters = new ViewGroup.LayoutParams(
-				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
-		localVerticalGroup.setLayoutParams(localVerticalGroupParameters);
+		localVerticalGroup.setGravity(Gravity.CENTER);
 		
+		// if parameters were saved, then they replace init
 		slider.setMax(Math.round((max-min)*(1/step)));
 		if(isSavedParameters) init = parametersValues[currentParameterNumber];
 		else parametersValues[currentParameterNumber] = init;
 		if(init<=0 && min<0) slider.setProgress(Math.round((init-min)*(1/step)));
 		else slider.setProgress(Math.round((init+min)*(1/step)));
-		
-		final TextView textValue = new TextView(c);
-		final TextView textLabel = new TextView(c);
-		textValue.setLayoutParams(localVerticalGroupParameters);
-		textLabel.setLayoutParams(localVerticalGroupParameters);
-		textValue.setText(Float.toString(init));
+	
+		// the number of decimals of the displayed value of the knob is
+		// defined by step
+		int decimals = 0;
+		if(step>=1) decimals = 1;
+		else if(step<1 && step>=0.1) decimals = 1;
+		else decimals = 2;
+		final String decimalsDisplay = "%."+decimals+"f";		
+				
+		textValue.setText(String.format(decimalsDisplay, init));
 		textLabel.setText(label);
 		textValue.setGravity(Gravity.CENTER);
 		textLabel.setGravity(Gravity.CENTER);
-		localVerticalGroup.addView(textLabel);
-		localVerticalGroup.addView(textValue);
 		
+		// listener...
 		OnSeekBarChangeListener sliderListener = new OnSeekBarChangeListener() {
 			public void onStopTrackingTouch(SeekBar seekBar) {}
 			public void onStartTrackingTouch(SeekBar seekBar) {}
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				parametersValues[currentParameterNumber] = (float) progress*step + min;
-				textValue.setText(Float.toString(parametersValues[currentParameterNumber]));
+				textValue.setText(String.format(decimalsDisplay, parametersValues[currentParameterNumber]));
 	          }
 	    };
+	    
+	    // putting things together...
 	    slider.setOnSeekBarChangeListener(sliderListener);
 	    sliderLayout.addView(slider);
+	    sliderLayout.addView(textValue);
 	    localVerticalGroup.addView(sliderLayout);
+	    localVerticalGroup.addView(textLabel);
 	    currentGroup.addView(localVerticalGroup);
 	}
 	
 	public void knob(Context c, LinearLayout currentGroup, final String label, float init, 
 			final float min, final float max, final float step, int currentGroupLevel, 
-			int nItemsUpperLevel, int currentScreenSize){
-		final int currentParameterNumber = parameterNumber;
+			int nItemsUpperLevel, int upperViewWidth){
+		// the main layout for this view (containing both the knob, its value and its name)
 		LinearLayout localVerticalGroup = new LinearLayout(c);
-		SeekArc slider = new SeekArc(c);
-		int padding = 10*currentScreenSize/800;
-		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		// layout to create a frame around the parameter view
+		LinearLayout frame = new LinearLayout(c);
+		// the layout containing the knob and its value
+		FrameLayout knobGroup = new FrameLayout(c);
+		// the knob
+		SeekArc knob = new SeekArc(c);
+		// the value of the knob to be displayed in the knob
+		final TextView textValue = new TextView(c);
+		// the name of the parameter
+		final TextView textLabel = new TextView(c);
 		
-		LayoutParams sliderParameters = new ViewGroup.LayoutParams(
-				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
-		slider.setLayoutParams(sliderParameters);
+		// index for the parameters values array 
+		final int currentParameterNumber = parameterNumber;
+		
+		// the padding and the width of the view are calculated in function of the size of 
+		// the view at the upper level
+		int padding = 60*upperViewWidth/800;
+		int localViewWidth = upperViewWidth/nItemsUpperLevel-(padding*currentGroupLevel);
+		
+		// as the size of the knob is defined by the size of the layout it is in,
+		// the height of knobGroup has to be "hard coded"
+		knobGroup.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, localViewWidth-padding));
+		// because we want textValue to be centered at the middle of the knob,
+		// both its width and height should fill the upper layout
+		textValue.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		
+		// frame around the parameter view
+		frame.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		frame.setOrientation(LinearLayout.VERTICAL);
+		//frame.setBackgroundColor(Color.rgb(69,160,197)); // "android" blue
+		frame.setBackgroundColor(Color.rgb(120,120,120));
+		frame.setPadding(1,1,1,1);
+		
+		// knob parameters
+		knob.setPadding(padding, padding, padding, padding);
+		knob.setRotation(180);
+		knob.setStartAngle(30);
+		knob.setSweepAngle(300);
+		knob.setTouchInSide(true);
 		
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		localVerticalGroup.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
 		
-		//slider.setMax(Math.round((max-min)*(1/step)));
+		// if parameters were saved, then they replace init
 		if(isSavedParameters) init = parametersValues[currentParameterNumber];
 		else parametersValues[currentParameterNumber] = init;
-		if(init<=0 && min<0) slider.setProgress(Math.round((init-min)*(1/step)));
-		else slider.setProgress(Math.round((init+min)*(1/step)));
 		
-		final TextView textLabel = new TextView(c);
-		textLabel.setLayoutParams(sliderParameters);
-		textLabel.setText(label+": " + Float.toString(init));
-		localVerticalGroup.addView(textLabel);
+		// the initial value of the knob is set (SeekArc's range is 0-100)
+		if(min < 0) knob.setProgress(Math.round((init-min)*-100/(max-min)));
+		knob.setProgress(Math.round(((init-min)*100)/(max-min)));
 		
+		// the number of decimals of the displayed value of the knob is
+		// defined by step
+		int decimals = 0;
+		if(step>=1) decimals = 1;
+		else if(step<1 && step>=0.1) decimals = 1;
+		else decimals = 2;
+		final String decimalsDisplay = "%."+decimals+"f";
+		
+		textValue.setText(String.format(decimalsDisplay, init));
+		textValue.setGravity(Gravity.CENTER);
+		knobGroup.addView(textValue);
+		
+		textLabel.setText(label);
+		textLabel.setGravity(Gravity.CENTER);
+		
+		// listener...
 		OnSeekArcChangeListener sliderListener = new OnSeekArcChangeListener() {
 			public void onStopTrackingTouch(SeekArc seekArc) {}
 			public void onStartTrackingTouch(SeekArc seekArc) {}
 			public void onProgressChanged(SeekArc seekArc, int progress, boolean fromUser) {
-				parametersValues[currentParameterNumber] = (float) progress*step + min;
-				textLabel.setText(label+": " + Float.toString(parametersValues[currentParameterNumber]));
+				// TODO: we should try the interface with negative values: not 100% sure
+				// the value of the parameter is updated and is displayed when the knob is used
+				parametersValues[currentParameterNumber] = (float) progress*0.01f*(max-min) + min;
+				textValue.setText(String.format(decimalsDisplay, parametersValues[currentParameterNumber]));
 	          }
 	    };
 	    
-	    slider.setOnSeekArcChangeListener(sliderListener);
-	    localVerticalGroup.addView(slider);
-	    currentGroup.addView(localVerticalGroup);
+	    // putting things together...
+	    knob.setOnSeekArcChangeListener(sliderListener);
+	    knobGroup.addView(knob);
+		localVerticalGroup.addView(knobGroup);
+		localVerticalGroup.addView(textLabel);
+		frame.addView(localVerticalGroup);
+	    currentGroup.addView(frame);
 	}
 	
 	/*
 	 * Create a nentry and add it to the current group
 	 */
-	// TODO: nentry are not centered in their group: should try to find a way
-	// to do that but not really trivial...
-	// TODO: instead of building the whole interface using with LinearLayouts,
-	// it might be a better choice to use a TableLayout...
 	public void nentry(Context c, LinearLayout currentGroup, final String label, 
 			final float init, final float min, final float max, final float step,
 			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
-		final int currentParameterNumber = parameterNumber;
-		LinearLayout localHorizontalGroup = new LinearLayout(c);
+		// the main layout for this view (containing both the knob, its value and its name)
+		LinearLayout localVerticalGroup = new LinearLayout(c);
+		// layout to create a frame around the parameter view
+		LinearLayout frame = new LinearLayout(c);
+		// the "nentry"
 		final EditText nentry = new EditText(c);
-		int padding = 10*currentScreenSize/800;
-		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		// the name of the parameter
+		TextView textLabel = new TextView(c);
 		
-		LayoutParams nentryParameters = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		nentry.setLayoutParams(nentryParameters);
+		// index for the parameters values array
+		final int currentParameterNumber = parameterNumber;
+		
+		//int padding = 10*currentScreenSize/800;
+		//int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		
+		// frame around the parameter view
+		frame.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		frame.setOrientation(LinearLayout.VERTICAL);
+		frame.setBackgroundColor(Color.rgb(120,120,120));
+		frame.setPadding(1,1,1,1);
+		
+		// nentry parameters
+		nentry.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		nentry.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
 		nentry.setText(Float.toString(init));
+		nentry.setGravity(Gravity.CENTER);
 		parametersValues[currentParameterNumber] = init;
 		
-		LayoutParams localHorizontalGroupParameters = new ViewGroup.LayoutParams(
-				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
-		localHorizontalGroup.setLayoutParams(localHorizontalGroupParameters);
-		localHorizontalGroup.setOrientation(LinearLayout.HORIZONTAL);		
+		// local group parameters
+		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		localVerticalGroup.setGravity(Gravity.CENTER);
+		localVerticalGroup.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
 		
-		TextView textLabel = new TextView(c);
-		textLabel.setLayoutParams(nentryParameters);
-		textLabel.setText(label+":");
-		localHorizontalGroup.addView(textLabel);
+		textLabel.setText(label);
+		textLabel.setGravity(Gravity.CENTER);
 		
+		// listener...
 		TextWatcher textWatcher = new TextWatcher() { 
 		    @Override
 		    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -367,8 +511,11 @@ public class ui{
 		};
 		nentry.addTextChangedListener(textWatcher);
 		
-		localHorizontalGroup.addView(nentry);
-		currentGroup.addView(localHorizontalGroup);
+		// putting things together...
+		localVerticalGroup.addView(nentry);
+		localVerticalGroup.addView(textLabel);
+		frame.addView(localVerticalGroup);
+		currentGroup.addView(frame);
 	}
 	
 	/*
@@ -518,5 +665,13 @@ public class ui{
 	    return false;  
 	  }  
 	  return true;  
+	}
+	
+	public static double round(double value, int places) {
+	    if (places < 0) throw new IllegalArgumentException();
+
+	    BigDecimal bd = new BigDecimal(value);
+	    bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    return bd.doubleValue();
 	}
 }

@@ -25,8 +25,8 @@
 #include <string.h>
 
 #define FAUSTFLOAT float
-#define BUFFERFRAMES 1024
-#define VECSAMPS 256
+#define BUFFERFRAMES 512
+#define VECSAMPS 512
 #define SR 44100
 
 using namespace std;

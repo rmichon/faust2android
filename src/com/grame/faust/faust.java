@@ -6,6 +6,7 @@ import com.grame.faust_dsp.faust_dsp;
 
 import com.grame.faust_dsp.Para;
 import android.app.Activity;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,6 +42,14 @@ public class faust extends Activity {
         else UI.initUI(nParameters,null,viewZoom);
         	
         UI.buildUI(this, mainGroup);
+        
+        /*
+         * TODO: apparently matching the sampling rate and the buffer length of the app with that of 
+         * the device provide a better latency. Should explore that...
+        AudioManager myAudioManager;
+        myAudioManager = (AudioManager)getSystemService(this.AUDIO_SERVICE);
+        System.out.println("Voila:" + myAudioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER));
+        */
         
         thread = new Thread() {
 			public void run() {
