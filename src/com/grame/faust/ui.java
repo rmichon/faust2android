@@ -6,11 +6,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Color;
@@ -28,13 +31,20 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.VerticalSeekBar;
@@ -158,6 +168,7 @@ public class ui{
 		try {
 			for(int i=0; i<nItemsTopLevel; i++){
 				currentObject = uiArray.getJSONObject(i);
+				String metaDataStyle = parseJSONMetaData(currentObject, "style");
 				if(currentObject.getString("type").equals("vgroup")){
 					currentArray = currentObject.getJSONArray("items");
 					vgroup(c,currentArray,currentGroup,currentObject.getString("label"),
@@ -169,13 +180,25 @@ public class ui{
 							currentGroupLevel,groupDivisions,currentScreenSize);
 				}
 				else if(currentObject.getString("type").equals("vslider")){
-					if(parseJSONMetaData(currentObject, "style").equals("knob")){
+					if(metaDataStyle.equals("knob")){
 						knob(c,currentGroup,currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
 								currentGroupLevel,groupDivisions,currentScreenSize);
+					}
+					else if(metaDataStyle.contains("menu")){
+						dropDownMenu(c,currentGroup,currentObject.getString("label"),
+								Float.parseFloat(currentObject.getString("init")),
+								currentGroupLevel,groupDivisions,currentScreenSize,
+								metaDataStyle,0);
+					}
+					else if(metaDataStyle.contains("radio")){
+						radio(c,currentGroup,currentObject.getString("label"),
+								Float.parseFloat(currentObject.getString("init")),
+								currentGroupLevel,groupDivisions,currentScreenSize,
+								metaDataStyle,0);
 					}
 					else{
 						vslider(c,currentGroup,currentObject.getString("label"), 
@@ -188,7 +211,7 @@ public class ui{
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("hslider")){
-					if(parseJSONMetaData(currentObject, "style").equals("knob")){
+					if(metaDataStyle.equals("knob")){
 						knob(c,currentGroup,currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
@@ -196,17 +219,30 @@ public class ui{
 								Float.parseFloat(currentObject.getString("step")), 
 								currentGroupLevel,groupDivisions,currentScreenSize);
 					}
+					else if(metaDataStyle.contains("menu")){
+						dropDownMenu(c,currentGroup,currentObject.getString("label"),
+								Float.parseFloat(currentObject.getString("init")),
+								currentGroupLevel,groupDivisions,currentScreenSize,
+								metaDataStyle,0);
+					}
+					else if(metaDataStyle.contains("radio")){
+						radio(c,currentGroup,currentObject.getString("label"),
+								Float.parseFloat(currentObject.getString("init")),
+								currentGroupLevel,groupDivisions,currentScreenSize,
+								metaDataStyle,1);
+					}
 					else{
 						hslider(c,currentGroup,currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								currentGroupLevel,groupDivisions,currentScreenSize);	
+								currentGroupLevel);	
 					}
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("nentry")){
+					// TODO metadata style like for hslider and vslider
 					nentry(c,currentGroup,currentObject.getString("label"), 
 							Float.parseFloat(currentObject.getString("init")), 
 							Float.parseFloat(currentObject.getString("min")), 
@@ -238,47 +274,227 @@ public class ui{
 	     */
 	}
 	
+	// TODO: not sure if the priority should be for the slider parameters of the metadata for min max and range
+	public void dropDownMenu(Context c, LinearLayout currentGroup, final String label, float init, int currentGroupLevel, 
+			int nItemsUpperLevel, int currentScreenSize, String parameters, int orientation){
+		final int currentParameterNumber = parameterNumber;
+		LinearLayout localVerticalGroup = new LinearLayout(c);
+		// layout to create a frame around the parameter view
+		LinearLayout frame = new LinearLayout(c);
+		Spinner menu = new Spinner(c);
+		TextView textLabel = new TextView(c);
+		
+		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		localVerticalGroup.setGravity(Gravity.CENTER);
+		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
+				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
+		
+		menu.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		
+		// frame around the parameter view
+		// TODO: may be WRAP_CONTENT would be better in this case?
+		frame.setLayoutParams(new ViewGroup.LayoutParams(
+		ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		frame.setOrientation(LinearLayout.VERTICAL);
+		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setPadding(2,2,2,2);
+		
+		List<String> parametersList = new ArrayList<String>();
+		
+		if(isSavedParameters) init = parametersValues[currentParameterNumber];
+		else parametersValues[currentParameterNumber] = init;
+		
+		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, parameters.indexOf("}"));
+		int length = parsedParameters.length(); 
+		boolean stop = true;
+		final int min = Integer.parseInt(parsedParameters.substring(parsedParameters.indexOf(":") + 1, parsedParameters.indexOf(";")));
+		while(stop){
+			String parameterName = parsedParameters.substring(1, parsedParameters.indexOf(":") - 1);
+			if(parsedParameters.contains(";")){
+				parsedParameters = parsedParameters.substring(parsedParameters.indexOf(";") + 1, length);
+				length = parsedParameters.length();
+			}
+			else{
+				stop = false;
+			}
+			parametersList.add(parameterName);	
+		}
+		
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>
+        (c, android.R.layout.simple_spinner_item,parametersList);
+      
+        dataAdapter.setDropDownViewResource
+        (android.R.layout.simple_spinner_dropdown_item);
+        
+        menu.setAdapter(dataAdapter);
+        menu.setSelection((int) init-min);
+        
+        menu.setOnItemSelectedListener(new OnItemSelectedListener(){
+        	public void onItemSelected(AdapterView parent, View view, int pos, long id) {
+        		parametersValues[currentParameterNumber] = (float) pos+min;
+        	} 
+        	public void onNothingSelected(AdapterView parent) {	 		
+        	}
+        });
+		
+		textLabel.setText(label);
+		textLabel.setGravity(Gravity.CENTER);
+		
+		localVerticalGroup.addView(textLabel);
+		localVerticalGroup.addView(menu);
+		frame.addView(localVerticalGroup);
+		currentGroup.addView(frame);
+	}
+	
+	// TODO: not sure if the priority should be for the slider parameters of the metadata for min max and range
+	public void radio(Context c, LinearLayout currentGroup, final String label, float init, int currentGroupLevel, 
+			int nItemsUpperLevel, int currentScreenSize, String parameters, int orientation){
+		// TODO: normalize and may be frame?
+		final int currentParameterNumber = parameterNumber;
+		LinearLayout localVerticalGroup = new LinearLayout(c);
+		// layout to create a frame around the parameter view
+		LinearLayout frame = new LinearLayout(c);
+		RadioGroup radio = new RadioGroup(c);
+		TextView textLabel = new TextView(c);
+		
+		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		localVerticalGroup.setGravity(Gravity.CENTER);
+		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
+				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
+		
+		radio.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		
+		// frame around the parameter view
+		frame.setLayoutParams(new ViewGroup.LayoutParams(
+		ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		frame.setOrientation(LinearLayout.VERTICAL);
+		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setPadding(2,2,2,2);
+		
+		if(orientation == 0) radio.setOrientation(LinearLayout.VERTICAL);
+		else radio.setOrientation(LinearLayout.HORIZONTAL);
+		
+		if(isSavedParameters) init = parametersValues[currentParameterNumber];
+		else parametersValues[currentParameterNumber] = init;
+		
+		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, parameters.indexOf("}"));
+		int length = parsedParameters.length(), parameterValue = 0; 
+		boolean stop = true;
+		while(stop){
+			String parameterName = parsedParameters.substring(1, parsedParameters.indexOf(":") - 1);
+			if(parsedParameters.contains(";")){
+				parameterValue = Integer.parseInt(parsedParameters.substring(parsedParameters.indexOf(":") + 1, parsedParameters.indexOf(";")));
+				parsedParameters = parsedParameters.substring(parsedParameters.indexOf(";") + 1, length);
+				length = parsedParameters.length();
+			}
+			else{
+				parameterValue = Integer.parseInt(parsedParameters.substring(parsedParameters.indexOf(":") + 1, length));
+				stop = false;
+			}
+			RadioButton button = new RadioButton(c);
+			button.setText(parameterName);
+			button.setId(parameterValue);
+			if(init == parameterValue) button.setChecked(true);
+			radio.addView(button);
+		}
+		radio.setOnCheckedChangeListener(new OnCheckedChangeListener() 
+	    {
+	        public void onCheckedChanged(RadioGroup group, int checkedId) {
+	        	parametersValues[currentParameterNumber] = (float) checkedId;
+	        }
+	    });
+		
+		textLabel.setText(label);
+		textLabel.setGravity(Gravity.CENTER);
+		
+		localVerticalGroup.addView(textLabel);
+		localVerticalGroup.addView(radio);
+		frame.addView(localVerticalGroup);
+	    currentGroup.addView(frame);
+	}
+	
 	/*
 	 * Create a horizontal slider and add it to currentGroup
 	 */
 	public void hslider(Context c, LinearLayout currentGroup, final String label, float init, 
-			final float min, final float max, final float step, int currentGroupLevel, 
-			int nItemsUpperLevel, int currentScreenSize){
-		final int currentParameterNumber = parameterNumber;
+			final float min, final float max, final float step, int currentGroupLevel){
+		// the main layout for this view (containing both the slider, its value and its name)
 		LinearLayout localVerticalGroup = new LinearLayout(c);
+		// layout to create a frame around the parameter view
+		LinearLayout frame = new LinearLayout(c);
+		// layout containing the slider and its value
+		LinearLayout sliderLayout = new LinearLayout(c);
+		// the slider
 		SeekBar slider = new SeekBar(c);
-		int padding = 10*currentScreenSize/800;
-		int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
+		// the value of the slider
+		final TextView textValue = new TextView(c);
+		// the name of the parameter
+		final TextView textLabel = new TextView(c);
 		
-		LayoutParams sliderParameters = new ViewGroup.LayoutParams(
-				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
-		slider.setLayoutParams(sliderParameters);
+		// index for the parameters values array
+		final int currentParameterNumber = parameterNumber;
 		
+		// padding to create a thin frame around the parameter view
+		frame.setLayoutParams(new ViewGroup.LayoutParams(
+		ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		frame.setOrientation(LinearLayout.VERTICAL);
+		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setPadding(2,2,2,2);
+		
+		// the slider should take as much space as it can in the view
+		slider.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		
+		// some padding to make sure that the displayed value of the slider on the
+		// left is not too close to the border of the frame
+		sliderLayout.setOrientation(LinearLayout.HORIZONTAL);
+		sliderLayout.setPadding(10, 0, 0, 0);
+		
+		// the background color of the local group is brighter than the upper one
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
+		localVerticalGroup.setGravity(Gravity.CENTER);
+		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
+				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
 		
-		//slider.setPadding(20, 8, 8, 20); TODO: not sure why this is here...
+		// if parameters were saved, then they replace init		
 		slider.setMax(Math.round((max-min)*(1/step)));
 		if(isSavedParameters) init = parametersValues[currentParameterNumber];
 		else parametersValues[currentParameterNumber] = init;
 		if(init<=0 && min<0) slider.setProgress(Math.round((init-min)*(1/step)));
 		else slider.setProgress(Math.round((init+min)*(1/step)));
 		
-		final TextView textLabel = new TextView(c);
-		textLabel.setLayoutParams(sliderParameters);
-		textLabel.setText(label+": " + Float.toString(init));
-		localVerticalGroup.addView(textLabel);
+		// the number of decimals of the displayed value of the knob is
+		// defined by step
+		int decimals = 0;
+		if(step>=1) decimals = 1;
+		else if(step<1 && step>=0.1) decimals = 1;
+		else decimals = 2;
+		final String decimalsDisplay = "%."+decimals+"f";
+		
+		textValue.setText(String.format(decimalsDisplay, init));
+		textLabel.setText(label);
+		textLabel.setGravity(Gravity.CENTER);
 		
 		OnSeekBarChangeListener sliderListener = new OnSeekBarChangeListener() {
 			public void onStopTrackingTouch(SeekBar seekBar) {}
 			public void onStartTrackingTouch(SeekBar seekBar) {}
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				parametersValues[currentParameterNumber] = (float) progress*step + min;
-				textLabel.setText(label+": " + Float.toString(parametersValues[currentParameterNumber]));
+				textValue.setText(String.format(decimalsDisplay, parametersValues[currentParameterNumber]));
 	          }
 	    };
 	    slider.setOnSeekBarChangeListener(sliderListener);
-	    localVerticalGroup.addView(slider);
-	    currentGroup.addView(localVerticalGroup);
+	    sliderLayout.addView(textValue);
+	    sliderLayout.addView(slider);
+	    localVerticalGroup.addView(textLabel);
+	    localVerticalGroup.addView(sliderLayout);
+	    frame.addView(localVerticalGroup);
+	    currentGroup.addView(frame);
 	}
 	
 	public void vslider(Context c, LinearLayout currentGroup, final String label, float init, 
@@ -286,6 +502,8 @@ public class ui{
 			int nItemsUpperLevel, int currentScreenSize){
 		// the main layout for this view (containing both the slider, its value and its name)
 		LinearLayout localVerticalGroup = new LinearLayout(c);
+		// layout to create a frame around the parameter view
+		LinearLayout frame = new LinearLayout(c);
 		// layout containing the slider and its value
 		LinearLayout sliderLayout = new LinearLayout(c);
 		// the slider
@@ -308,8 +526,19 @@ public class ui{
 		sliderLayout.setGravity(Gravity.CENTER);
 		sliderLayout.setOrientation(LinearLayout.VERTICAL);
 		
+		// the background color of the local group is brighter than the upper one
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
 		localVerticalGroup.setGravity(Gravity.CENTER);
+		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
+				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
+		
+		// frame to create some padding around the view
+		frame.setLayoutParams(new ViewGroup.LayoutParams(
+		ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		frame.setOrientation(LinearLayout.VERTICAL);
+		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+		currentGroupLevel*15, currentGroupLevel*15));
+		frame.setPadding(2,2,2,2);
 		
 		// if parameters were saved, then they replace init
 		slider.setMax(Math.round((max-min)*(1/step)));
@@ -347,7 +576,8 @@ public class ui{
 	    sliderLayout.addView(textValue);
 	    localVerticalGroup.addView(sliderLayout);
 	    localVerticalGroup.addView(textLabel);
-	    currentGroup.addView(localVerticalGroup);
+	    frame.addView(localVerticalGroup);
+	    currentGroup.addView(frame);
 	}
 	
 	public void knob(Context c, LinearLayout currentGroup, final String label, float init, 
@@ -383,13 +613,13 @@ public class ui{
 		textValue.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		
-		// frame around the parameter view
+		// frame to create some padding around the view
 		frame.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		frame.setOrientation(LinearLayout.VERTICAL);
-		//frame.setBackgroundColor(Color.rgb(69,160,197)); // "android" blue
-		frame.setBackgroundColor(Color.rgb(120,120,120));
-		frame.setPadding(1,1,1,1);
+		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setPadding(2,2,2,2);
 		
 		// knob parameters
 		knob.setPadding(padding, padding, padding, padding);
@@ -398,9 +628,10 @@ public class ui{
 		knob.setSweepAngle(300);
 		knob.setTouchInSide(true);
 		
+		// the background color of the local group is brighter than the upper one
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		localVerticalGroup.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
+		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
+				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
 		
 		// if parameters were saved, then they replace init
 		if(isSavedParameters) init = parametersValues[currentParameterNumber];
@@ -464,15 +695,13 @@ public class ui{
 		// index for the parameters values array
 		final int currentParameterNumber = parameterNumber;
 		
-		//int padding = 10*currentScreenSize/800;
-		//int localScreenSize = currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel);
-		
-		// frame around the parameter view
+		// frame to create some padding around the view
 		frame.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(120,120,120));
-		frame.setPadding(1,1,1,1);
+		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setPadding(2,2,2,2);
 		
 		// nentry parameters
 		nentry.setLayoutParams(new ViewGroup.LayoutParams(
@@ -482,11 +711,11 @@ public class ui{
 		nentry.setGravity(Gravity.CENTER);
 		parametersValues[currentParameterNumber] = init;
 		
-		// local group parameters
+		// the background color of the local group is brighter than the upper one
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
 		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
+		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
+				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
 		
 		textLabel.setText(label);
 		textLabel.setGravity(Gravity.CENTER);
@@ -521,6 +750,7 @@ public class ui{
 	/*
 	 * Create a button and add it to currentGroup
 	 */
+	// TODO: should be commented and verified
 	public void button(Context c, LinearLayout currentGroup, final String label,
 			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
 		final int currentParameterNumber = parameterNumber;
@@ -552,6 +782,7 @@ public class ui{
 	/*
 	 * Create a checkbox and it to currentGroup
 	 */
+	// TODO: should be commented and verified
 	public void checkbox(Context c, LinearLayout currentGroup, final String label,
 			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
 		final int currentParameterNumber = parameterNumber;
@@ -579,31 +810,37 @@ public class ui{
 	/*
 	 * Create a vertical group and add it to currentGroup
 	 */
-	// TODO the frame around the layout is created using a sub layout:
-	// not sure if this is the most efficient way to do it...
 	public void vgroup(Context c, JSONArray currentArray, LinearLayout currentGroup, String label, 
 			int currentGroupLevel, int nItemsUpperLevel, int currentScreenSize){
+		// frame to create some padding around the view
 		LinearLayout frame = new LinearLayout(c);
+		// the local group
 		LinearLayout localGroup = new LinearLayout(c);
+		// the group name
+		TextView textLabel = new TextView(c);
+		
 		int localGroupLevel = currentGroupLevel+1;
+		// padding is adjusted in function of the screen definition
 		int padding = 10*currentScreenSize/800;
 		// TODO: but why 0.151?
 		int localScreenSize = Math.round(currentScreenSize/nItemsUpperLevel-(padding*currentGroupLevel*0.151f));
-			
+		
+		// the layout's width is "hard coded"
 		LayoutParams localGroupParameters = new ViewGroup.LayoutParams(
 				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT);
 		localGroup.setLayoutParams(localGroupParameters);
 		
+		// frame to create some padding around the view
 		frame.setLayoutParams(localGroupParameters);
 		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(100,100,100));
-		frame.setPadding(1,1,1,1);
+		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setPadding(2,2,2,2);
 		
 		localGroup.setOrientation(LinearLayout.VERTICAL);
 		localGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
 		localGroup.setPadding(padding,padding,padding,padding);
 		
-		TextView textLabel = new TextView(c);
 		textLabel.setLayoutParams(localGroupParameters);
 		textLabel.setText(label);
 		textLabel.setTextSize(22.f);
@@ -611,6 +848,8 @@ public class ui{
 		
 		frame.addView(localGroup);
 		currentGroup.addView(frame);
+		
+		// we iterate the group's items
 		parseJSON(c,currentArray,localGroup,localGroupLevel,0,localScreenSize);
 	}
 	
@@ -632,8 +871,9 @@ public class ui{
 		localGroup.setOrientation(LinearLayout.HORIZONTAL);
 		
 		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(100,100,100));
-		frame.setPadding(1,1,1,1);
+		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
+				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setPadding(2,2,2,2);
 		
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
 		localVerticalGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
@@ -665,13 +905,5 @@ public class ui{
 	    return false;  
 	  }  
 	  return true;  
-	}
-	
-	public static double round(double value, int places) {
-	    if (places < 0) throw new IllegalArgumentException();
-
-	    BigDecimal bd = new BigDecimal(value);
-	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    return bd.doubleValue();
 	}
 }

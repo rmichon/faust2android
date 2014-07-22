@@ -42,6 +42,7 @@ public class faust extends Activity {
         else UI.initUI(nParameters,null,viewZoom);
         	
         UI.buildUI(this, mainGroup);
+        //System.out.println("Voila:" + UI.parameterNumber);
         
         /*
          * TODO: apparently matching the sampling rate and the buffer length of the app with that of 

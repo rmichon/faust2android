@@ -35,7 +35,7 @@
 							"label":"Band0",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 0",
 									"address": "/multiOsc/Synth/Band0/freq_0",
 									"meta": [
@@ -62,7 +62,7 @@
 							"label":"Band1",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 1",
 									"address": "/multiOsc/Synth/Band1/freq_1",
 									"meta": [
@@ -89,7 +89,7 @@
 							"label":"Band2",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 2",
 									"address": "/multiOsc/Synth/Band2/freq_2",
 									"meta": [
@@ -116,7 +116,7 @@
 							"label":"Band3",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 3",
 									"address": "/multiOsc/Synth/Band3/freq_3",
 									"meta": [
@@ -143,7 +143,7 @@
 							"label":"Band4",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 4",
 									"address": "/multiOsc/Synth/Band4/freq_4",
 									"meta": [
@@ -170,7 +170,7 @@
 							"label":"Band5",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 5",
 									"address": "/multiOsc/Synth/Band5/freq_5",
 									"meta": [
@@ -197,7 +197,7 @@
 							"label":"Band6",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 6",
 									"address": "/multiOsc/Synth/Band6/freq_6",
 									"meta": [
@@ -224,7 +224,7 @@
 							"label":"Band7",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 7",
 									"address": "/multiOsc/Synth/Band7/freq_7",
 									"meta": [
@@ -251,7 +251,7 @@
 							"label":"Band8",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 8",
 									"address": "/multiOsc/Synth/Band8/freq_8",
 									"meta": [
@@ -278,7 +278,7 @@
 							"label":"Band9",
 							"items": [ 
 								{
-									"type": "hslider",
+									"type": "knob",
 									"label": "freq 9",
 									"address": "/multiOsc/Synth/Band9/freq_9",
 									"meta": [
@@ -303,7 +303,7 @@
 					]
 				},
 				{
-					"type": "hslider",
+					"type": "knob",
 					"label": "mainGain",
 					"address": "/multiOsc/mainGain",
 					"init": "0.8",
