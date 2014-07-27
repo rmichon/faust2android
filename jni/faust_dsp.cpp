@@ -60,69 +60,9 @@ Para faustObject::initFaust(){
 	}
 
 	params.cnt = interface->params.cnt;
+	params.cntVsliders = interface->params.cntVsliders;
+	params.cntHsliders = interface->params.cntHsliders;
 
-	/*
-	// layout elements initialization
-	params.cntLay = interface->params.cntLay;
-	params.typeLay = new int [params.cntLay];
-	params.labelLayPos = new int [params.cntLay];
-
-	// parameters elements initialization
-	params.cnt = interface->params.cnt;
-	params.cntEl = interface->params.cntEl;
-	params.type = new int [params.cnt];
-	params.typeEl = new int [params.cntEl];
-	params.labelPos = new int [params.cnt];
-	params.zone = new float [params.cnt];
-	params.init = new float [params.cnt];
-	params.min = new float [params.cnt];
-	params.max = new float [params.cnt];
-	params.step = new float [params.cnt];
-
-	int oldPos = 0;
-	char labelBuf[1024]="",labelBuf2[1024]="",labelOld[1024]="",metadata[1024]="";
-
-	for(int i=0; i<params.cntEl; i++) params.typeEl[i] = interface->params.typeEl[i];
-
-	for(int i=0; i<params.cnt; i++){
-		params.type[i] = interface->params.type[i];
-		int currentPos = strlen(interface->params.label[i]);
-		params.labelPos[i] = currentPos + oldPos;
-		oldPos = currentPos + oldPos;
-		strcpy(labelBuf,labelOld);
-		strcat(labelBuf,interface->params.label[i]);
-		strcpy(labelOld,labelBuf);
-		params.label = labelBuf;
-
-		params.init[i] = interface->params.init[i];
-		*interface->params.value[0] = params.zone[i];
-		params.min[i] = interface->params.min[i];
-		params.max[i] = interface->params.max[i];
-		params.step[i] = interface->params.step[i];
-
-		strcat(metadata,interface->params.metadata[i]);
-	}
-
-	params.metadata = metadata;
-
-	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s", metadata);
-	// reset variables
-	oldPos = 0;
-	strcpy(labelOld,"");
-
-	for(int i=0; i<params.cntLay; i++){
-		params.typeLay[i] = interface->params.typeLay[i];
-		if(params.typeLay[i] == 0 || params.typeLay[i] == 1){
-			int currentPos = strlen(interface->params.labelLay[i]);
-			params.labelLayPos[i] = currentPos + oldPos;
-			oldPos = currentPos + oldPos;
-			strcpy(labelBuf2,labelOld);
-			strcat(labelBuf2,interface->params.labelLay[i]);
-			strcpy(labelOld,labelBuf2);
-			params.labelLay = labelBuf2;
-		}
-	}
-	*/
 	return params;
 }
 

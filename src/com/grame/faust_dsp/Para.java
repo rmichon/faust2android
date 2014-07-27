@@ -43,6 +43,22 @@ public class Para {
     return faust_dspJNI.Para_cnt_get(swigCPtr, this);
   }
 
+  public void setCntHsliders(int value) {
+    faust_dspJNI.Para_cntHsliders_set(swigCPtr, this, value);
+  }
+
+  public int getCntHsliders() {
+    return faust_dspJNI.Para_cntHsliders_get(swigCPtr, this);
+  }
+
+  public void setCntVsliders(int value) {
+    faust_dspJNI.Para_cntVsliders_set(swigCPtr, this, value);
+  }
+
+  public int getCntVsliders() {
+    return faust_dspJNI.Para_cntVsliders_get(swigCPtr, this);
+  }
+
   public void setZone(SWIGTYPE_p_float value) {
     faust_dspJNI.Para_zone_set(swigCPtr, this, SWIGTYPE_p_float.getCPtr(value));
   }

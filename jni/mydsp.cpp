@@ -262,11 +262,15 @@ class GUI : public UI {
 	public:
 	struct para {
 		int cnt;
+		int cntVsliders;
+		int cntHsliders;
 		float *value[numbParams];
 	} params;
 
 		virtual void initUI() {
 			params.cnt=0;
+			params.cntVsliders = 0; // number of hsliders
+			params.cntHsliders = 1; // number of vsliders
 		};
 
 		// -- widget's layouts
@@ -289,10 +293,12 @@ class GUI : public UI {
 	    virtual void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) {
 	    	params.value[params.cnt] = zone;
 	    	params.cnt++;
+	    	params.cntVsliders++;
 	    };
 	    virtual void addHorizontalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) {
 	    	params.value[params.cnt] = zone;
 	    	params.cnt++;
+	    	params.cntHsliders++;
 	    };
 	    virtual void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) {
 	    	params.value[params.cnt] = zone;

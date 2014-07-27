@@ -62,17 +62,24 @@ public class ui{
 	String JSONparameters = new String();
 	// the values of the different UI elements 
 	float[] parametersValues;
+	// TODO explain what this does, first member: hsliders, second member: vsliders
+	int[] parametersCounters = {0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, horizontalZoom = 0, screenSizeX = 0;
 	boolean isSavedParameters;
+	
+	HorizontalSlider[] hsliders;
+	VerticalSeekBar[] vsliders;
 	
 	/*
 	 * Initialize parametersValues in function of the total
 	 * number of parameters.
 	 */
-	public void initUI(int nParameters, float[] savedParameters, int viewZoom){
+	public void initUI(int[] nParameters, float[] savedParameters, int viewZoom){
 		horizontalZoom = viewZoom;
-		parametersValues = new float[nParameters];
+		parametersValues = new float[nParameters[0]];
+		if(nParameters[1]>0) vsliders = new VerticalSeekBar[nParameters[1]];
+		if(nParameters[2]>0) hsliders = new HorizontalSlider[nParameters[2]];
 		if(savedParameters != null){ 
 			parametersValues = savedParameters;
 			isSavedParameters = true;
@@ -531,7 +538,7 @@ public class ui{
 		// layout containing the slider and its value
 		LinearLayout sliderLayout = new LinearLayout(c);
 		// the slider
-		SeekBar slider = new SeekBar(c);
+		hsliders[parametersCounters[0]] = new HorizontalSlider(c);
 		// the value of the slider
 		final TextView textValue = new TextView(c);
 		// the name of the parameter
@@ -553,7 +560,7 @@ public class ui{
 		frame.setPadding(2,2,2,2);
 		
 		// the slider should take as much space as it can in the view
-		slider.setLayoutParams(new ViewGroup.LayoutParams(
+		hsliders[parametersCounters[0]].setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		
 		// some padding to make sure that the displayed value of the slider on the
@@ -567,12 +574,13 @@ public class ui{
 		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
 				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
 		
-		// if parameters were saved, then they replace init		
-		slider.setMax(Math.round((max-min)*(1/step)));
+		// if parameters were saved, then they replace init	
+		// TODO: doesn't scale properly for now + this technique should be generalized to all
+		// UI elements -> that's THE clean solution...
+		hsliders[parametersCounters[0]].setSliderParams(min, max, step);
 		if(isSavedParameters) init = parametersValues[currentParameterNumber];
 		else parametersValues[currentParameterNumber] = init;
-		if(init<=0 && min<0) slider.setProgress(Math.round((init-min)*(1/step)));
-		else slider.setProgress(Math.round((init+min)*(1/step)));
+		hsliders[parametersCounters[0]].setValue(init);
 		
 		// the number of decimals of the displayed value of the knob is
 		// defined by step
@@ -594,13 +602,15 @@ public class ui{
 				textValue.setText(String.format(decimalsDisplay, parametersValues[currentParameterNumber]));
 	          }
 	    };
-	    slider.setOnSeekBarChangeListener(sliderListener);
+	    hsliders[parametersCounters[0]].setOnSeekBarChangeListener(sliderListener);
 	    sliderLayout.addView(textValue);
-	    sliderLayout.addView(slider);
+	    sliderLayout.addView(hsliders[parametersCounters[0]]);
 	    localVerticalGroup.addView(textLabel);
 	    localVerticalGroup.addView(sliderLayout);
 	    frame.addView(localVerticalGroup);
 	    currentGroup.addView(frame);
+	    
+	    parametersCounters[0]++;
 	}
 	
 	/*
@@ -627,7 +637,8 @@ public class ui{
 		// layout containing the slider and its value
 		LinearLayout sliderLayout = new LinearLayout(c);
 		// the slider
-		VerticalSeekBar slider = new VerticalSeekBar(c);
+		//VerticalSeekBar slider = new VerticalSeekBar(c);
+		vsliders[parametersCounters[1]] = new VerticalSeekBar(c);
 		// the value of the slider
 		final TextView textValue = new TextView(c);
 		// the name of the parameter
@@ -644,7 +655,7 @@ public class ui{
 		// of the screen size
 		int sliderHeight = 230*screenSizeX/800;
 		
-		slider.setLayoutParams(new ViewGroup.LayoutParams(
+		vsliders[parametersCounters[1]].setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.WRAP_CONTENT, sliderHeight));
 
 		sliderLayout.setGravity(Gravity.CENTER);
@@ -665,11 +676,11 @@ public class ui{
 		frame.setPadding(2,2,2,2);
 		
 		// if parameters were saved, then they replace init
-		slider.setMax(Math.round((max-min)*(1/step)));
+		vsliders[parametersCounters[1]].setMax(Math.round((max-min)*(1/step)));
 		if(isSavedParameters) init = parametersValues[currentParameterNumber];
 		else parametersValues[currentParameterNumber] = init;
-		if(init<=0 && min<0) slider.setProgress(Math.round((init-min)*(1/step)));
-		else slider.setProgress(Math.round((init+min)*(1/step)));
+		if(init<=0 && min<0) vsliders[parametersCounters[1]].setProgress(Math.round((init-min)*(1/step)));
+		else vsliders[parametersCounters[1]].setProgress(Math.round((init+min)*(1/step)));
 	
 		// the number of decimals of the displayed value of the knob is
 		// defined by step
@@ -695,13 +706,15 @@ public class ui{
 	    };
 	    
 	    // putting things together...
-	    slider.setOnSeekBarChangeListener(sliderListener);
-	    sliderLayout.addView(slider);
+	    vsliders[parametersCounters[1]].setOnSeekBarChangeListener(sliderListener);
+	    sliderLayout.addView(vsliders[parametersCounters[1]]);
 	    sliderLayout.addView(textValue);
 	    localVerticalGroup.addView(sliderLayout);
 	    localVerticalGroup.addView(textLabel);
 	    frame.addView(localVerticalGroup);
 	    currentGroup.addView(frame);
+	    
+	    parametersCounters[1]++;
 	}
 	
 	/*
@@ -1113,6 +1126,13 @@ public class ui{
 		// we iterate the group's items
 		parseJSON(c,currentArray,localGroup,localGroupLevel,1,localViewWidth);
 	}
+	
+	/*
+	public void setProgressSeekBar(SeekBar s, float init, float min, float step){
+		if(init<=0 && min<0) s.setProgress(Math.round((init-min)*(1/step)));
+		else s.setProgress(Math.round((init+min)*(1/step)));
+	}
+	*/
 	
 	/*
 	 * Check if a string is a number.

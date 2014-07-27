@@ -316,6 +316,62 @@ SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cnt_1get(J
 }
 
 
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cntHsliders_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+  Para *arg1 = (Para *) 0 ;
+  int arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Para **)&jarg1; 
+  arg2 = (int)jarg2; 
+  if (arg1) (arg1)->cntHsliders = arg2;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cntHsliders_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  Para *arg1 = (Para *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Para **)&jarg1; 
+  result = (int) ((arg1)->cntHsliders);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cntVsliders_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+  Para *arg1 = (Para *) 0 ;
+  int arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Para **)&jarg1; 
+  arg2 = (int)jarg2; 
+  if (arg1) (arg1)->cntVsliders = arg2;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cntVsliders_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  Para *arg1 = (Para *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Para **)&jarg1; 
+  result = (int) ((arg1)->cntVsliders);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1zone_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
   Para *arg1 = (Para *) 0 ;
   float *arg2 = (float *) 0 ;

@@ -25,6 +25,10 @@ public class faust_dspJNI {
   public final static native void floatArray_setitem(long jarg1, int jarg2, float jarg3);
   public final static native void Para_cnt_set(long jarg1, Para jarg1_, int jarg2);
   public final static native int Para_cnt_get(long jarg1, Para jarg1_);
+  public final static native void Para_cntHsliders_set(long jarg1, Para jarg1_, int jarg2);
+  public final static native int Para_cntHsliders_get(long jarg1, Para jarg1_);
+  public final static native void Para_cntVsliders_set(long jarg1, Para jarg1_, int jarg2);
+  public final static native int Para_cntVsliders_get(long jarg1, Para jarg1_);
   public final static native void Para_zone_set(long jarg1, Para jarg1_, long jarg2);
   public final static native long Para_zone_get(long jarg1, Para jarg1_);
   public final static native long new_Para();

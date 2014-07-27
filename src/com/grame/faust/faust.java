@@ -6,7 +6,11 @@ import com.grame.faust_dsp.faust_dsp;
 
 import com.grame.faust_dsp.Para;
 import android.app.Activity;
-import android.media.AudioManager;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,10 +18,13 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 public class faust extends Activity {
+	private SensorManager mSensorManager;
+	float[] rawAccel = new float[3];
+	
 	static final String SAVED_PARAMETERS = "savedParameters";
 	static final String VIEW_ZOOM = "viewZoom";
 	
-	Thread thread;
+	Thread mainThread, accelThread;
 	boolean on = true; // process on/off
 	int viewZoom = 0;
 	
@@ -31,18 +38,29 @@ public class faust extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         final Para faustDspParameters = faustClass.initFaust();
-        final int nParameters = faustDspParameters.getCnt();
+        final int[] nParams = new int[3];
+        
+        nParams[0] = faustDspParameters.getCnt();
+        nParams[1] = faustDspParameters.getCntVsliders();
+        nParams[2] = faustDspParameters.getCntHsliders();
         
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
         
         if (savedInstanceState != null){
         	viewZoom = savedInstanceState.getInt(VIEW_ZOOM);
-        	UI.initUI(nParameters,savedInstanceState.getFloatArray(SAVED_PARAMETERS),viewZoom);
+        	UI.initUI(nParams,savedInstanceState.getFloatArray(SAVED_PARAMETERS),viewZoom);
         }
-        else UI.initUI(nParameters,null,viewZoom);
+        else UI.initUI(nParams,null,viewZoom);
         	
         UI.buildUI(this, mainGroup);
-        //System.out.println("Voila:" + UI.parameterNumber);
+        
+        /*
+         * ACCELEROMETERS
+         */
+        
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
+        		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         
         /*
          * TODO: apparently matching the sampling rate and the buffer length of the app with that of 
@@ -52,15 +70,15 @@ public class faust extends Activity {
         System.out.println("Voila:" + myAudioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER));
         */
         
-        thread = new Thread() {
+        mainThread = new Thread() {
 			public void run() {
 				setPriority(Thread.MAX_PRIORITY);
 				faustClass.startAudio();
-				SWIGTYPE_p_float paramValues = faustObject.new_floatArray(nParameters);
+				SWIGTYPE_p_float paramValues = faustObject.new_floatArray(nParams[0]);
 				
-				//System.out.println("Here:" + nbParams);
 				while(on){
-					for(int i = 0; i<nParameters; i++){
+					//UI.hsliders[0].setValue();
+					for(int i = 0; i<nParams[0]; i++){
 						faustObject.floatArray_setitem(paramValues, i, UI.parametersValues[i]);
 					}
 					faustClass.setParam(paramValues);
@@ -69,28 +87,32 @@ public class faust extends Activity {
 				faustClass.stopAudio();
 			}
 		};
-		thread.start(); 
+		mainThread.start(); 
 		
-		/*
-		test = new Thread() {
+		accelThread = new Thread() {
 			public void run() {
-				double nn;
 				while(on){
-					nn = 300+Math.random()*1000;
-					par[0] = (float) nn;
-					//System.out.println(nn);
+					System.out.println("voila: " + rawAccel[0]);
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				}
+				}		
 			}
 		};
-		test.start();
-		*/
+		accelThread.start();
     }
+    
+    private final SensorEventListener mSensorListener = new SensorEventListener() {
+		public void onSensorChanged(SensorEvent se) {
+			rawAccel[0] = se.values[0];
+			rawAccel[1] = se.values[1];
+			rawAccel[2] = se.values[2];
+		}
+	    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	    }
+	};
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -126,15 +148,29 @@ public class faust extends Activity {
         super.onSaveInstanceState(savedInstanceState);
     }
     
+    @Override
+   	protected void onPause() {
+   		mSensorManager.unregisterListener(mSensorListener);
+   		super.onPause();
+   	}
+    
+    protected void onResume() {
+		super.onResume();
+	    mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
+	    on = true; // TODO: why?
+    }
+    
     public void onDestroy(){
     	super.onDestroy();
     	on = false;
     	try {
-			thread.join();
+			mainThread.join();
+			accelThread.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	thread = null;
+    	mainThread = null;
+    	accelThread = null;
     }
 }

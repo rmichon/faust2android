@@ -19,25 +19,9 @@
 
 struct Para {
 			int cnt;
-			/*
-			int cntLay;
-			int cntEl;
-			int *typeEl;
-			int *typeLay;
-			int *labelLayPos;
-			const char *labelLay;
-			const char *metadata;
-			int *type;
-			*/
+			int cntHsliders;
+			int cntVsliders;
 			float *zone;
-			/*
-			int *labelPos;
-			const char *label;
-			float *init;
-			float *min;
-			float *max;
-			float *step;
-			*/
 		} ;
 
 class faustObject{
