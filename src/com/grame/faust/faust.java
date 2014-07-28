@@ -21,8 +21,7 @@ public class faust extends Activity {
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
 	
-	static final String SAVED_PARAMETERS = "savedParameters";
-	static final String VIEW_ZOOM = "viewZoom";
+	int[] accelerometerState;
 	
 	Thread mainThread, accelThread;
 	boolean on = true; // process on/off
@@ -44,15 +43,22 @@ public class faust extends Activity {
         nParams[1] = faustDspParameters.getCntVsliders();
         nParams[2] = faustDspParameters.getCntHsliders();
         
+        accelerometerState = new int[nParams[0]];
+        
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
         
         if (savedInstanceState != null){
-        	viewZoom = savedInstanceState.getInt(VIEW_ZOOM);
-        	UI.initUI(nParams,savedInstanceState.getFloatArray(SAVED_PARAMETERS),viewZoom);
+        	viewZoom = savedInstanceState.getInt("viewZoom");
+        	accelerometerState = savedInstanceState.getIntArray("accelerometerState");
+        	UI.initUI(nParams,savedInstanceState.getFloatArray("savedParameters"),viewZoom);
+        	for(int i=0; i<UI.UIelementsParameters.length; i++){
+        		UI.UIelementsParameters[i][0] = accelerometerState[i];
+        	}
         }
         else UI.initUI(nParams,null,viewZoom);
         	
         UI.buildUI(this, mainGroup);
+        
         
         /*
          * ACCELEROMETERS
@@ -77,7 +83,6 @@ public class faust extends Activity {
 				SWIGTYPE_p_float paramValues = faustObject.new_floatArray(nParams[0]);
 				
 				while(on){
-					//UI.hsliders[0].setValue();
 					for(int i = 0; i<nParams[0]; i++){
 						faustObject.floatArray_setitem(paramValues, i, UI.parametersValues[i]);
 					}
@@ -91,12 +96,18 @@ public class faust extends Activity {
 		
 		accelThread = new Thread() {
 			public void run() {
+				float normalizedAccelX;
+				float normalizedAccelY;
+				float normalizedAccelZ;
 				while(on){
-					System.out.println("voila: " + rawAccel[0]);
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					//System.out.println("voila: " + rawAccel[2]);
+					normalizedAccelX = (rawAccel[0]+20)/40;
+					normalizedAccelY = (rawAccel[1]+20)/40;
+					normalizedAccelZ = (rawAccel[2]+20)/40;
+					for(int i = 0; i<nParams[0]; i++){
+						if(UI.UIelementsParameters[i][0] == 1) UI.hsliders[i].setNormizedValue(normalizedAccelX);
+						else if(UI.UIelementsParameters[i][0] == 2) UI.hsliders[i].setNormizedValue(normalizedAccelX);
+						else if(UI.UIelementsParameters[i][0] == 3) UI.hsliders[i].setNormizedValue(normalizedAccelX);
 					}
 				}		
 			}
@@ -143,8 +154,12 @@ public class faust extends Activity {
     
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putFloatArray(SAVED_PARAMETERS, UI.parametersValues);
-        savedInstanceState.putInt(VIEW_ZOOM, viewZoom);
+    	for(int i=0; i<UI.UIelementsParameters.length; i++){
+    		accelerometerState[i] = UI.UIelementsParameters[i][0];
+    	}
+        savedInstanceState.putFloatArray("savedParameters", UI.parametersValues);
+        savedInstanceState.putIntArray("accelerometerState", accelerometerState);
+        savedInstanceState.putInt("viewZoom", viewZoom);
         super.onSaveInstanceState(savedInstanceState);
     }
     
@@ -156,7 +171,8 @@ public class faust extends Activity {
     
     protected void onResume() {
 		super.onResume();
-	    mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
+	    mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
+	    		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
 	    on = true; // TODO: why?
     }
     

@@ -23,4 +23,7 @@ class HorizontalSlider extends SeekBar {
 		else this.setProgress(Math.round((theValue+min)*(1/step)));
 	}
 	
+	public void setNormizedValue(float theValue){
+		this.setProgress(Math.round(theValue*max/step));
+	}
 }

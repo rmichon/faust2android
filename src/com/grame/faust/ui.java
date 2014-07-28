@@ -22,6 +22,8 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
@@ -34,6 +36,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -62,14 +65,24 @@ public class ui{
 	String JSONparameters = new String();
 	// the values of the different UI elements 
 	float[] parametersValues;
+	// TODO comment
+	int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders
 	int[] parametersCounters = {0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, horizontalZoom = 0, screenSizeX = 0;
 	boolean isSavedParameters;
 	
+	// TODO comment that out
 	HorizontalSlider[] hsliders;
 	VerticalSeekBar[] vsliders;
+	
+	ConfigWindow parametersWindow = new ConfigWindow();
+	
+	// TODO may this should be declared in its own class
+	//PopupWindow parameterWindow;
+	//LinearLayout parameterWindowLayout;
+	
 	
 	/*
 	 * Initialize parametersValues in function of the total
@@ -78,6 +91,9 @@ public class ui{
 	public void initUI(int[] nParameters, float[] savedParameters, int viewZoom){
 		horizontalZoom = viewZoom;
 		parametersValues = new float[nParameters[0]];
+		// TODO 1 for now but we'll probably need more, also need to be saved in the instance like
+		// the parameters values
+		UIelementsParameters = new int[nParameters[0]][1]; 
 		if(nParameters[1]>0) vsliders = new VerticalSeekBar[nParameters[1]];
 		if(nParameters[2]>0) hsliders = new HorizontalSlider[nParameters[2]];
 		if(savedParameters != null){ 
@@ -136,6 +152,7 @@ public class ui{
 		Point size = new Point();
 		display.getSize(size);
 		screenSizeX = size.x;
+		parametersWindow.buildWindow(c);
 		JSONArray uiArray = getJSONui(c);
 		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(screenSizeX*(1+horizontalZoom*0.1f)));
 	}
@@ -308,6 +325,40 @@ public class ui{
 			e.printStackTrace();
 		}
 	}
+	
+	/*
+	public void buildParametersConfigWindow(Context c){
+		// the global elements are instantiated
+		parameterWindowLayout = new LinearLayout(c);
+		parameterWindow = new PopupWindow(c);
+		
+		LinearLayout windowLayout = new LinearLayout(c);
+		TextView closeButton = new TextView(c);
+		
+		windowLayout.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		windowLayout.setOrientation(LinearLayout.VERTICAL);
+		// TODO fix padding!
+		//windowLayout.setPadding(0, 0, 0, 0);
+		
+		// TODO: perhaps this should be replaced by a nicer button :)
+		closeButton.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		closeButton.setGravity(Gravity.RIGHT);
+		closeButton.setTextSize(20);
+		closeButton.setText("X");
+		
+		closeButton.setOnClickListener(new OnClickListener(){
+			public void onClick(View v){
+				parameterWindow.dismiss();
+			}
+		});
+		
+		windowLayout.addView(closeButton);
+		
+		parameterWindow.setContentView(windowLayout);
+	}
+	*/
 	
 	/*
 	 * Creates a drop down menu and adds it to currentGroup.
@@ -593,6 +644,14 @@ public class ui{
 		textValue.setText(String.format(decimalsDisplay, init));
 		textLabel.setText(label);
 		textLabel.setGravity(Gravity.CENTER);
+		
+		// Listener for the parameters window 
+		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
+			public boolean onLongClick (View v){
+				parametersWindow.showWindow(screenSizeX, UIelementsParameters[currentParameterNumber]);
+				return true;
+			}
+		});
 		
 		OnSeekBarChangeListener sliderListener = new OnSeekBarChangeListener() {
 			public void onStopTrackingTouch(SeekBar seekBar) {}
