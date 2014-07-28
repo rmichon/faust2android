@@ -18,6 +18,7 @@ public class ConfigWindow{
 	LinearLayout mainWindowLayout;
 	SelectBar axisSelection;
 	TextView closeButton;
+	ToggleButton invertButton, filterButton;
 	
 	public void buildWindow(Context c){
 		// the global elements are instantiated
@@ -25,6 +26,8 @@ public class ConfigWindow{
 		mainWindow = new PopupWindow(c);
 		closeButton = new TextView(c);
 		axisSelection = new SelectBar(c);
+		invertButton = new ToggleButton(c);
+		filterButton = new ToggleButton(c);
 		
 		LinearLayout windowLayout = new LinearLayout(c);
 		LinearLayout titleLayout = new LinearLayout(c);
@@ -49,6 +52,16 @@ public class ConfigWindow{
 		closeButton.setTextSize(20);
 		closeButton.setText("X");
 		
+		invertButton.setLayoutParams(wrapped);
+		invertButton.setText("Invert");
+		invertButton.setTextOn("Invert");
+		invertButton.setTextOff("Invert");
+		
+		filterButton.setLayoutParams(wrapped);
+		filterButton.setText("Filter");
+		filterButton.setTextOn("Filter");
+		filterButton.setTextOff("Filter");
+		
 		windowLabel.setText("Controller Parameters");
 		windowLabel.setTextSize(22.f);
 		
@@ -61,11 +74,19 @@ public class ConfigWindow{
 		windowLayout.addView(titleLayout);
 		axisSelection.addTo(windowLayout);
 		
+		windowLayout.addView(invertButton);
+		windowLayout.addView(filterButton);
+		
 		mainWindow.setContentView(windowLayout);
 	}
 	
 	public void showWindow(int screenSizeX, final int[] UIelementsParameters){
+		// Saved state is used
 		axisSelection.selectItem(UIelementsParameters[0]);
+		if(UIelementsParameters[1] == 1) invertButton.setChecked(true);
+		else invertButton.setChecked(false);
+		if(UIelementsParameters[2] == 1) filterButton.setChecked(true);
+		else filterButton.setChecked(false);
 		
 		mainWindow.showAtLocation(mainWindowLayout, Gravity.CENTER,0,0);
 		mainWindow.update(0, 0, screenSizeX*700/800, screenSizeX*200/800);
@@ -76,6 +97,24 @@ public class ConfigWindow{
 				UIelementsParameters[0] = axisSelection.id;
 			}
 		});
+		
+		invertButton.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+        	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        		if(isChecked){
+        			UIelementsParameters[1] = 1;
+        		}
+        		else UIelementsParameters[1] = 0;
+        	}
+        });
+		
+		filterButton.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+        	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        		if(isChecked){
+        			UIelementsParameters[2] = 1;
+        		}
+        		else UIelementsParameters[2] = 0;
+        	}
+        });
 	}
 	
 	/*

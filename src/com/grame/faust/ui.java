@@ -91,9 +91,7 @@ public class ui{
 	public void initUI(int[] nParameters, float[] savedParameters, int viewZoom){
 		horizontalZoom = viewZoom;
 		parametersValues = new float[nParameters[0]];
-		// TODO 1 for now but we'll probably need more, also need to be saved in the instance like
-		// the parameters values
-		UIelementsParameters = new int[nParameters[0]][1]; 
+		UIelementsParameters = new int[nParameters[0]][3]; 
 		if(nParameters[1]>0) vsliders = new VerticalSeekBar[nParameters[1]];
 		if(nParameters[2]>0) hsliders = new HorizontalSlider[nParameters[2]];
 		if(savedParameters != null){ 

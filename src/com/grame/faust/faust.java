@@ -21,7 +21,7 @@ public class faust extends Activity {
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
 	
-	int[] accelerometerState;
+	int[] accelState, accelInverterState, accelFilterState;
 	
 	Thread mainThread, accelThread;
 	boolean on = true; // process on/off
@@ -43,22 +43,28 @@ public class faust extends Activity {
         nParams[1] = faustDspParameters.getCntVsliders();
         nParams[2] = faustDspParameters.getCntHsliders();
         
-        accelerometerState = new int[nParams[0]];
+        accelState = new int[nParams[0]];
+        accelInverterState = new int[nParams[0]];
+        accelFilterState = new int[nParams[0]];
         
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
         
         if (savedInstanceState != null){
         	viewZoom = savedInstanceState.getInt("viewZoom");
-        	accelerometerState = savedInstanceState.getIntArray("accelerometerState");
+        	accelState = savedInstanceState.getIntArray("accelState");
+        	accelInverterState = savedInstanceState.getIntArray("accelInverterState");
+        	accelFilterState = savedInstanceState.getIntArray("accelFilterState");
         	UI.initUI(nParams,savedInstanceState.getFloatArray("savedParameters"),viewZoom);
         	for(int i=0; i<UI.UIelementsParameters.length; i++){
-        		UI.UIelementsParameters[i][0] = accelerometerState[i];
+        		UI.UIelementsParameters[i][0] = accelState[i];
+        		UI.UIelementsParameters[i][1] = accelInverterState[i];
+        		UI.UIelementsParameters[i][2] = accelFilterState[i];
+        		
         	}
         }
         else UI.initUI(nParams,null,viewZoom);
         	
-        UI.buildUI(this, mainGroup);
-        
+        UI.buildUI(this, mainGroup);       
         
         /*
          * ACCELEROMETERS
@@ -105,9 +111,18 @@ public class faust extends Activity {
 					normalizedAccelY = (rawAccel[1]+20)/40;
 					normalizedAccelZ = (rawAccel[2]+20)/40;
 					for(int i = 0; i<nParams[0]; i++){
-						if(UI.UIelementsParameters[i][0] == 1) UI.hsliders[i].setNormizedValue(normalizedAccelX);
-						else if(UI.UIelementsParameters[i][0] == 2) UI.hsliders[i].setNormizedValue(normalizedAccelX);
-						else if(UI.UIelementsParameters[i][0] == 3) UI.hsliders[i].setNormizedValue(normalizedAccelX);
+						if(UI.UIelementsParameters[i][0] == 1){ 
+							if(UI.UIelementsParameters[i][1] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelX);
+							else UI.hsliders[i].setNormizedValue(normalizedAccelX);
+						}
+						else if(UI.UIelementsParameters[i][0] == 2){
+							if(UI.UIelementsParameters[i][1] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelY);
+							else UI.hsliders[i].setNormizedValue(normalizedAccelY);
+						}
+						else if(UI.UIelementsParameters[i][0] == 3){
+							if(UI.UIelementsParameters[i][1] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelZ);
+							else UI.hsliders[i].setNormizedValue(normalizedAccelZ);
+						}
 					}
 				}		
 			}
@@ -155,10 +170,14 @@ public class faust extends Activity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
     	for(int i=0; i<UI.UIelementsParameters.length; i++){
-    		accelerometerState[i] = UI.UIelementsParameters[i][0];
+    		accelState[i] = UI.UIelementsParameters[i][0];
+    		accelInverterState[i] = UI.UIelementsParameters[i][1];
+    		accelFilterState[i] = UI.UIelementsParameters[i][2];
     	}
         savedInstanceState.putFloatArray("savedParameters", UI.parametersValues);
-        savedInstanceState.putIntArray("accelerometerState", accelerometerState);
+        savedInstanceState.putIntArray("accelState", accelState);
+        savedInstanceState.putIntArray("accelInverterState", accelInverterState);
+        savedInstanceState.putIntArray("accelFilterState", accelFilterState);
         savedInstanceState.putInt("viewZoom", viewZoom);
         super.onSaveInstanceState(savedInstanceState);
     }
