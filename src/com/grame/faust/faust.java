@@ -37,6 +37,9 @@ public class faust extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         final Para faustDspParameters = faustClass.initFaust();
+        
+        String JSONdescription = faustClass.getJSON();
+        
         final int[] nParams = new int[3];
         
         nParams[0] = faustDspParameters.getCnt();
@@ -58,14 +61,13 @@ public class faust extends Activity {
         	for(int i=0; i<UI.UIelementsParameters.length; i++){
         		UI.UIelementsParameters[i][0] = accelState[i];
         		UI.UIelementsParameters[i][1] = accelInverterState[i];
-        		UI.UIelementsParameters[i][2] = accelFilterState[i];
-        		
+        		UI.UIelementsParameters[i][2] = accelFilterState[i]; 		
         	}
         }
         else UI.initUI(nParams,null,viewZoom);
         	
-        UI.buildUI(this, mainGroup);       
-        
+        //UI.buildUI(this, mainGroup);       
+        UI.buildUI(this, mainGroup, JSONdescription);
         /*
          * ACCELEROMETERS
          */

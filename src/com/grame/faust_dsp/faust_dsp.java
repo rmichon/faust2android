@@ -26,4 +26,20 @@ public class faust_dsp {
     faust_dspJNI.floatArray_setitem(SWIGTYPE_p_float.getCPtr(ary), index, value);
   }
 
+  public static String new_charArray(int nelements) {
+    return faust_dspJNI.new_charArray(nelements);
+  }
+
+  public static void delete_charArray(String ary) {
+    faust_dspJNI.delete_charArray(ary);
+  }
+
+  public static char charArray_getitem(String ary, int index) {
+    return faust_dspJNI.charArray_getitem(ary, index);
+  }
+
+  public static void charArray_setitem(String ary, int index, char value) {
+    faust_dspJNI.charArray_setitem(ary, index, value);
+  }
+
 }

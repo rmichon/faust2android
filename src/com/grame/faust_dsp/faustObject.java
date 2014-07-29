@@ -39,6 +39,10 @@ public class faustObject {
     return new Para(faust_dspJNI.faustObject_initFaust(swigCPtr, this), true);
   }
 
+  public String getJSON() {
+    return faust_dspJNI.faustObject_getJSON(swigCPtr, this);
+  }
+
   public void startAudio() {
     faust_dspJNI.faustObject_startAudio(swigCPtr, this);
   }

@@ -37,6 +37,6 @@
 %include "carrays.i"
 //%array_functions(int, intArray);
 %array_functions(float, floatArray);
-//%array_functions(char, charArray);
+%array_functions(char, charArray);
 
 %include "faust_dsp.h"

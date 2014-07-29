@@ -23,6 +23,10 @@ public class faust_dspJNI {
   public final static native void delete_floatArray(long jarg1);
   public final static native float floatArray_getitem(long jarg1, int jarg2);
   public final static native void floatArray_setitem(long jarg1, int jarg2, float jarg3);
+  public final static native String new_charArray(int jarg1);
+  public final static native void delete_charArray(String jarg1);
+  public final static native char charArray_getitem(String jarg1, int jarg2);
+  public final static native void charArray_setitem(String jarg1, int jarg2, char jarg3);
   public final static native void Para_cnt_set(long jarg1, Para jarg1_, int jarg2);
   public final static native int Para_cnt_get(long jarg1, Para jarg1_);
   public final static native void Para_cntHsliders_set(long jarg1, Para jarg1_, int jarg2);
@@ -34,6 +38,7 @@ public class faust_dspJNI {
   public final static native long new_Para();
   public final static native void delete_Para(long jarg1);
   public final static native long faustObject_initFaust(long jarg1, faustObject jarg1_);
+  public final static native String faustObject_getJSON(long jarg1, faustObject jarg1_);
   public final static native void faustObject_startAudio(long jarg1, faustObject jarg1_);
   public final static native void faustObject_processDSP(long jarg1, faustObject jarg1_);
   public final static native void faustObject_setParam(long jarg1, faustObject jarg1_, long jarg2);

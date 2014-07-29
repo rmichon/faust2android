@@ -1,9 +1,5 @@
 package com.grame.faust;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.text.Editable;
@@ -22,7 +17,6 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -36,7 +30,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -79,11 +72,6 @@ public class ui{
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
 	
-	// TODO may this should be declared in its own class
-	//PopupWindow parameterWindow;
-	//LinearLayout parameterWindowLayout;
-	
-	
 	/*
 	 * Initialize parametersValues in function of the total
 	 * number of parameters.
@@ -102,37 +90,14 @@ public class ui{
 	}
 	
 	/*
-	 * Simple function that turns an InputStream into a String
+	 * Extract the UI element of the JSON description
 	 */
-	public static String convertStreamToString(InputStream is) throws Exception {
-	    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-	    StringBuilder sb = new StringBuilder();
-	    String line = null;
-
-	    while ((line = reader.readLine()) != null) {
-	        sb.append(line);
-	    }
-
-	    is.close();
-
-	    return sb.toString();
-	}
-	
-	/*
-	 * Extract the UI element of the JSON description contained in 
-	 * assets/params.json
-	 */
-	public JSONArray getJSONui(Context c){
-		Context myContext = c;
-        AssetManager am = myContext.getAssets();
+	public JSONArray getJSONui(String JSONdescription){
         JSONArray uiArray = new JSONArray();
-        try {
-			InputStream is = am.open("params.json");			
-			JSONparameters = convertStreamToString(is);
+        try {		
+			JSONparameters = JSONdescription;
 			JSONObject parametersObject = new JSONObject(JSONparameters);
 			uiArray = parametersObject.getJSONArray("ui");
-		} catch (IOException e) {
-			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -143,7 +108,7 @@ public class ui{
 	 * Build the UI in function of the JSON description by calling the
 	 * first iteration of parseJSON(). 
 	 */
-	public void buildUI(Context c, LinearLayout mainGroup){
+	public void buildUI(Context c, LinearLayout mainGroup, String JSONdescription){
 		int groupLevel = 0;
 		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
@@ -151,7 +116,7 @@ public class ui{
 		display.getSize(size);
 		screenSizeX = size.x;
 		parametersWindow.buildWindow(c);
-		JSONArray uiArray = getJSONui(c);
+		JSONArray uiArray = getJSONui(JSONdescription);
 		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(screenSizeX*(1+horizontalZoom*0.1f)));
 	}
 	

@@ -66,6 +66,15 @@ Para faustObject::initFaust(){
 	return params;
 }
 
+const char *faustObject::getJSON(){
+	mydsp myDSP;
+	JSONUI json(myDSP.getNumInputs(), myDSP.getNumOutputs());
+	mydsp::metadata(&json);
+	myDSP.buildUserInterface(&json);
+
+	return strdup(json.JSON().c_str());
+}
+
 void faustObject::startAudio(){
 	p = android_OpenAudioDevice(SR,inChanNumb,outChanNumb,BUFFERFRAMES);
 }

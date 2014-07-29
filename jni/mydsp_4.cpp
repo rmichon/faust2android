@@ -5,6 +5,7 @@ const int numbParams = 6;
 //-----------------------------------------------------
 /* link with  */
 #include <math.h>
+
 /************************************************************************
  ************************************************************************
  FAUST Architecture File for Android
@@ -254,384 +255,8 @@ class dsp {
 #endif
 
 #endif
-//#include "faust/gui/GUI.h"
-/*
 
-  Copyright (C) 2012 Grame
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-  Grame Research Laboratory, 9 rue du Garet, 69001 Lyon - France
-  research@grame.fr
-
-*/
-
-#ifndef __jsonfaustui__
-#define __jsonfaustui__
-
-#include <string>
-
-namespace httpdfaust
-{
-
-template <typename C> class jsonui;
-
-class jsonfaustui : public UI, public Meta
-{
-	jsonui<FAUSTFLOAT>* fJSON;
-	public:
-
-				 jsonfaustui(const char *name, const char* address, int port);
-		virtual ~jsonfaustui();
-
-		//--------------------------------------------
-		// UI methods
-		//--------------------------------------------
-		// -- widget's layouts
-		virtual void openTabBox(const char* label);
-		virtual void openHorizontalBox(const char* label);
-		virtual void openVerticalBox(const char* label);
-		virtual void closeBox();
-
-		// -- active widgets
-		void addButton(const char* label, FAUSTFLOAT* zone);
-		void addCheckButton(const char* label, FAUSTFLOAT* zone);
-		void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step);
-		void addHorizontalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step);
-		void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step);
-
-		// -- passive widgets
-		void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max);
-		void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, float min, float max);
-
-		// -- metadata declarations
-		void declare(FAUSTFLOAT*, const char*, const char*);
-
-		//--------------------------------------------
-		// additionnal methods (not part of UI)
-		//--------------------------------------------
-		void numInput(int n);			// should be called with the inputs number
-		void numOutput(int n);		// should be called with the outputs number
-		void declare(const char* , const char*); // global metadata declaration
-
-		//--------------------------------------------
-		// and eventually how to get the json as a string
-		//--------------------------------------------
-		std::string	json();
-};
-
-} //end namespace
-
-#endif
-#ifndef FAUST_JSONUI_H
-#define FAUST_JSONUI_H
-
-#ifndef FAUSTFLOAT
-#define FAUSTFLOAT float
-#endif
-
-#ifndef FAUST_PathUI_H
-#define FAUST_PathUI_H
-
-#include <vector>
-#include <string>
-#include <algorithm>
-
-/*******************************************************************************
- * PathUI : Faust User Interface
- * Helper class to build complete path for items.
- ******************************************************************************/
-
-class PathUI : public UI
-{
-
-    protected:
-
-        std::vector<std::string> fControlsLevel;
-
-    public:
-
-        std::string buildPath(const std::string& label)
-        {
-            std::string res = "/";
-            for (size_t i = 0; i < fControlsLevel.size(); i++) {
-                res += fControlsLevel[i];
-                res += "/";
-            }
-            res += label;
-            replace(res.begin(), res.end(), ' ', '_');
-            return res;
-        }
-
-};
-
-#endif
-
-#include <vector>
-#include <map>
-#include <string>
-#include <iostream>
-#include <sstream>
-
-/*******************************************************************************
- * JSONUI : Faust User Interface
- * This class produce a complete JSON decription of the DSP instance.
- ******************************************************************************/
-
-class JSONUI : public PathUI, public Meta
-{
-
-    protected:
-
-        std::stringstream fJSON;
-        std::stringstream fUI;
-        std::stringstream fMeta;
-        std::vector<std::pair <std::string, std::string> > fMetaAux;
-        std::string fName;
-
-        char fCloseUIPar;
-        char fCloseMetaPar;
-        int fTab;
-
-        int fInputs, fOutputs;
-
-        void tab(int n, std::ostream& fout)
-        {
-            fout << '\n';
-            while (n-- > 0) {
-                fout << '\t';
-            }
-        }
-
-        void addMeta(int tab_val, bool quote = true)
-        {
-            if (fMetaAux.size() > 0) {
-                tab(tab_val, fUI); fUI << "\"meta\": [";
-                std::string sep = "";
-                for (int i = 0; i < fMetaAux.size(); i++) {
-                    fUI << sep;
-                    tab(tab_val + 1, fUI); fUI << "{ " << "\"" << fMetaAux[i].first << "\": \"" << fMetaAux[i].second << "\"}";
-                    sep = ",";
-                }
-                tab(tab_val, fUI); fUI << ((quote) ? "],": "]");
-                fMetaAux.clear();
-            }
-        }
-
-     public:
-
-        JSONUI(int inputs, int outputs):fTab(1)
-        {
-            // Start Meta generation
-            tab(fTab, fMeta); fMeta << "\"meta\": [";
-            fCloseMetaPar = ' ';
-
-            // Start UI generation
-            tab(fTab, fUI); fUI << "\"ui\": [";
-            fCloseUIPar = ' ';
-            fTab += 1;
-
-            fName = "";
-            fInputs = inputs;
-            fOutputs = outputs;
-        }
-
-        virtual ~JSONUI() {}
-
-        // -- widget's layouts
-
-        virtual void openGenericGroup(const char* label, const char* name)
-        {
-            fControlsLevel.push_back(label);
-            fUI << fCloseUIPar;
-            tab(fTab, fUI); fUI << "{";
-            fTab += 1;
-            tab(fTab, fUI); fUI << "\"type\": \"" << name << "\",";
-            tab(fTab, fUI); fUI << "\"label\":" << "\"" << label << "\",";
-            tab(fTab, fUI); fUI << "\"items\": [";
-            fCloseUIPar = ' ';
-            fTab += 1;
-        }
-
-        virtual void openTabBox(const char* label)
-        {
-            openGenericGroup(label, "tgroup");
-        }
-
-        virtual void openHorizontalBox(const char* label)
-        {
-            openGenericGroup(label, "hgroup");
-        }
-
-        virtual void openVerticalBox(const char* label)
-        {
-            openGenericGroup(label, "vgroup");
-        }
-
-        virtual void closeBox()
-        {
-            fControlsLevel.pop_back();
-            fTab -= 1;
-            tab(fTab, fUI); fUI << "]";
-            fTab -= 1;
-            tab(fTab, fUI); fUI << "}";
-            fCloseUIPar = ',';
-        }
-
-        // -- active widgets
-
-        virtual void addGenericButton(const char* label, const char* name)
-        {
-            fUI << fCloseUIPar;
-            tab(fTab, fUI); fUI << "{";
-            tab(fTab + 1, fUI); fUI << "\"type\": \"" << name << "\",";
-            tab(fTab + 1, fUI); fUI << "\"label\": " << "\"" << label << "\"" << ",";
-            tab(fTab + 1, fUI); fUI << "\"address\": " << "\"" << buildPath(label) << "\"" << ((fMetaAux.size() > 0) ? "," : "");
-            addMeta(fTab + 1, false);
-            tab(fTab, fUI); fUI << "}";
-            fCloseUIPar = ',';
-        }
-
-        virtual void addButton(const char* label, FAUSTFLOAT* zone)
-        {
-            addGenericButton(label, "button");
-        }
-
-        virtual void addCheckButton(const char* label, FAUSTFLOAT* zone)
-        {
-            addGenericButton(label, "checkbox");
-        }
-
-        virtual void addGenericEntry(const char* label, const char* name, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
-        {
-            fUI << fCloseUIPar;
-            tab(fTab, fUI); fUI << "{";
-            tab(fTab + 1, fUI); fUI << "\"type\": \"" << name << "\",";
-            tab(fTab + 1, fUI); fUI << "\"label\": " << "\"" << label << "\"" << ",";
-            tab(fTab + 1, fUI); fUI << "\"address\": " << "\"" << buildPath(label) << "\"" << ",";
-            addMeta(fTab + 1);
-            tab(fTab + 1, fUI); fUI << "\"init\": \"" << init << "\",";
-            tab(fTab + 1, fUI); fUI << "\"min\": \"" << min << "\",";
-            tab(fTab + 1, fUI); fUI << "\"max\": \"" << max << "\",";
-            tab(fTab + 1, fUI); fUI << "\"step\": \"" << step << "\"";
-            tab(fTab, fUI); fUI << "}";
-            fCloseUIPar = ',';
-        }
-
-        virtual void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
-        {
-            addGenericEntry(label, "vslider", init, min, max, step);
-        }
-
-        virtual void addHorizontalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
-        {
-            addGenericEntry(label, "hslider", init, min, max, step);
-        }
-
-        virtual void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
-        {
-            addGenericEntry(label, "nentry", init, min, max, step);
-        }
-
-        // -- passive widgets
-
-        virtual void addGenericBargraph(const char* label, const char* name, FAUSTFLOAT min, FAUSTFLOAT max)
-        {
-            fUI << fCloseUIPar;
-            tab(fTab, fUI); fUI << "{";
-            tab(fTab + 1, fUI); fUI << "\"type\": \"" << name << "\",";
-            tab(fTab + 1, fUI); fUI << "\"label\": " << "\"" << label << "\"" << ",";
-            tab(fTab + 1, fUI); fUI << "\"address\": " << "\"" << buildPath(label) << "\"" << ",";
-            addMeta(fTab + 1);
-            tab(fTab + 1, fUI); fUI << "\"min\": \"" << min << "\",";
-            tab(fTab + 1, fUI); fUI << "\"max\": \"" << max << "\"";
-            tab(fTab, fUI); fUI << "}";
-            fCloseUIPar = ',';
-        }
-
-        virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
-        {
-            addGenericBargraph(label, "hbargraph", min, max);
-        }
-
-        virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
-        {
-            addGenericBargraph(label, "vbargraph", min, max);
-        }
-
-        // -- metadata declarations
-
-        virtual void declare(FAUSTFLOAT* zone, const char* key, const char* val)
-        {
-            fMetaAux.push_back(std::make_pair(key, val));
-        }
-
-        // Meta interface
-        virtual void declare(const char* key, const char* value)
-        {
-            fMeta << fCloseMetaPar;
-            if (strcmp(key, "name") == 0) fName = value;
-            tab(fTab, fMeta); fMeta << "{ " << "\"" << key << "\"" << ":" << "\"" << value << "\" }";
-            fCloseMetaPar = ',';
-        }
-
-        inline std::string flatten(const std::string& src)
-        {
-            std::stringstream dst;
-            for (int i = 0; i < src.size(); i++) {
-                switch (src[i]) {
-                    case '\n':
-                    case '\t':
-                        dst << ' ';
-                        break;
-                    case '"':
-                        dst << "\\" << '"';
-                        break;
-                    default:
-                        dst << src[i];
-                        break;
-                }
-            }
-            return dst.str();
-        }
-
-        std::string JSON(bool flat = false)
-        {
-            fTab = 0;
-            fJSON << "{";
-            fTab += 1;
-            tab(fTab, fJSON); fJSON << "\"name\": \"" << fName << "\",";
-            tab(fTab, fJSON); fJSON << "\"address\": \"\",";
-            tab(fTab, fJSON); fJSON << "\"port\": \"0\",";
-            if (fInputs > 0) { tab(fTab, fJSON); fJSON << "\"inputs\": \"" << fInputs << "\","; }
-            if (fOutputs > 0) { tab(fTab, fJSON); fJSON << "\"outputs\": \"" << fOutputs << "\","; }
-            tab(fTab, fMeta); fMeta << "],";
-            tab(fTab, fUI); fUI << "]";
-            fTab -= 1;
-            if (fCloseMetaPar == ',') { // If "declare" has been called, fCloseMetaPar state is now ','
-                fJSON << fMeta.str() << fUI.str();
-            } else {
-                fJSON << fUI.str();
-            }
-            tab(fTab, fJSON); fJSON << "}" << std::endl;
-            return (flat) ? flatten(fJSON.str()) : fJSON.str();
-        }
-
-};
-
-#endif
+#include <math.h>
 
 class GUI : public UI {
 	public:
@@ -690,16 +315,17 @@ class GUI : public UI {
 	    virtual void declare(FAUSTFLOAT* zone, const char* key, const char* val) {}
 };
 
-//**************************************************************
-// DSP class
-//**************************************************************
-
-
+//-----------------------------------------------------
+//
+// Code generated with Faust 0.9.67 (http://faust.grame.fr)
+//-----------------------------------------------------
 #ifndef FAUSTFLOAT
 #define FAUSTFLOAT float
 #endif  
 
 typedef long double quad;
+/* link with  */
+#include <math.h>
 
 #ifndef FAUSTCLASS 
 #define FAUSTCLASS mydsp
@@ -785,17 +411,17 @@ class mydsp : public dsp {
 		instanceInit(samplingFreq);
 	}
 	virtual void buildUserInterface(UI* interface) {
-		interface->openVerticalBox("0x1d64c70");
-		interface->openVerticalBox("Carrier");
+		interface->openVerticalBox("0x1a2fc20");
+		interface->openVerticalBox("0x1a2bf70");
 		interface->declare(&fslider2, "accel", "1 2 3");
 		interface->declare(&fslider2, "osc", "/freq");
 		interface->addHorizontalSlider("Frequency", &fslider2, 4.4e+02f, 2e+01f, 8e+03f, 1.0f);
 		interface->closeBox();
-		interface->openVerticalBox("General Parameters");
+		interface->openVerticalBox("0x1a2f9a0");
 		interface->addHorizontalSlider("Balance", &fslider4, 0.5f, 0.0f, 1.0f, 0.1f);
 		interface->addHorizontalSlider("Volume", &fslider3, 0.0f, -96.0f, 0.0f, 0.1f);
 		interface->closeBox();
-		interface->openVerticalBox("Modulator");
+		interface->openVerticalBox("0x1a2b4f0");
 		interface->addHorizontalSlider("Frequency", &fslider0, 4.4e+02f, 2e+01f, 1.5e+04f, 1.0f);
 		interface->addHorizontalSlider("Modulation Index", &fslider1, 0.0f, 0.0f, 1e+03f, 0.1f);
 		interface->closeBox();

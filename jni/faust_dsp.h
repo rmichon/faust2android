@@ -27,6 +27,7 @@ struct Para {
 class faustObject{
 public:
 	Para initFaust(void);
+	const char *getJSON(void);
 	void startAudio(void);
 	void processDSP(void);
 	void setParam(float*);

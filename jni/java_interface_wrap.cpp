@@ -230,6 +230,22 @@ static void floatArray_setitem(float *ary, int index, float value) {
 }
 
 
+static char *new_charArray(int nelements) { 
+  return new char[nelements]; 
+}
+
+static void delete_charArray(char *ary) { 
+  delete [] ary; 
+}
+
+static char charArray_getitem(char *ary, int index) {
+    return ary[index];
+}
+static void charArray_setitem(char *ary, int index, char value) {
+    ary[index] = value;
+}
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -285,6 +301,75 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_floatArray_1seti
   arg2 = (int)jarg2; 
   arg3 = (float)jarg3; 
   floatArray_setitem(arg1,arg2,arg3);
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_new_1charArray(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  jstring jresult = 0 ;
+  int arg1 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (int)jarg1; 
+  result = (char *)new_charArray(arg1);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_delete_1charArray(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+  char *arg1 = (char *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return ;
+  }
+  delete_charArray(arg1);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+}
+
+
+SWIGEXPORT jchar JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_charArray_1getitem(JNIEnv *jenv, jclass jcls, jstring jarg1, jint jarg2) {
+  jchar jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = (int)jarg2; 
+  result = (char)charArray_getitem(arg1,arg2);
+  jresult = (jchar)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_charArray_1setitem(JNIEnv *jenv, jclass jcls, jstring jarg1, jint jarg2, jchar jarg3) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char arg3 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return ;
+  }
+  arg2 = (int)jarg2; 
+  arg3 = (char)jarg3; 
+  charArray_setitem(arg1,arg2,arg3);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
 }
 
 
@@ -433,6 +518,21 @@ SWIGEXPORT jlong JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1in
   arg1 = *(faustObject **)&jarg1; 
   result = (arg1)->initFaust();
   *(Para **)&jresult = new Para((const Para &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1getJSON(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  faustObject *arg1 = (faustObject *) 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(faustObject **)&jarg1; 
+  result = (char *)(arg1)->getJSON();
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }
 
