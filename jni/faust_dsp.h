@@ -21,16 +21,16 @@ struct Para {
 			int cnt;
 			int cntHsliders;
 			int cntVsliders;
-			float *zone;
 		} ;
 
 class faustObject{
 public:
-	Para initFaust(void);
+	void initFaust(void);
 	const char *getJSON(void);
+	int getParamsCount(void);
 	void startAudio(void);
-	void processDSP(void);
-	void setParam(float*);
+	void setParam(const char*, float);
 	void stopAudio(void);
+	const char *getParamPath(int);
 };
 

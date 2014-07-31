@@ -33,20 +33,21 @@ using namespace std;
 
 OPENSL_STREAM *p;
 mydsp* DSP;
-GUI* interface;
+MapUI* mapUI;
+pthread_t audioThread;
 
-int inChanNumb, outChanNumb;
+int inChanNumb, outChanNumb, on;
 float **bufferout,**bufferin;
 
-Para faustObject::initFaust(){
+void faustObject::initFaust(){
 	DSP = new mydsp();
-	interface = new GUI();
-	interface->initUI();
-	DSP->buildUserInterface(interface);
+	mapUI = new MapUI();
 	DSP->init(SR);
-	Para params;
 	inChanNumb = DSP->getNumInputs();
 	outChanNumb = DSP->getNumOutputs();
+
+	// Only the JSON interface is built
+	DSP->buildUserInterface(mapUI);
 
 	// allocating memory for output channel
 	bufferout = new float *[outChanNumb];
@@ -58,12 +59,7 @@ Para faustObject::initFaust(){
 		bufferin = new float *[1];
 		bufferin[0] = new float [VECSAMPS];
 	}
-
-	params.cnt = interface->params.cnt;
-	params.cntVsliders = interface->params.cntVsliders;
-	params.cntHsliders = interface->params.cntHsliders;
-
-	return params;
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s", mapUI->getParamPath(0));
 }
 
 const char *faustObject::getJSON(){
@@ -75,41 +71,53 @@ const char *faustObject::getJSON(){
 	return strdup(json.JSON().c_str());
 }
 
-void faustObject::startAudio(){
+int faustObject::getParamsCount(){
+	return mapUI->getParamsCount();
+}
+
+void *processDSP(void *threadID){
+	float out[VECSAMPS*2];
 	p = android_OpenAudioDevice(SR,inChanNumb,outChanNumb,BUFFERFRAMES);
+
+	while(on){
+		// getting input signal
+		if(inChanNumb>=1) android_AudioIn(p,bufferin[0],VECSAMPS);
+
+		// computing...
+		DSP->compute(VECSAMPS,bufferin,bufferout);
+
+		// sending output signal
+		if(outChanNumb == 1) android_AudioOut(p,bufferout[0],VECSAMPS);
+		else{
+			int i,j;
+			for(i = 0, j=0; i < VECSAMPS; i++, j+=2){
+				out[j] = bufferout[0][i];
+				out[j+1] = bufferout[1][i];
+			}
+			android_AudioOut(p,out,VECSAMPS*2);
+		}
+	}
+	android_CloseAudioDevice(p);
+}
+
+void faustObject::startAudio(){
+	on = 1;
+	pthread_create(&audioThread, NULL, processDSP, this);
 }
 
 void faustObject::stopAudio(){
-	android_CloseAudioDevice(p);
+	on = 0;
+	pthread_join(audioThread, 0);
 	delete [] bufferin;
 	delete [] *bufferout;
 	delete [] bufferout;
 }
 
-void faustObject::setParam(float *params){
-	for(int i = 0; i<interface->params.cnt; i++){
-		//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %f", params[i]);
-		*interface->params.value[i] = params[i];
-	}
+void faustObject::setParam(const char* address, float value){
+	mapUI->setValue(address, value);
 }
 
-void faustObject::processDSP(){
-	float out[VECSAMPS*2];
-
-	// getting input signal
-	if(inChanNumb>=1) android_AudioIn(p,bufferin[0],VECSAMPS);
-
-	// computing...
-	DSP->compute(VECSAMPS,bufferin,bufferout);
-
-	// sending output signal
-	if(outChanNumb == 1) android_AudioOut(p,bufferout[0],VECSAMPS);
-	else{
-		int i,j;
-		for(i = 0, j=0; i < VECSAMPS; i++, j+=2){
-			out[j] = bufferout[0][i];
-			out[j+1] = bufferout[1][i];
-		}
-		android_AudioOut(p,out,VECSAMPS*2);
-	}
+const char *faustObject::getParamPath(int index){
+	return strdup(mapUI->getParamPath(index).c_str());
 }
+

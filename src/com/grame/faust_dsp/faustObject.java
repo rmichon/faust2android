@@ -35,28 +35,32 @@ public class faustObject {
     }
   }
 
-  public Para initFaust() {
-    return new Para(faust_dspJNI.faustObject_initFaust(swigCPtr, this), true);
+  public void initFaust() {
+    faust_dspJNI.faustObject_initFaust(swigCPtr, this);
   }
 
   public String getJSON() {
     return faust_dspJNI.faustObject_getJSON(swigCPtr, this);
   }
 
+  public int getParamsCount() {
+    return faust_dspJNI.faustObject_getParamsCount(swigCPtr, this);
+  }
+
   public void startAudio() {
     faust_dspJNI.faustObject_startAudio(swigCPtr, this);
   }
 
-  public void processDSP() {
-    faust_dspJNI.faustObject_processDSP(swigCPtr, this);
-  }
-
-  public void setParam(SWIGTYPE_p_float arg0) {
-    faust_dspJNI.faustObject_setParam(swigCPtr, this, SWIGTYPE_p_float.getCPtr(arg0));
+  public void setParam(String arg0, float arg1) {
+    faust_dspJNI.faustObject_setParam(swigCPtr, this, arg0, arg1);
   }
 
   public void stopAudio() {
     faust_dspJNI.faustObject_stopAudio(swigCPtr, this);
+  }
+
+  public String getParamPath(int arg0) {
+    return faust_dspJNI.faustObject_getParamPath(swigCPtr, this, arg0);
   }
 
   public faustObject() {

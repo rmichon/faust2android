@@ -33,16 +33,15 @@ public class faust_dspJNI {
   public final static native int Para_cntHsliders_get(long jarg1, Para jarg1_);
   public final static native void Para_cntVsliders_set(long jarg1, Para jarg1_, int jarg2);
   public final static native int Para_cntVsliders_get(long jarg1, Para jarg1_);
-  public final static native void Para_zone_set(long jarg1, Para jarg1_, long jarg2);
-  public final static native long Para_zone_get(long jarg1, Para jarg1_);
   public final static native long new_Para();
   public final static native void delete_Para(long jarg1);
-  public final static native long faustObject_initFaust(long jarg1, faustObject jarg1_);
+  public final static native void faustObject_initFaust(long jarg1, faustObject jarg1_);
   public final static native String faustObject_getJSON(long jarg1, faustObject jarg1_);
+  public final static native int faustObject_getParamsCount(long jarg1, faustObject jarg1_);
   public final static native void faustObject_startAudio(long jarg1, faustObject jarg1_);
-  public final static native void faustObject_processDSP(long jarg1, faustObject jarg1_);
-  public final static native void faustObject_setParam(long jarg1, faustObject jarg1_, long jarg2);
+  public final static native void faustObject_setParam(long jarg1, faustObject jarg1_, String jarg2, float jarg3);
   public final static native void faustObject_stopAudio(long jarg1, faustObject jarg1_);
+  public final static native String faustObject_getParamPath(long jarg1, faustObject jarg1_, int jarg2);
   public final static native long new_faustObject();
   public final static native void delete_faustObject(long jarg1);
 }

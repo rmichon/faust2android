@@ -59,15 +59,6 @@ public class Para {
     return faust_dspJNI.Para_cntVsliders_get(swigCPtr, this);
   }
 
-  public void setZone(SWIGTYPE_p_float value) {
-    faust_dspJNI.Para_zone_set(swigCPtr, this, SWIGTYPE_p_float.getCPtr(value));
-  }
-
-  public SWIGTYPE_p_float getZone() {
-    long cPtr = faust_dspJNI.Para_zone_get(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_float(cPtr, false);
-  }
-
   public Para() {
     this(faust_dspJNI.new_Para(), true);
   }

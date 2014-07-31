@@ -1,12 +1,10 @@
 package com.grame.faust;
 
 import com.grame.faust_dsp.faustObject;
-import com.grame.faust_dsp.SWIGTYPE_p_float;
-import com.grame.faust_dsp.faust_dsp;
 
-import com.grame.faust_dsp.Para;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,6 +13,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
 public class faust extends Activity {
@@ -23,51 +22,47 @@ public class faust extends Activity {
 	
 	int[] accelState, accelInverterState, accelFilterState;
 	
-	Thread mainThread, accelThread;
+	Thread accelThread;
 	boolean on = true; // process on/off
-	int viewZoom = 0;
 	
-	faustObject faustClass = new faustObject(); 
-	faust_dsp faustObject = new faust_dsp();
-	
-	ui UI = new ui(); 
+	faustObject faust = new faustObject();
+	ui UI = new ui(faust); 
+	ParametersInfo parametersInfo = new ParametersInfo();
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        final Para faustDspParameters = faustClass.initFaust();
+        faust.initFaust();
         
-        String JSONdescription = faustClass.getJSON();
+        final int numberOfParameters = faust.getParamsCount();
         
-        final int[] nParams = new int[3];
+        parametersInfo.init(numberOfParameters);
+        SharedPreferences settings = getSharedPreferences("savedParameters", 0);
         
-        nParams[0] = faustDspParameters.getCnt();
-        nParams[1] = faustDspParameters.getCntVsliders();
-        nParams[2] = faustDspParameters.getCntHsliders();
-        
-        accelState = new int[nParams[0]];
-        accelInverterState = new int[nParams[0]];
-        accelFilterState = new int[nParams[0]];
+        accelState = new int[numberOfParameters];
+        accelInverterState = new int[numberOfParameters];
+        accelFilterState = new int[numberOfParameters];
         
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
+        HorizontalScrollView horizontalScroll = (HorizontalScrollView) findViewById(R.id.horizontalScroll);
+        UI.horizontalScroll = horizontalScroll;
         
+        /*
         if (savedInstanceState != null){
-        	viewZoom = savedInstanceState.getInt("viewZoom");
         	accelState = savedInstanceState.getIntArray("accelState");
         	accelInverterState = savedInstanceState.getIntArray("accelInverterState");
         	accelFilterState = savedInstanceState.getIntArray("accelFilterState");
-        	UI.initUI(nParams,savedInstanceState.getFloatArray("savedParameters"),viewZoom);
         	for(int i=0; i<UI.UIelementsParameters.length; i++){
         		UI.UIelementsParameters[i][0] = accelState[i];
         		UI.UIelementsParameters[i][1] = accelInverterState[i];
         		UI.UIelementsParameters[i][2] = accelFilterState[i]; 		
         	}
         }
-        else UI.initUI(nParams,null,viewZoom);
-        	
-        //UI.buildUI(this, mainGroup);       
-        UI.buildUI(this, mainGroup, JSONdescription);
+        */
+        
+        UI.initUI(parametersInfo,settings);	
+        UI.buildUI(this, mainGroup);
         /*
          * ACCELEROMETERS
          */
@@ -84,23 +79,7 @@ public class faust extends Activity {
         System.out.println("Voila:" + myAudioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER));
         */
         
-        mainThread = new Thread() {
-			public void run() {
-				setPriority(Thread.MAX_PRIORITY);
-				faustClass.startAudio();
-				SWIGTYPE_p_float paramValues = faustObject.new_floatArray(nParams[0]);
-				
-				while(on){
-					for(int i = 0; i<nParams[0]; i++){
-						faustObject.floatArray_setitem(paramValues, i, UI.parametersValues[i]);
-					}
-					faustClass.setParam(paramValues);
-					faustClass.processDSP();
-				}
-				faustClass.stopAudio();
-			}
-		};
-		mainThread.start(); 
+        faust.startAudio();
 		
 		accelThread = new Thread() {
 			public void run() {
@@ -108,11 +87,10 @@ public class faust extends Activity {
 				float normalizedAccelY;
 				float normalizedAccelZ;
 				while(on){
-					//System.out.println("voila: " + rawAccel[2]);
 					normalizedAccelX = (rawAccel[0]+20)/40;
 					normalizedAccelY = (rawAccel[1]+20)/40;
 					normalizedAccelZ = (rawAccel[2]+20)/40;
-					for(int i = 0; i<nParams[0]; i++){
+					for(int i = 0; i<numberOfParameters; i++){
 						if(UI.UIelementsParameters[i][0] == 1){ 
 							if(UI.UIelementsParameters[i][1] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelX);
 							else UI.hsliders[i].setNormizedValue(normalizedAccelX);
@@ -131,7 +109,7 @@ public class faust extends Activity {
 		};
 		accelThread.start();
     }
-    
+        
     private final SensorEventListener mSensorListener = new SensorEventListener() {
 		public void onSensorChanged(SensorEvent se) {
 			rawAccel[0] = se.values[0];
@@ -155,12 +133,12 @@ public class faust extends Activity {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id.action_zoomin:
-            	viewZoom++;
+            	parametersInfo.zoom++;
                 recreate();
                 return true;
             case R.id.action_zoomout:
-            	if(viewZoom > 0){
-            		viewZoom--;
+            	if(parametersInfo.zoom > 0){
+            		parametersInfo.zoom--;
             		recreate();
             	}
                 return true;
@@ -169,6 +147,7 @@ public class faust extends Activity {
         }
     }
     
+    /*
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
     	for(int i=0; i<UI.UIelementsParameters.length; i++){
@@ -176,13 +155,12 @@ public class faust extends Activity {
     		accelInverterState[i] = UI.UIelementsParameters[i][1];
     		accelFilterState[i] = UI.UIelementsParameters[i][2];
     	}
-        savedInstanceState.putFloatArray("savedParameters", UI.parametersValues);
         savedInstanceState.putIntArray("accelState", accelState);
         savedInstanceState.putIntArray("accelInverterState", accelInverterState);
         savedInstanceState.putIntArray("accelFilterState", accelFilterState);
-        savedInstanceState.putInt("viewZoom", viewZoom);
         super.onSaveInstanceState(savedInstanceState);
     }
+    */
     
     @Override
    	protected void onPause() {
@@ -197,17 +175,23 @@ public class faust extends Activity {
 	    on = true; // TODO: why?
     }
     
+    @Override
+    protected void onStop(){
+       super.onStop();
+       SharedPreferences settings = getSharedPreferences("savedParameters", 0);
+       parametersInfo.saveParemeters(settings);
+    }
+    
     public void onDestroy(){
     	super.onDestroy();
     	on = false;
+    	faust.stopAudio();
     	try {
-			mainThread.join();
 			accelThread.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	mainThread = null;
     	accelThread = null;
     }
 }

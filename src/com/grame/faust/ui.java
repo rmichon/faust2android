@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.text.Editable;
@@ -29,6 +30,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -39,6 +41,7 @@ import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.VerticalSeekBar;
 
+import com.grame.faust_dsp.faustObject;
 import com.triggertrap.seekarc.SeekArc; 
 import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
 
@@ -54,48 +57,60 @@ public class ui{
 	/*
 	 * Global Variables (accessible from outside the class).
 	 */
+	// the faust C++ class
+	faustObject faust;
 	// string to store the full JSON description
 	String JSONparameters = new String();
 	// the values of the different UI elements 
-	float[] parametersValues;
+	ParametersInfo parametersInfo; // TODO
+	//float[] parametersValues;
 	// TODO comment
 	int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders
 	int[] parametersCounters = {0,0};
 	// incremented every time a new parameter is created
-	int parameterNumber = 0, horizontalZoom = 0, screenSizeX = 0;
+	int parameterNumber = 0, screenSizeX = 0;
 	boolean isSavedParameters;
 	
 	// TODO comment that out
+	HorizontalScrollView horizontalScroll;
 	HorizontalSlider[] hsliders;
 	VerticalSeekBar[] vsliders;
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
 	
+	public ui(faustObject faustObj){
+		faust = faustObj;
+	}
+	
 	/*
 	 * Initialize parametersValues in function of the total
 	 * number of parameters.
 	 */
-	public void initUI(int[] nParameters, float[] savedParameters, int viewZoom){
-		horizontalZoom = viewZoom;
-		parametersValues = new float[nParameters[0]];
-		UIelementsParameters = new int[nParameters[0]][3]; 
-		if(nParameters[1]>0) vsliders = new VerticalSeekBar[nParameters[1]];
-		if(nParameters[2]>0) hsliders = new HorizontalSlider[nParameters[2]];
-		if(savedParameters != null){ 
-			parametersValues = savedParameters;
-			isSavedParameters = true;
+	public void initUI(ParametersInfo paramsInfo, SharedPreferences settings){
+		JSONparameters = faust.getJSON();
+		int numberOfParameters = faust.getParamsCount();
+		int numberOfVsliders = countStringOccurrences(JSONparameters,"vslider");
+		int numberOfHsliders = countStringOccurrences(JSONparameters,"hslider");
+		
+		parametersInfo = paramsInfo;
+		for(int i=0; i<numberOfParameters; i++){ 
+			parametersInfo.address[i] = faust.getParamPath(i);
 		}
-		else isSavedParameters = false;
+		
+		isSavedParameters = parametersInfo.getSavedParameters(settings);
+
+		UIelementsParameters = new int[numberOfParameters][3]; // TODO what is that?
+		if(numberOfVsliders>0) vsliders = new VerticalSeekBar[numberOfVsliders];
+		if(numberOfHsliders>0) hsliders = new HorizontalSlider[numberOfHsliders];
 	}
 	
 	/*
 	 * Extract the UI element of the JSON description
 	 */
-	public JSONArray getJSONui(String JSONdescription){
+	public JSONArray getJSONui(){
         JSONArray uiArray = new JSONArray();
         try {		
-			JSONparameters = JSONdescription;
 			JSONObject parametersObject = new JSONObject(JSONparameters);
 			uiArray = parametersObject.getJSONArray("ui");
 		} catch (Exception e) {
@@ -108,7 +123,7 @@ public class ui{
 	 * Build the UI in function of the JSON description by calling the
 	 * first iteration of parseJSON(). 
 	 */
-	public void buildUI(Context c, LinearLayout mainGroup, String JSONdescription){
+	public void buildUI(Context c, LinearLayout mainGroup){
 		int groupLevel = 0;
 		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
@@ -116,8 +131,8 @@ public class ui{
 		display.getSize(size);
 		screenSizeX = size.x;
 		parametersWindow.buildWindow(c);
-		JSONArray uiArray = getJSONui(JSONdescription);
-		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(screenSizeX*(1+horizontalZoom*0.1f)));
+		JSONArray uiArray = getJSONui();
+		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(screenSizeX*(1+parametersInfo.zoom*0.1f)));
 	}
 	
 	/*
@@ -182,7 +197,8 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("vslider")){
 					if(metaDataStyle.equals("knob")){
-						knob(c,currentGroup,currentObject.getString("label"), 
+						knob(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
@@ -190,19 +206,22 @@ public class ui{
 								currentGroupLevel,groupDivisions,currentViewWidth);
 					}
 					else if(metaDataStyle.contains("menu")){
-						dropDownMenu(c,currentGroup,currentObject.getString("label"),
+						dropDownMenu(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle,groupDivisions,
 								currentViewWidth);
 					}
 					else if(metaDataStyle.contains("radio")){
-						radio(c,currentGroup,currentObject.getString("label"),
+						radio(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle,0,groupDivisions,
 								currentViewWidth);
 					}
 					else{
-						vslider(c,currentGroup,currentObject.getString("label"), 
+						vslider(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
@@ -213,7 +232,8 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("hslider")){
 					if(metaDataStyle.equals("knob")){
-						knob(c,currentGroup,currentObject.getString("label"), 
+						knob(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
@@ -221,19 +241,22 @@ public class ui{
 								currentGroupLevel,groupDivisions,currentViewWidth);
 					}
 					else if(metaDataStyle.contains("menu")){
-						dropDownMenu(c,currentGroup,currentObject.getString("label"),
+						dropDownMenu(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle,groupDivisions,
 								currentViewWidth);
 					}
 					else if(metaDataStyle.contains("radio")){
-						radio(c,currentGroup,currentObject.getString("label"),
+						radio(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle, 1,groupDivisions,
 								currentViewWidth);
 					}
 					else{
-						hslider(c,currentGroup,currentObject.getString("label"), 
+						hslider(c, currentGroup, currentObject.getString("address"),
+								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
@@ -244,7 +267,8 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("nentry")){
 					if(metaDataStyle.equals("knob")){
-						knob(c,currentGroup,currentObject.getString("label"), 
+						knob(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
@@ -252,19 +276,22 @@ public class ui{
 								currentGroupLevel,groupDivisions,currentViewWidth);
 					}
 					else if(metaDataStyle.contains("menu")){
-						dropDownMenu(c,currentGroup,currentObject.getString("label"),
+						dropDownMenu(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle,groupDivisions,
 								currentViewWidth);
 					}
 					else if(metaDataStyle.contains("radio")){
-						radio(c,currentGroup,currentObject.getString("label"),
+						radio(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle,0,groupDivisions,
 								currentViewWidth);
 					}
 					else{
-						nentry(c,currentGroup,currentObject.getString("label"), 
+						nentry(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")),
@@ -274,7 +301,8 @@ public class ui{
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("button")){
-					button(c,currentGroup,currentObject.getString("label"),
+					button(c,currentGroup,currentObject.getString("address"),
+							currentObject.getString("label"),
 							currentGroupLevel,groupDivisions,currentViewWidth);
 					parameterNumber++;
 				}
@@ -290,40 +318,6 @@ public class ui{
 	}
 	
 	/*
-	public void buildParametersConfigWindow(Context c){
-		// the global elements are instantiated
-		parameterWindowLayout = new LinearLayout(c);
-		parameterWindow = new PopupWindow(c);
-		
-		LinearLayout windowLayout = new LinearLayout(c);
-		TextView closeButton = new TextView(c);
-		
-		windowLayout.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-		windowLayout.setOrientation(LinearLayout.VERTICAL);
-		// TODO fix padding!
-		//windowLayout.setPadding(0, 0, 0, 0);
-		
-		// TODO: perhaps this should be replaced by a nicer button :)
-		closeButton.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-		closeButton.setGravity(Gravity.RIGHT);
-		closeButton.setTextSize(20);
-		closeButton.setText("X");
-		
-		closeButton.setOnClickListener(new OnClickListener(){
-			public void onClick(View v){
-				parameterWindow.dismiss();
-			}
-		});
-		
-		windowLayout.addView(closeButton);
-		
-		parameterWindow.setContentView(windowLayout);
-	}
-	*/
-	
-	/*
 	 * Creates a drop down menu and adds it to currentGroup.
 	 * PARAMETERS:
 	 * 	c: the context (this)
@@ -337,7 +331,7 @@ public class ui{
 	 *  upperViewWidth: width of the upper group
 	 */
 	// TODO: not sure if the priority should be for the slider parameters of the metadata for min max and range
-	public void dropDownMenu(Context c, LinearLayout currentGroup, final String label, float init, int currentGroupLevel, 
+	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label, float init, int currentGroupLevel, 
 			 String parameters, int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the slider, its value and its name)
 		LinearLayout localVerticalGroup = new LinearLayout(c);
@@ -376,8 +370,8 @@ public class ui{
 		frame.setPadding(2,2,2,2);
 				
 		// if parameters were saved, then they replace init		
-		if(isSavedParameters) init = parametersValues[currentParameterNumber];
-		else parametersValues[currentParameterNumber] = init;
+		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
+		else parametersInfo.values[currentParameterNumber] = init;
 		
 		textLabel.setText(label);
 		textLabel.setGravity(Gravity.CENTER);
@@ -415,7 +409,8 @@ public class ui{
         // listener...
         menu.setOnItemSelectedListener(new OnItemSelectedListener(){
         	public void onItemSelected(AdapterView parent, View view, int pos, long id) {
-        		parametersValues[currentParameterNumber] = (float) pos+min;
+        		parametersInfo.values[currentParameterNumber] = (float) pos+min;
+        		faust.setParam(address, parametersInfo.values[currentParameterNumber]);
         	} 
         	public void onNothingSelected(AdapterView parent) {	 		
         	}
@@ -443,7 +438,7 @@ public class ui{
 	 *  upperViewWidth: width of the upper group
 	 */
 	// TODO: not sure if the priority should be for the slider parameters of the metadata for min max and range
-	public void radio(Context c, LinearLayout currentGroup, final String label, float init, int currentGroupLevel, 
+	public void radio(Context c, LinearLayout currentGroup, final String address, final String label, float init, int currentGroupLevel, 
 			String parameters, int orientation, int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the slider, its value and its name)
 		LinearLayout localVerticalGroup = new LinearLayout(c);
@@ -483,8 +478,8 @@ public class ui{
 		else radio.setOrientation(LinearLayout.HORIZONTAL);
 		
 		// if parameters were saved, then they replace init		
-		if(isSavedParameters) init = parametersValues[currentParameterNumber];
-		else parametersValues[currentParameterNumber] = init;
+		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
+		else parametersInfo.values[currentParameterNumber] = init;
 		
 		textLabel.setText(label);
 		textLabel.setGravity(Gravity.CENTER);
@@ -517,7 +512,8 @@ public class ui{
 		radio.setOnCheckedChangeListener(new OnCheckedChangeListener() 
 	    {
 	        public void onCheckedChanged(RadioGroup group, int checkedId) {
-	        	parametersValues[currentParameterNumber] = (float) checkedId;
+	        	parametersInfo.values[currentParameterNumber] = (float) checkedId;
+				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
 	        }
 	    });
 		
@@ -542,7 +538,7 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	public void hslider(Context c, LinearLayout currentGroup, final String label, float init, 
+	public void hslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int currentGroupLevel,
 			int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the slider, its value and its name)
@@ -592,9 +588,11 @@ public class ui{
 		// TODO: doesn't scale properly for now + this technique should be generalized to all
 		// UI elements -> that's THE clean solution...
 		hsliders[parametersCounters[0]].setSliderParams(min, max, step);
-		if(isSavedParameters) init = parametersValues[currentParameterNumber];
-		else parametersValues[currentParameterNumber] = init;
+		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
+		else parametersInfo.values[currentParameterNumber] = init;
+		
 		hsliders[parametersCounters[0]].setValue(init);
+		faust.setParam(address, init);
 		
 		// the number of decimals of the displayed value of the knob is
 		// defined by step
@@ -620,11 +618,25 @@ public class ui{
 			public void onStopTrackingTouch(SeekBar seekBar) {}
 			public void onStartTrackingTouch(SeekBar seekBar) {}
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				parametersValues[currentParameterNumber] = (float) progress*step + min;
-				textValue.setText(String.format(decimalsDisplay, parametersValues[currentParameterNumber]));
+				parametersInfo.values[currentParameterNumber] = (float) progress*step + min;
+				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
+				textValue.setText(String.format(decimalsDisplay, parametersInfo.values[currentParameterNumber]));
 	          }
 	    };
 	    hsliders[parametersCounters[0]].setOnSeekBarChangeListener(sliderListener);
+	    
+	    // TODO: should be generalized to all the other UI elements
+	    hsliders[parametersCounters[0]].setOnTouchListener(new OnTouchListener()
+	    {
+	        @Override
+	        public boolean onTouch(final View view, final MotionEvent event)
+	        {
+	          if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE)
+	            horizontalScroll.requestDisallowInterceptTouchEvent(true);
+	          return false;
+	        }
+	    });
+	    
 	    sliderLayout.addView(textValue);
 	    sliderLayout.addView(hsliders[parametersCounters[0]]);
 	    localVerticalGroup.addView(textLabel);
@@ -649,7 +661,7 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	public void vslider(Context c, LinearLayout currentGroup, final String label, float init, 
+	public void vslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int currentGroupLevel,
 			int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the slider, its value and its name)
@@ -699,8 +711,10 @@ public class ui{
 		
 		// if parameters were saved, then they replace init
 		vsliders[parametersCounters[1]].setMax(Math.round((max-min)*(1/step)));
-		if(isSavedParameters) init = parametersValues[currentParameterNumber];
-		else parametersValues[currentParameterNumber] = init;
+		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
+		else parametersInfo.values[currentParameterNumber] = init;
+		
+		// TODO new assignment technique should be applied here
 		if(init<=0 && min<0) vsliders[parametersCounters[1]].setProgress(Math.round((init-min)*(1/step)));
 		else vsliders[parametersCounters[1]].setProgress(Math.round((init+min)*(1/step)));
 	
@@ -722,13 +736,24 @@ public class ui{
 			public void onStopTrackingTouch(SeekBar seekBar) {}
 			public void onStartTrackingTouch(SeekBar seekBar) {}
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				parametersValues[currentParameterNumber] = (float) progress*step + min;
-				textValue.setText(String.format(decimalsDisplay, parametersValues[currentParameterNumber]));
+				parametersInfo.values[currentParameterNumber] = (float) progress*step + min;
+				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
+				textValue.setText(String.format(decimalsDisplay, parametersInfo.values[currentParameterNumber]));
 	          }
 	    };
-	    
-	    // putting things together...
 	    vsliders[parametersCounters[1]].setOnSeekBarChangeListener(sliderListener);
+	    
+	    vsliders[parametersCounters[1]].setOnTouchListener(new OnTouchListener()
+	    {
+	        @Override
+	        public boolean onTouch(final View view, final MotionEvent event)
+	        {
+	          if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE)
+	            horizontalScroll.requestDisallowInterceptTouchEvent(true);
+	          return false;
+	        }
+	    });
+	    
 	    sliderLayout.addView(vsliders[parametersCounters[1]]);
 	    sliderLayout.addView(textValue);
 	    localVerticalGroup.addView(sliderLayout);
@@ -753,7 +778,7 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	public void knob(Context c, LinearLayout currentGroup, final String label, float init, 
+	public void knob(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int currentGroupLevel, 
 			int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the knob, its value and its name)
@@ -812,8 +837,8 @@ public class ui{
 				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
 		
 		// if parameters were saved, then they replace init
-		if(isSavedParameters) init = parametersValues[currentParameterNumber];
-		else parametersValues[currentParameterNumber] = init;
+		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
+		else parametersInfo.values[currentParameterNumber] = init;
 		
 		// the initial value of the knob is set (SeekArc's range is 0-100)
 		if(min < 0) knob.setProgress(Math.round((init-min)*-100/(max-min)));
@@ -841,8 +866,9 @@ public class ui{
 			public void onProgressChanged(SeekArc seekArc, int progress, boolean fromUser) {
 				// TODO: we should try the interface with negative values: not 100% sure
 				// the value of the parameter is updated and is displayed when the knob is used
-				parametersValues[currentParameterNumber] = (float) progress*0.01f*(max-min) + min;
-				textValue.setText(String.format(decimalsDisplay, parametersValues[currentParameterNumber]));
+				parametersInfo.values[currentParameterNumber] = (float) progress*0.01f*(max-min) + min;
+				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
+				textValue.setText(String.format(decimalsDisplay, parametersInfo.values[currentParameterNumber]));
 	          }
 	    };
 	    
@@ -867,7 +893,7 @@ public class ui{
 	 *  step: the slider step
 	 *  currentGroupLevel: current group's depth
 	 */
-	public void nentry(Context c, LinearLayout currentGroup, final String label, 
+	public void nentry(Context c, LinearLayout currentGroup, final String address, final String label, 
 			final float init, final float min, final float max, final float step,
 			int currentGroupLevel,int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the knob, its value and its name)
@@ -900,7 +926,7 @@ public class ui{
 		nentry.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
 		nentry.setText(Float.toString(init));
 		nentry.setGravity(Gravity.CENTER);
-		parametersValues[currentParameterNumber] = init;
+		parametersInfo.values[currentParameterNumber] = init;
 		
 		// the background color of the local group is brighter than the upper one
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
@@ -924,8 +950,8 @@ public class ui{
 		       String value = nentry.getText().toString();
 		       if(isNumeric(value)){
 		    	   if(Float.parseFloat(value) >= min & Float.parseFloat(value) <= max) 
-		    		   parametersValues[currentParameterNumber] = Float.parseFloat(value);
-		    	   else parametersValues[currentParameterNumber] = init;
+		    		   parametersInfo.values[currentParameterNumber] = Float.parseFloat(value);
+		    	   else parametersInfo.values[currentParameterNumber] = init;
 		       }
 		    }
 		};
@@ -948,7 +974,7 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	public void button(Context c, LinearLayout currentGroup, final String label,
+	public void button(Context c, LinearLayout currentGroup, final String address, final String label,
 			int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth){
 		// the button
 		Button button = new Button(c);
@@ -971,9 +997,11 @@ public class ui{
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                	parametersValues[currentParameterNumber] = 1.f;
+                	parametersInfo.values[currentParameterNumber] = 1.f;
+                	faust.setParam(address, 1.f);
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                	parametersValues[currentParameterNumber] = 0.f;
+                	parametersInfo.values[currentParameterNumber] = 0.f;
+                	faust.setParam(address, 0.f);
                 }
 	          	return true;
             }
@@ -992,6 +1020,7 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
+	// TODO: deffault value?
 	public void checkbox(Context c, LinearLayout currentGroup, final String label,
 			int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the slider, its value and its name)
@@ -1025,13 +1054,13 @@ public class ui{
 		
 		checkbox.setGravity(Gravity.CENTER);
 		checkbox.setText(label);
-		parametersValues[currentParameterNumber] = 0.0f;
+		parametersInfo.values[currentParameterNumber] = 0.0f;
 		
 		checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
         	@Override
         	public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
-        		if (isChecked) parametersValues[currentParameterNumber] = 1.f;
-        		else parametersValues[currentParameterNumber] = 0.f;
+        		if (isChecked) parametersInfo.values[currentParameterNumber] = 1.f;
+        		else parametersInfo.values[currentParameterNumber] = 0.f;
         	}
         });
 		
@@ -1148,18 +1177,11 @@ public class ui{
 		// we iterate the group's items
 		parseJSON(c,currentArray,localGroup,localGroupLevel,1,localViewWidth);
 	}
-	
-	/*
-	public void setProgressSeekBar(SeekBar s, float init, float min, float step){
-		if(init<=0 && min<0) s.setProgress(Math.round((init-min)*(1/step)));
-		else s.setProgress(Math.round((init+min)*(1/step)));
-	}
-	*/
-	
+		
 	/*
 	 * Check if a string is a number.
 	 */
-	public static boolean isNumeric(String str)  
+	private static boolean isNumeric(String str)  
 	{  
 	  try  
 	  {  
@@ -1170,5 +1192,17 @@ public class ui{
 	    return false;  
 	  }  
 	  return true;  
+	}
+	
+	private int countStringOccurrences(String input, String pattern){
+		int lastIndex = 0, count = 0;
+		while(lastIndex != -1){
+			lastIndex = input.indexOf(pattern,lastIndex);
+			if( lastIndex != -1){
+				count ++;
+				lastIndex += pattern.length();
+			}
+		}
+		return count;
 	}
 }

@@ -1,3 +1,4 @@
+const int numbParams = 6;
 //-----------------------------------------------------
 //
 // Code generated with Faust 0.9.67 (http://faust.grame.fr)
@@ -253,6 +254,7 @@ class dsp {
 #endif
 
 #endif
+//#include "faust/gui/GUI.h"
 /*
 
   Copyright (C) 2012 Grame
@@ -630,118 +632,63 @@ class JSONUI : public PathUI, public Meta
 };
 
 #endif
-#ifndef FAUST_MapUI_H
-#define FAUST_MapUI_H
 
-#ifndef FAUSTFLOAT
-#define FAUSTFLOAT float
-#endif
+class GUI : public UI {
+	public:
+	struct para {
+		int cnt;
+		int cntVsliders;
+		int cntHsliders;
+		float *value[numbParams];
+	} params;
 
-#include <vector>
-#include <map>
-#include <string>
+		virtual void initUI() {
+			params.cnt=0;
+			params.cntVsliders = 0; // number of hsliders
+			params.cntHsliders = 1; // number of vsliders
+		};
 
-/*******************************************************************************
- * MapUI : Faust User Interface
- * This class creates a map of complete path and zones for each UI item.
- ******************************************************************************/
+		// -- widget's layouts
 
-class MapUI : public PathUI
-{
+	    virtual void openTabBox(const char* label) {};
+	    virtual void openHorizontalBox(const char* label) {};
+	    virtual void openVerticalBox(const char* label) {};
+	    virtual void closeBox() {};
 
-    protected:
+	    // -- active widgets
 
-        std::map<std::string, FAUSTFLOAT*> fZoneMap;
+	    virtual void addButton(const char* label, FAUSTFLOAT* zone) {
+	    	params.value[params.cnt] = zone;
+	    	params.cnt++;
+	    };
+	    virtual void addCheckButton(const char* label, FAUSTFLOAT* zone) {
+	    	params.value[params.cnt] = zone;
+	    	params.cnt++;
+	    };
+	    virtual void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) {
+	    	params.value[params.cnt] = zone;
+	    	params.cnt++;
+	    	params.cntVsliders++;
+	    };
+	    virtual void addHorizontalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) {
+	    	params.value[params.cnt] = zone;
+	    	params.cnt++;
+	    	params.cntHsliders++;
+	    };
+	    virtual void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) {
+	    	params.value[params.cnt] = zone;
+	    	params.cnt++;
+	    };
 
-    public:
+	    // -- passive widgets
 
-        MapUI() {};
-        virtual ~MapUI() {};
+	    virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max) {};
+	    virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max) {};
 
-        // -- widget's layouts
-        void openTabBox(const char* label)
-        {
-            fControlsLevel.push_back(label);
-        };
-        void openHorizontalBox(const char* label)
-        {
-            fControlsLevel.push_back(label);
-        };
-        void openVerticalBox(const char* label)
-        {
-            fControlsLevel.push_back(label);
-        };
-        void closeBox()
-        {
-            fControlsLevel.pop_back();
-        };
+		// -- metadata declarations
 
-        // -- active widgets
-        void insertMap(std::string label, FAUSTFLOAT* zone)
-        {
-            fZoneMap[label] = zone;
-        }
-
-        void addButton(const char* label, FAUSTFLOAT* zone)
-        {
-            insertMap(buildPath(label), zone);
-        };
-        void addCheckButton(const char* label, FAUSTFLOAT* zone)
-        {
-            insertMap(buildPath(label), zone);
-        };
-        void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT fmin, FAUSTFLOAT fmax, FAUSTFLOAT step)
-        {
-            insertMap(buildPath(label), zone);
-        };
-        void addHorizontalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT fmin, FAUSTFLOAT fmax, FAUSTFLOAT step)
-        {
-            insertMap(buildPath(label), zone);
-        };
-        void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT fmin, FAUSTFLOAT fmax, FAUSTFLOAT step)
-        {
-            insertMap(buildPath(label), zone);
-        };
-
-        // -- passive widgets
-        void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT fmin, FAUSTFLOAT fmax)
-        {
-            insertMap(buildPath(label), zone);
-        };
-        void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT fmin, FAUSTFLOAT fmax)
-        {
-            insertMap(buildPath(label), zone);
-        };
-
-        // -- metadata declarations
-        void declare(FAUSTFLOAT* zone, const char* key, const char* val)
-        {};
-
-        // set/get
-        void setValue(const std::string& path, float value)
-        {
-            *fZoneMap[path] = value;
-        }
-
-        float getValue(const std::string& path)
-        {
-            return *fZoneMap[path];
-        }
-
-        // map access
-        std::map<std::string, FAUSTFLOAT*>& getMap() { return fZoneMap; }
-
-        int getParamsCount() { return fZoneMap.size(); }
-
-        std::string getParamPath(int index)
-        {
-            std::map<std::string, FAUSTFLOAT*>::iterator it = fZoneMap.begin();
-            while (index-- > 0 && it++ != fZoneMap.end()) {}
-            return (*it).first;
-        }
+	    virtual void declare(FAUSTFLOAT* zone, const char* key, const char* val) {}
 };
-
-#endif
 
 //**************************************************************
 // DSP class
@@ -838,7 +785,7 @@ class mydsp : public dsp {
 		instanceInit(samplingFreq);
 	}
 	virtual void buildUserInterface(UI* interface) {
-		interface->openVerticalBox("0x00");
+		interface->openVerticalBox("0x1d64c70");
 		interface->openVerticalBox("Carrier");
 		interface->declare(&fslider2, "accel", "1 2 3");
 		interface->declare(&fslider2, "osc", "/freq");
