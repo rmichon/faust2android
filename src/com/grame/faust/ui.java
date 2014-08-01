@@ -68,7 +68,7 @@ public class ui{
 	// TODO explain what this does, first member: hsliders, second member: vsliders
 	int[] parametersCounters = {0,0};
 	// incremented every time a new parameter is created
-	int parameterNumber = 0, screenSizeX = 0;
+	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
 	boolean isSavedParameters;
 	
 	// TODO comment that out
@@ -128,6 +128,7 @@ public class ui{
 		Point size = new Point();
 		display.getSize(size);
 		screenSizeX = size.x;
+		screenSizeY = size.y;
 		parametersWindow.buildWindow(c);
 		JSONArray uiArray = getJSONui();
 		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(screenSizeX*(1+parametersInfo.zoom*0.1f)));
@@ -607,15 +608,22 @@ public class ui{
 		// Listener for the parameters window 
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
-				parametersWindow.showWindow(screenSizeX, parametersInfo, currentParameterNumber);
+				parametersWindow.showWindow(screenSizeX, screenSizeY, parametersInfo, currentParameterNumber);
 				return true;
 			}
 		});
 		
 		OnSeekBarChangeListener sliderListener = new OnSeekBarChangeListener() {
-			public void onStopTrackingTouch(SeekBar seekBar) {}
-			public void onStartTrackingTouch(SeekBar seekBar) {}
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				parametersInfo.accelItemFocus[currentParameterNumber] = 0;
+			}
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				parametersInfo.accelItemFocus[currentParameterNumber] = 1;
+			}
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				if(parametersInfo.accelState[currentParameterNumber] >= 1 && 
+						parametersInfo.accelItemFocus[currentParameterNumber] == 1) 
+					parametersInfo.accelParameterCenter[currentParameterNumber] = (float) progress*step/(max-min);
 				parametersInfo.values[currentParameterNumber] = (float) progress*step + min;
 				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
 				textValue.setText(String.format(decimalsDisplay, parametersInfo.values[currentParameterNumber]));

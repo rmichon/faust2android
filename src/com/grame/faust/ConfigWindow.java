@@ -9,6 +9,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -19,6 +20,7 @@ public class ConfigWindow{
 	SelectBar axisSelection;
 	TextView closeButton;
 	ToggleButton invertButton, filterButton;
+	SeekBar sensibilitySlider;
 	
 	public void buildWindow(Context c){
 		// the global elements are instantiated
@@ -28,6 +30,7 @@ public class ConfigWindow{
 		axisSelection = new SelectBar(c);
 		invertButton = new ToggleButton(c);
 		filterButton = new ToggleButton(c);
+		sensibilitySlider = new SeekBar(c);
 		
 		LinearLayout windowLayout = new LinearLayout(c);
 		LinearLayout titleLayout = new LinearLayout(c);
@@ -80,7 +83,8 @@ public class ConfigWindow{
 		mainWindow.setContentView(windowLayout);
 	}
 	
-	public void showWindow(int screenSizeX, final ParametersInfo parametersInfo, final int currentParameterNumber){
+	public void showWindow(int screenSizeX, int screenSizeY, 
+			final ParametersInfo parametersInfo, final int currentParameterNumber){
 		// Saved state is used
 		axisSelection.selectItem(parametersInfo.accelState[currentParameterNumber]);
 		if(parametersInfo.accelInverterState[currentParameterNumber] == 1) invertButton.setChecked(true);
@@ -89,7 +93,7 @@ public class ConfigWindow{
 		else filterButton.setChecked(false);
 		
 		mainWindow.showAtLocation(mainWindowLayout, Gravity.CENTER,0,0);
-		mainWindow.update(0, 0, screenSizeX*700/800, screenSizeX*200/800);
+		mainWindow.update(0, 0, screenSizeX*700/800, screenSizeY*800/1280);
 		
 		closeButton.setOnClickListener(new OnClickListener(){
 			public void onClick(View v){

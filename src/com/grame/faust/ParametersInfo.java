@@ -10,6 +10,8 @@ class ParametersInfo{
 	int[] accelState;
 	int[] accelInverterState;
 	int[] accelFilterState;
+	float[] accelParameterCenter;
+	int[] accelItemFocus;
 	
 	int nParams;
 	int saved = 1;
@@ -21,6 +23,13 @@ class ParametersInfo{
 		accelState = new int[nParams];
 		accelInverterState = new int[nParams];
 		accelFilterState = new int[nParams];
+		accelParameterCenter = new float[nParams];
+		accelItemFocus = new int[nParams];
+		// assigning default values
+		for(int i=0; i<nParams; i++){
+			accelParameterCenter[i] = 0.5f;
+			accelItemFocus[i] = 0;
+		}
 	}
 	
 	public void saveParemeters(SharedPreferences settings){
@@ -32,6 +41,7 @@ class ParametersInfo{
 			editor.putInt("accelState"+i, accelState[i]);
 			editor.putInt("accelInverterState"+i, accelInverterState[i]);
 			editor.putInt("accelFilterState"+i, accelFilterState[i]);
+			editor.putFloat("accelParameterCenter"+i, accelParameterCenter[i]);
 		}
 		editor.commit();
 	}
@@ -44,6 +54,7 @@ class ParametersInfo{
 				accelState[i] = settings.getInt("accelState"+i, 0);
 				accelInverterState[i] = settings.getInt("accelInverterState"+i, 0);
 				accelFilterState[i] = settings.getInt("accelFilterState"+i, 0);
+				accelParameterCenter[i] = settings.getFloat("accelParameterCenter"+i, 0);
 			}
 			return true;
 		}

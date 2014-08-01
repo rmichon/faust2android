@@ -26,6 +26,7 @@ public class faust extends Activity {
 	faustObject faust = new faustObject();
 	ui UI = new ui(faust); 
 	ParametersInfo parametersInfo = new ParametersInfo();
+	AccelUtil accelUtil = new AccelUtil();
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class faust extends Activity {
          */
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
-        		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
         
         /*
          * TODO: apparently matching the sampling rate and the buffer length of the app with that of 
@@ -64,38 +65,42 @@ public class faust extends Activity {
         faust.startAudio();
 		
 		accelThread = new Thread() {
-			public float simpleLowpass(float currentValue, float oldValue){
-		    	return (currentValue+oldValue)*0.5f;
-		    }
 			public void run() {
 				float finalParameterValue = 0.0f, finalParameterValueOld = 0.0f;
 				float[] normalizedAccel = new float[3];
 				float[] normalizedAccelOld = new float[3]; // for the filter
+				// TODO: the accelerometer class should be used to clean this a little bit
 				while(on){
-					normalizedAccel[0] = (rawAccel[0]+20)/40;
-					normalizedAccel[1] = (rawAccel[1]+20)/40;
-					normalizedAccel[2] = (rawAccel[2]+20)/40;
+					// the accelerometer range is normalized between 0 and 1
+					normalizedAccel[0] = accelUtil.normalize(rawAccel[0]);
+					normalizedAccel[1] = accelUtil.normalize(rawAccel[1]);
+					normalizedAccel[2] = accelUtil.normalize(rawAccel[2]);
+					
+					// for each UI element we control the accelerometer parameters
 					for(int i = 0; i<numberOfParameters; i++){
-						if(parametersInfo.accelState[i] >= 1){
+						if(parametersInfo.accelState[i] >= 1 && parametersInfo.accelItemFocus[i] == 0){
 							if(parametersInfo.accelState[i] == 1){ 
-								finalParameterValue = normalizedAccel[0];
-								finalParameterValueOld = normalizedAccelOld[0];
+								finalParameterValue = accelUtil.changeCenter(normalizedAccel[0],
+										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);
+								finalParameterValueOld = accelUtil.changeCenter(normalizedAccelOld[0],
+										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);					
 							}
 							else if(parametersInfo.accelState[i] == 2){
-								finalParameterValue = normalizedAccel[1];
-								finalParameterValueOld = normalizedAccelOld[1];					
+								finalParameterValue = accelUtil.changeCenter(normalizedAccel[1],
+										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);
+								finalParameterValueOld = accelUtil.changeCenter(normalizedAccelOld[1],
+										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);					
 							}
 							else if(parametersInfo.accelState[i] == 3){
-								finalParameterValue = normalizedAccel[2];
-								finalParameterValueOld = normalizedAccelOld[2];					
-							}
-							if(parametersInfo.accelInverterState[i] == 1){
-								finalParameterValue = 1-finalParameterValue;
-								finalParameterValueOld = 1 - finalParameterValueOld;
+								finalParameterValue = accelUtil.changeCenter(normalizedAccel[2],
+										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);
+								finalParameterValueOld = accelUtil.changeCenter(normalizedAccelOld[2],
+										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);									
 							}
 							if(parametersInfo.accelFilterState[i] == 1) finalParameterValue = 
-									simpleLowpass(finalParameterValue,finalParameterValueOld);
+									accelUtil.simpleLowpass(finalParameterValue,finalParameterValueOld);
 							
+							// the slider value is modified by the accelerometer 
 							UI.hsliders[i].setNormizedValue(finalParameterValue);
 						}
 					}
@@ -104,6 +109,14 @@ public class faust extends Activity {
 					normalizedAccelOld[0] = normalizedAccel[0];
 					normalizedAccelOld[1] = normalizedAccel[1];
 					normalizedAccelOld[2] = normalizedAccel[2];
+					/*
+					try {
+						accelThread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					*/
 				}		
 			}
 		};
