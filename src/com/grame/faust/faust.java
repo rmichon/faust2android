@@ -45,10 +45,10 @@ public class faust extends Activity {
         
         UI.initUI(parametersInfo,settings);	
         UI.buildUI(this, mainGroup);
+        
         /*
          * ACCELEROMETERS
          */
-        
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
         		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
@@ -64,28 +64,46 @@ public class faust extends Activity {
         faust.startAudio();
 		
 		accelThread = new Thread() {
+			public float simpleLowpass(float currentValue, float oldValue){
+		    	return (currentValue+oldValue)*0.5f;
+		    }
 			public void run() {
-				float normalizedAccelX;
-				float normalizedAccelY;
-				float normalizedAccelZ;
+				float finalParameterValue = 0.0f, finalParameterValueOld = 0.0f;
+				float[] normalizedAccel = new float[3];
+				float[] normalizedAccelOld = new float[3]; // for the filter
 				while(on){
-					normalizedAccelX = (rawAccel[0]+20)/40;
-					normalizedAccelY = (rawAccel[1]+20)/40;
-					normalizedAccelZ = (rawAccel[2]+20)/40;
+					normalizedAccel[0] = (rawAccel[0]+20)/40;
+					normalizedAccel[1] = (rawAccel[1]+20)/40;
+					normalizedAccel[2] = (rawAccel[2]+20)/40;
 					for(int i = 0; i<numberOfParameters; i++){
-						if(parametersInfo.accelState[i] == 1){ 
-							if(parametersInfo.accelInverterState[i] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelX);
-							else UI.hsliders[i].setNormizedValue(normalizedAccelX);
-						}
-						else if(parametersInfo.accelState[i] == 2){
-							if(parametersInfo.accelInverterState[i] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelY);
-							else UI.hsliders[i].setNormizedValue(normalizedAccelY);
-						}
-						else if(parametersInfo.accelState[i] == 3){
-							if(parametersInfo.accelInverterState[i] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelZ);
-							else UI.hsliders[i].setNormizedValue(normalizedAccelZ);
+						if(parametersInfo.accelState[i] >= 1){
+							if(parametersInfo.accelState[i] == 1){ 
+								finalParameterValue = normalizedAccel[0];
+								finalParameterValueOld = normalizedAccelOld[0];
+							}
+							else if(parametersInfo.accelState[i] == 2){
+								finalParameterValue = normalizedAccel[1];
+								finalParameterValueOld = normalizedAccelOld[1];					
+							}
+							else if(parametersInfo.accelState[i] == 3){
+								finalParameterValue = normalizedAccel[2];
+								finalParameterValueOld = normalizedAccelOld[2];					
+							}
+							if(parametersInfo.accelInverterState[i] == 1){
+								finalParameterValue = 1-finalParameterValue;
+								finalParameterValueOld = 1 - finalParameterValueOld;
+							}
+							if(parametersInfo.accelFilterState[i] == 1) finalParameterValue = 
+									simpleLowpass(finalParameterValue,finalParameterValueOld);
+							
+							UI.hsliders[i].setNormizedValue(finalParameterValue);
 						}
 					}
+					
+					// for the filter...
+					normalizedAccelOld[0] = normalizedAccel[0];
+					normalizedAccelOld[1] = normalizedAccel[1];
+					normalizedAccelOld[2] = normalizedAccel[2];
 				}		
 			}
 		};
