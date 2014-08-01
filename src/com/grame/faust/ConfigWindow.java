@@ -80,12 +80,12 @@ public class ConfigWindow{
 		mainWindow.setContentView(windowLayout);
 	}
 	
-	public void showWindow(int screenSizeX, final int[] UIelementsParameters){
+	public void showWindow(int screenSizeX, final ParametersInfo parametersInfo, final int currentParameterNumber){
 		// Saved state is used
-		axisSelection.selectItem(UIelementsParameters[0]);
-		if(UIelementsParameters[1] == 1) invertButton.setChecked(true);
+		axisSelection.selectItem(parametersInfo.accelState[currentParameterNumber]);
+		if(parametersInfo.accelInverterState[currentParameterNumber] == 1) invertButton.setChecked(true);
 		else invertButton.setChecked(false);
-		if(UIelementsParameters[2] == 1) filterButton.setChecked(true);
+		if(parametersInfo.accelFilterState[currentParameterNumber] == 1) filterButton.setChecked(true);
 		else filterButton.setChecked(false);
 		
 		mainWindow.showAtLocation(mainWindowLayout, Gravity.CENTER,0,0);
@@ -94,25 +94,25 @@ public class ConfigWindow{
 		closeButton.setOnClickListener(new OnClickListener(){
 			public void onClick(View v){
 				mainWindow.dismiss();
-				UIelementsParameters[0] = axisSelection.id;
+				parametersInfo.accelState[currentParameterNumber] = axisSelection.id;
 			}
 		});
 		
 		invertButton.setOnCheckedChangeListener(new OnCheckedChangeListener(){
         	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         		if(isChecked){
-        			UIelementsParameters[1] = 1;
+        			parametersInfo.accelInverterState[currentParameterNumber] = 1;
         		}
-        		else UIelementsParameters[1] = 0;
+        		else parametersInfo.accelInverterState[currentParameterNumber] = 0;
         	}
         });
 		
 		filterButton.setOnCheckedChangeListener(new OnCheckedChangeListener(){
         	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         		if(isChecked){
-        			UIelementsParameters[2] = 1;
+        			parametersInfo.accelFilterState[currentParameterNumber] = 1;
         		}
-        		else UIelementsParameters[2] = 0;
+        		else parametersInfo.accelFilterState[currentParameterNumber] = 0;
         	}
         });
 	}

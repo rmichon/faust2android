@@ -57,7 +57,8 @@ public class SelectBar{
 		selectItem(0);
 	}
 	
-	public void selectItem(int id){
+	public void selectItem(int item){
+		id = item;
 		for(int i=0; i<length; i++){
 			if(i == id){ 
 				parameterLabel[i].setBackgroundColor(Color.rgb(69,160,197));

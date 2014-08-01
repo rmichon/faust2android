@@ -63,9 +63,8 @@ public class ui{
 	String JSONparameters = new String();
 	// the values of the different UI elements 
 	ParametersInfo parametersInfo; // TODO
-	//float[] parametersValues;
-	// TODO comment
-	int[][] UIelementsParameters;
+	// for now, this just contains the accelerometer values
+	//int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders
 	int[] parametersCounters = {0,0};
 	// incremented every time a new parameter is created
@@ -100,7 +99,6 @@ public class ui{
 		
 		isSavedParameters = parametersInfo.getSavedParameters(settings);
 
-		UIelementsParameters = new int[numberOfParameters][3]; // TODO what is that?
 		if(numberOfVsliders>0) vsliders = new VerticalSeekBar[numberOfVsliders];
 		if(numberOfHsliders>0) hsliders = new HorizontalSlider[numberOfHsliders];
 	}
@@ -609,7 +607,7 @@ public class ui{
 		// Listener for the parameters window 
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
-				parametersWindow.showWindow(screenSizeX, UIelementsParameters[currentParameterNumber]);
+				parametersWindow.showWindow(screenSizeX, parametersInfo, currentParameterNumber);
 				return true;
 			}
 		});

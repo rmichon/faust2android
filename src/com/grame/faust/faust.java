@@ -20,8 +20,6 @@ public class faust extends Activity {
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
 	
-	int[] accelState, accelInverterState, accelFilterState;
-	
 	Thread accelThread;
 	boolean on = true; // process on/off
 	
@@ -40,26 +38,10 @@ public class faust extends Activity {
         parametersInfo.init(numberOfParameters);
         SharedPreferences settings = getSharedPreferences("savedParameters", 0);
         
-        accelState = new int[numberOfParameters];
-        accelInverterState = new int[numberOfParameters];
-        accelFilterState = new int[numberOfParameters];
         
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
         HorizontalScrollView horizontalScroll = (HorizontalScrollView) findViewById(R.id.horizontalScroll);
         UI.horizontalScroll = horizontalScroll;
-        
-        /*
-        if (savedInstanceState != null){
-        	accelState = savedInstanceState.getIntArray("accelState");
-        	accelInverterState = savedInstanceState.getIntArray("accelInverterState");
-        	accelFilterState = savedInstanceState.getIntArray("accelFilterState");
-        	for(int i=0; i<UI.UIelementsParameters.length; i++){
-        		UI.UIelementsParameters[i][0] = accelState[i];
-        		UI.UIelementsParameters[i][1] = accelInverterState[i];
-        		UI.UIelementsParameters[i][2] = accelFilterState[i]; 		
-        	}
-        }
-        */
         
         UI.initUI(parametersInfo,settings);	
         UI.buildUI(this, mainGroup);
@@ -91,16 +73,16 @@ public class faust extends Activity {
 					normalizedAccelY = (rawAccel[1]+20)/40;
 					normalizedAccelZ = (rawAccel[2]+20)/40;
 					for(int i = 0; i<numberOfParameters; i++){
-						if(UI.UIelementsParameters[i][0] == 1){ 
-							if(UI.UIelementsParameters[i][1] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelX);
+						if(parametersInfo.accelState[i] == 1){ 
+							if(parametersInfo.accelInverterState[i] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelX);
 							else UI.hsliders[i].setNormizedValue(normalizedAccelX);
 						}
-						else if(UI.UIelementsParameters[i][0] == 2){
-							if(UI.UIelementsParameters[i][1] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelY);
+						else if(parametersInfo.accelState[i] == 2){
+							if(parametersInfo.accelInverterState[i] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelY);
 							else UI.hsliders[i].setNormizedValue(normalizedAccelY);
 						}
-						else if(UI.UIelementsParameters[i][0] == 3){
-							if(UI.UIelementsParameters[i][1] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelZ);
+						else if(parametersInfo.accelState[i] == 3){
+							if(parametersInfo.accelInverterState[i] == 1) UI.hsliders[i].setNormizedValue(1-normalizedAccelZ);
 							else UI.hsliders[i].setNormizedValue(normalizedAccelZ);
 						}
 					}
@@ -147,21 +129,6 @@ public class faust extends Activity {
         }
     }
     
-    /*
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-    	for(int i=0; i<UI.UIelementsParameters.length; i++){
-    		accelState[i] = UI.UIelementsParameters[i][0];
-    		accelInverterState[i] = UI.UIelementsParameters[i][1];
-    		accelFilterState[i] = UI.UIelementsParameters[i][2];
-    	}
-        savedInstanceState.putIntArray("accelState", accelState);
-        savedInstanceState.putIntArray("accelInverterState", accelInverterState);
-        savedInstanceState.putIntArray("accelFilterState", accelFilterState);
-        super.onSaveInstanceState(savedInstanceState);
-    }
-    */
-    
     @Override
    	protected void onPause() {
    		mSensorManager.unregisterListener(mSensorListener);
@@ -189,7 +156,6 @@ public class faust extends Activity {
     	try {
 			accelThread.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	accelThread = null;

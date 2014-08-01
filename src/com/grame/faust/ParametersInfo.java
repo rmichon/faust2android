@@ -6,6 +6,11 @@ class ParametersInfo{
 	String[] address;
 	float[] values;
 	int zoom;
+	
+	int[] accelState;
+	int[] accelInverterState;
+	int[] accelFilterState;
+	
 	int nParams;
 	int saved = 1;
 	
@@ -13,6 +18,9 @@ class ParametersInfo{
 		nParams = numberOfParams;
 		address = new String[nParams];
 		values = new float[nParams];
+		accelState = new int[nParams];
+		accelInverterState = new int[nParams];
+		accelFilterState = new int[nParams];
 	}
 	
 	public void saveParemeters(SharedPreferences settings){
@@ -21,6 +29,9 @@ class ParametersInfo{
 		editor.putInt("zoom", zoom);
 		for(int i=0; i<nParams; i++){
 			editor.putFloat(address[i]+"/value", values[i]);
+			editor.putInt("accelState"+i, accelState[i]);
+			editor.putInt("accelInverterState"+i, accelInverterState[i]);
+			editor.putInt("accelFilterState"+i, accelFilterState[i]);
 		}
 		editor.commit();
 	}
@@ -30,6 +41,9 @@ class ParametersInfo{
 			zoom = settings.getInt("zoom", 0);
 			for(int i=0; i<nParams; i++){
 				values[i] = settings.getFloat(address[i]+"/value",0.0f);
+				accelState[i] = settings.getInt("accelState"+i, 0);
+				accelInverterState[i] = settings.getInt("accelInverterState"+i, 0);
+				accelFilterState[i] = settings.getInt("accelFilterState"+i, 0);
 			}
 			return true;
 		}
