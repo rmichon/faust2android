@@ -32,6 +32,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -65,8 +66,9 @@ public class ui{
 	ParametersInfo parametersInfo; // TODO
 	// for now, this just contains the accelerometer values
 	//int[][] UIelementsParameters;
-	// TODO explain what this does, first member: hsliders, second member: vsliders
-	int[] parametersCounters = {0,0};
+	// TODO explain what this does, first member: hsliders, second member: vsliders, 
+	// third member: bargraphs 
+	int[] parametersCounters = {0,0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
 	boolean isSavedParameters;
@@ -75,6 +77,7 @@ public class ui{
 	HorizontalScrollView horizontalScroll;
 	HorizontalSlider[] hsliders;
 	VerticalSeekBar[] vsliders;
+	BarGraph[] bargraphs;
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
 	
@@ -91,6 +94,8 @@ public class ui{
 		int numberOfParameters = faust.getParamsCount();
 		int numberOfVsliders = countStringOccurrences(JSONparameters,"vslider");
 		int numberOfHsliders = countStringOccurrences(JSONparameters,"hslider");
+		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
+				countStringOccurrences(JSONparameters,"vbargraph");
 		
 		parametersInfo = paramsInfo;
 		for(int i=0; i<numberOfParameters; i++){ 
@@ -101,6 +106,7 @@ public class ui{
 
 		if(numberOfVsliders>0) vsliders = new VerticalSeekBar[numberOfVsliders];
 		if(numberOfHsliders>0) hsliders = new HorizontalSlider[numberOfHsliders];
+		if(numberOfBarGraphs>0) bargraphs = new BarGraph[numberOfBarGraphs];
 	}
 	
 	/*
@@ -310,10 +316,31 @@ public class ui{
 							currentGroupLevel,groupDivisions,currentViewWidth);
 					parameterNumber++;
 				}
+				else if(currentObject.getString("type").equals("hbargraph")){
+					hbargraph(c, currentGroup, currentObject.getString("address"),
+							currentObject.getString("label"), 
+							Float.parseFloat(currentObject.getString("min")), 
+							Float.parseFloat(currentObject.getString("max")),  
+							currentGroupLevel,groupDivisions,currentViewWidth);	
+					parameterNumber++;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	// TODO finish
+	public void hbargraph(Context c, LinearLayout currentGroup, final String address, final String label, 
+			final float min, final float max, int currentGroupLevel,
+			int nItemsUpperLevel, int upperViewWidth){
+		bargraphs[parametersCounters[2]] = new BarGraph(c,null,android.R.attr.progressBarStyleHorizontal);
+		bargraphs[parametersCounters[2]].id = parameterNumber;
+		bargraphs[parametersCounters[2]].min = min;
+		bargraphs[parametersCounters[2]].max = max;
+		currentGroup.addView(bargraphs[parametersCounters[2]]);
+		
+		parametersCounters[2]++;
 	}
 	
 	/*
@@ -540,6 +567,31 @@ public class ui{
 	public void hslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int currentGroupLevel,
 			int nItemsUpperLevel, int upperViewWidth){
+		// the slider
+		hsliders[parametersCounters[0]] = new HorizontalSlider(c,address,parameterNumber,currentGroupLevel,nItemsUpperLevel,upperViewWidth);
+		
+		// index for the parameters values array
+		final int currentParameterNumber = parameterNumber;
+		
+		// if parameters were saved, then they replace init	
+		// TODO: doesn't scale properly for now + this technique should be generalized to all
+		// UI elements -> that's THE clean solution...
+		hsliders[parametersCounters[0]].setSliderParams(label, min, max, step);
+		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
+		else parametersInfo.values[currentParameterNumber] = init;
+		
+		hsliders[parametersCounters[0]].setValue(init);
+		faust.setParam(address, init);
+	    hsliders[parametersCounters[0]].linkTo(parametersInfo, parametersWindow, horizontalScroll, faust);
+	    hsliders[parametersCounters[0]].addTo(currentGroup);
+	    
+	    parametersCounters[0]++;
+	}
+	
+	/*
+	public void hslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
+			final float min, final float max, final float step, int currentGroupLevel,
+			int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the slider, its value and its name)
 		LinearLayout localVerticalGroup = new LinearLayout(c);
 		// layout to create a frame around the parameter view
@@ -547,7 +599,7 @@ public class ui{
 		// layout containing the slider and its value
 		LinearLayout sliderLayout = new LinearLayout(c);
 		// the slider
-		hsliders[parametersCounters[0]] = new HorizontalSlider(c);
+		hsliders[parametersCounters[0]] = new HorizontalSlider(c,nItemsUpperLevel,upperViewWidth);
 		// the value of the slider
 		final TextView textValue = new TextView(c);
 		// the name of the parameter
@@ -652,6 +704,7 @@ public class ui{
 	    
 	    parametersCounters[0]++;
 	}
+	*/
 	
 	/*
 	 * Creates a vertical slider and adds it to currentGroup.

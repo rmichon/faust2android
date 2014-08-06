@@ -1,0 +1,8 @@
+ROAD MAP - TODO
+
+SYSTEM
+	- Once the C++ API will be finished, we should make one single architecture file and get rid
+	of swig because things will be totaly static.
+	
+OSC
+

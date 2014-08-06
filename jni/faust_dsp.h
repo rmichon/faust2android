@@ -18,10 +18,10 @@
  ************************************************************************/
 
 struct Para {
-			int cnt;
-			int cntHsliders;
-			int cntVsliders;
-		} ;
+	int cnt;
+	int cntHsliders;
+	int cntVsliders;
+} ;
 
 class faustObject{
 public:
@@ -29,6 +29,7 @@ public:
 	const char *getJSON(void);
 	int getParamsCount(void);
 	void startAudio(void);
+	float getParam(const char*);
 	void setParam(const char*, float);
 	void stopAudio(void);
 	const char *getParamPath(int);

@@ -39,6 +39,7 @@ public class faust_dspJNI {
   public final static native String faustObject_getJSON(long jarg1, faustObject jarg1_);
   public final static native int faustObject_getParamsCount(long jarg1, faustObject jarg1_);
   public final static native void faustObject_startAudio(long jarg1, faustObject jarg1_);
+  public final static native float faustObject_getParam(long jarg1, faustObject jarg1_, String jarg2);
   public final static native void faustObject_setParam(long jarg1, faustObject jarg1_, String jarg2, float jarg3);
   public final static native void faustObject_stopAudio(long jarg1, faustObject jarg1_);
   public final static native String faustObject_getParamPath(long jarg1, faustObject jarg1_, int jarg2);

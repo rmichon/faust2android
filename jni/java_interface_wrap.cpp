@@ -531,6 +531,28 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1sta
 }
 
 
+SWIGEXPORT jfloat JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1getParam(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+  jfloat jresult = 0 ;
+  faustObject *arg1 = (faustObject *) 0 ;
+  char *arg2 = (char *) 0 ;
+  float result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(faustObject **)&jarg1; 
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return 0;
+  }
+  result = (float)(arg1)->getParam((char const *)arg2);
+  jresult = (jfloat)result; 
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1setParam(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jfloat jarg3) {
   faustObject *arg1 = (faustObject *) 0 ;
   char *arg2 = (char *) 0 ;

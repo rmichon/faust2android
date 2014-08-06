@@ -51,6 +51,10 @@ public class faustObject {
     faust_dspJNI.faustObject_startAudio(swigCPtr, this);
   }
 
+  public float getParam(String arg0) {
+    return faust_dspJNI.faustObject_getParam(swigCPtr, this, arg0);
+  }
+
   public void setParam(String arg0, float arg1) {
     faust_dspJNI.faustObject_setParam(swigCPtr, this, arg0, arg1);
   }

@@ -113,6 +113,10 @@ void faustObject::stopAudio(){
 	delete [] bufferout;
 }
 
+float faustObject::getParam(const char* address){
+	return mapUI->getValue(address);
+}
+
 void faustObject::setParam(const char* address, float value){
 	mapUI->setValue(address, value);
 }

@@ -20,7 +20,7 @@ public class faust extends Activity {
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
 	
-	Thread accelThread;
+	Thread displayThread, accelThread;
 	boolean on = true; // process on/off
 	
 	faustObject faust = new faustObject();
@@ -63,6 +63,25 @@ public class faust extends Activity {
         */
         
         faust.startAudio();
+        
+        final int displayThreadUpdateRate = 30;
+        displayThread = new Thread() {
+        	public void run() {
+        		while(on){
+        			if(UI.parametersCounters[2] > 0){
+        				for(int i=0; i<UI.parametersCounters[2]; i++){
+        					UI.bargraphs[i].setValue(UI.faust.getParam(UI.parametersInfo.address[UI.bargraphs[i].id]));
+        				}
+        			}
+        			try {
+						displayThread.sleep(1000/displayThreadUpdateRate);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+        		}
+        	}
+        };
+        displayThread.start();
 		
 		accelThread = new Thread() {
 			public void run() {
@@ -185,10 +204,12 @@ public class faust extends Activity {
     	on = false;
     	faust.stopAudio();
     	try {
+			displayThread.join();
 			accelThread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+    	displayThread = null;
     	accelThread = null;
     }
 }
