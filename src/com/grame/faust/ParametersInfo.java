@@ -9,8 +9,9 @@ class ParametersInfo{
 	
 	int[] accelState;
 	int[] accelInverterState;
-	int[] accelFilterState;
-	float[] accelParameterCenter;
+	float[] accelMin;
+	float[] accelMax;
+	float[] accelCenter;
 	int[] accelItemFocus;
 	
 	int nParams;
@@ -22,12 +23,15 @@ class ParametersInfo{
 		values = new float[nParams];
 		accelState = new int[nParams];
 		accelInverterState = new int[nParams];
-		accelFilterState = new int[nParams];
-		accelParameterCenter = new float[nParams];
+		accelMin = new float[nParams];
+		accelMax = new float[nParams];
+		accelCenter = new float[nParams];
 		accelItemFocus = new int[nParams];
 		// assigning default values
 		for(int i=0; i<nParams; i++){
-			accelParameterCenter[i] = 0.5f;
+			accelMin[i] = -10.0f;
+			accelMax[i] = 10.0f;
+			accelCenter[i] = 0.0f;
 			accelItemFocus[i] = 0;
 		}
 	}
@@ -40,8 +44,9 @@ class ParametersInfo{
 			editor.putFloat(address[i]+"/value", values[i]);
 			editor.putInt("accelState"+i, accelState[i]);
 			editor.putInt("accelInverterState"+i, accelInverterState[i]);
-			editor.putInt("accelFilterState"+i, accelFilterState[i]);
-			editor.putFloat("accelParameterCenter"+i, accelParameterCenter[i]);
+			editor.putFloat("accelMin"+i, accelMin[i]);
+			editor.putFloat("accelMax"+i, accelMax[i]);
+			editor.putFloat("accelCenter"+i, accelCenter[i]);
 		}
 		editor.commit();
 	}
@@ -53,8 +58,9 @@ class ParametersInfo{
 				values[i] = settings.getFloat(address[i]+"/value",0.0f);
 				accelState[i] = settings.getInt("accelState"+i, 0);
 				accelInverterState[i] = settings.getInt("accelInverterState"+i, 0);
-				accelFilterState[i] = settings.getInt("accelFilterState"+i, 0);
-				accelParameterCenter[i] = settings.getFloat("accelParameterCenter"+i, 0);
+				accelMin[i] = settings.getFloat("accelMin"+i, 0);
+				accelMax[i] = settings.getFloat("accelMax"+i, 0);
+				accelCenter[i] = settings.getFloat("accelCenter"+i, 0);
 			}
 			return true;
 		}

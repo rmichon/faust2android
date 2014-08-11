@@ -85,49 +85,28 @@ public class faust extends Activity {
 		
 		accelThread = new Thread() {
 			public void run() {
-				float finalParameterValue = 0.0f, finalParameterValueOld = 0.0f;
-				float[] normalizedAccel = new float[3];
-				float[] normalizedAccelOld = new float[3]; // for the filter
+				float finalParameterValue = 0.0f;
 				// TODO: the accelerometer class should be used to clean this a little bit
 				while(on){
-					// the accelerometer range is normalized between 0 and 1
-					normalizedAccel[0] = accelUtil.normalize(rawAccel[0]);
-					normalizedAccel[1] = accelUtil.normalize(rawAccel[1]);
-					normalizedAccel[2] = accelUtil.normalize(rawAccel[2]);
-					
 					// for each UI element we control the accelerometer parameters
 					for(int i = 0; i<numberOfParameters; i++){
 						if(parametersInfo.accelState[i] >= 1 && parametersInfo.accelItemFocus[i] == 0){
 							if(parametersInfo.accelState[i] == 1){ 
-								finalParameterValue = accelUtil.changeCenter(normalizedAccel[0],
-										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);
-								finalParameterValueOld = accelUtil.changeCenter(normalizedAccelOld[0],
-										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);					
+								finalParameterValue = accelUtil.transform(rawAccel[0], parametersInfo.accelMin[i], 
+										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], 0);		
 							}
 							else if(parametersInfo.accelState[i] == 2){
-								finalParameterValue = accelUtil.changeCenter(normalizedAccel[1],
-										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);
-								finalParameterValueOld = accelUtil.changeCenter(normalizedAccelOld[1],
-										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);					
+								finalParameterValue = accelUtil.transform(rawAccel[1], parametersInfo.accelMin[i], 
+										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], 0);				
 							}
 							else if(parametersInfo.accelState[i] == 3){
-								finalParameterValue = accelUtil.changeCenter(normalizedAccel[2],
-										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);
-								finalParameterValueOld = accelUtil.changeCenter(normalizedAccelOld[2],
-										parametersInfo.accelParameterCenter[i],parametersInfo.accelInverterState[i] == 1);									
-							}
-							if(parametersInfo.accelFilterState[i] == 1) finalParameterValue = 
-									accelUtil.simpleLowpass(finalParameterValue,finalParameterValueOld);
-							
+								finalParameterValue = accelUtil.transform(rawAccel[2], parametersInfo.accelMin[i], 
+										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], 0);							
+							}	
 							// the slider value is modified by the accelerometer 
 							UI.hsliders[i].setNormizedValue(finalParameterValue);
 						}
 					}
-					
-					// for the filter...
-					normalizedAccelOld[0] = normalizedAccel[0];
-					normalizedAccelOld[1] = normalizedAccel[1];
-					normalizedAccelOld[2] = normalizedAccel[2];
 					/*
 					try {
 						accelThread.sleep(100);

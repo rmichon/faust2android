@@ -568,14 +568,13 @@ public class ui{
 			final float min, final float max, final float step, int currentGroupLevel,
 			int nItemsUpperLevel, int upperViewWidth){
 		// the slider
-		hsliders[parametersCounters[0]] = new HorizontalSlider(c,address,parameterNumber,currentGroupLevel,nItemsUpperLevel,upperViewWidth);
+		hsliders[parametersCounters[0]] = new HorizontalSlider(c,address,parameterNumber,
+				currentGroupLevel,nItemsUpperLevel,upperViewWidth);
 		
 		// index for the parameters values array
 		final int currentParameterNumber = parameterNumber;
 		
-		// if parameters were saved, then they replace init	
 		// TODO: doesn't scale properly for now + this technique should be generalized to all
-		// UI elements -> that's THE clean solution...
 		hsliders[parametersCounters[0]].setSliderParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
 		else parametersInfo.values[currentParameterNumber] = init;

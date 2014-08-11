@@ -1,20 +1,33 @@
 package com.grame.faust;
 
 public class AccelUtil{
-	public float simpleLowpass(float currentValue, float oldValue){
-    	return (currentValue+oldValue)*0.5f;
-    }
-	
 	public float normalize(float accelValue){
-		return (accelValue+20)/40;
+		//return (accelValue+20)*0.025f;
+		return (accelValue+10)*0.05f;
 	}
 	
-	public float changeCenter(float currentValue, float center, boolean reverse){
+	public float transform(float currentValue, float min, float max, float center, int shape){
 		float out = 0.0f;
-		if(reverse) center = 1 - center;
-		if(currentValue <= 0.5) out = currentValue*center*2;
-		if(currentValue > 0.5) out = center + (1-center)*(currentValue-0.5f)*2;
-		if(reverse) out = 1 - out;
+		float range = max-min;
+		float scaleMin = (10 + min*20/range)*-1;
+		
+		if(currentValue >= min && currentValue <= max) out = currentValue*20/range + scaleMin;
+		else if(currentValue > max) out = 10.0f;
+		else if(currentValue < min) out = -10.0f;
+		
+		out = normalize(out);
+		center = normalize(center);
+		if(shape == 2){
+			if(out <= 0.5) out = out/center;
+			else if(out > 0.5) out = 1 - (out-0.5f)/(1-center);
+		}
+		else{
+			if(shape == 1) center = 1 - center;
+			if(out <= 0.5) out = out*center*2;
+			else if(out > 0.5) out = center + (1-center)*(out-0.5f)*2;
+			if(shape == 1) out = 1 - out;
+		}
+		
 		return out;
 	}
 }

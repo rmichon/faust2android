@@ -28,7 +28,8 @@ class HorizontalSlider {
 	TextView textValue, textLabel;
 	Point size;
 	
-	public HorizontalSlider(Context c, String addr, int currentParameterNumber, int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth) {
+	public HorizontalSlider(Context c, String addr, int currentParameterNumber, 
+			int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth) {
 		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		size = new Point();
@@ -122,9 +123,6 @@ class HorizontalSlider {
 				parametersInfo.accelItemFocus[id] = 1;
 			}
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				if(parametersInfo.accelState[id] >= 1 && 
-						parametersInfo.accelItemFocus[id] == 1) 
-					parametersInfo.accelParameterCenter[id] = (float) progress*step/(max-min);
 				parametersInfo.values[id] = (float) progress*step + min;
 				faust.setParam(address, parametersInfo.values[id]);
 				setDisplayedValue(parametersInfo.values[id]);

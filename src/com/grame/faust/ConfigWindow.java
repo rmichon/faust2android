@@ -13,24 +13,37 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class ConfigWindow{
 	PopupWindow mainWindow;
-	LinearLayout mainWindowLayout;
+	LinearLayout mainWindowLayout, minSliderLayout, maxSliderLayout, centerSliderLayout;
 	SelectBar axisSelection;
-	TextView closeButton;
-	ToggleButton invertButton, filterButton;
-	SeekBar sensibilitySlider;
+	TextView closeButton,minSliderValue, maxSliderValue, centerSliderValue;
+	ToggleButton invertButton;
+	SeekBar minSlider, maxSlider, centerSlider;
 	
 	public void buildWindow(Context c){
 		// the global elements are instantiated
 		mainWindowLayout = new LinearLayout(c);
+		minSliderLayout = new LinearLayout(c);
+		maxSliderLayout = new LinearLayout(c);
+		centerSliderLayout = new LinearLayout(c);
+		
 		mainWindow = new PopupWindow(c);
+		
 		closeButton = new TextView(c);
+		minSliderValue = new TextView(c);
+		maxSliderValue = new TextView(c);
+		centerSliderValue = new TextView(c);
+		
 		axisSelection = new SelectBar(c);
+		
 		invertButton = new ToggleButton(c);
-		filterButton = new ToggleButton(c);
-		sensibilitySlider = new SeekBar(c);
+		
+		minSlider = new SeekBar(c);
+		maxSlider = new SeekBar(c);
+		centerSlider = new SeekBar(c);
 		
 		LinearLayout windowLayout = new LinearLayout(c);
 		LinearLayout titleLayout = new LinearLayout(c);
@@ -60,25 +73,44 @@ public class ConfigWindow{
 		invertButton.setTextOn("Invert");
 		invertButton.setTextOff("Invert");
 		
-		filterButton.setLayoutParams(wrapped);
-		filterButton.setText("Filter");
-		filterButton.setTextOn("Filter");
-		filterButton.setTextOff("Filter");
-		
 		windowLabel.setText("Controller Parameters");
 		windowLabel.setTextSize(22.f);
 		
 		String[] items = {"0","X","Y","Z"};
 		axisSelection.setItems(items);
 		
+		minSlider.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		minSlider.setMax(100);
+		
+		maxSlider.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		maxSlider.setMax(100);
+		
+		centerSlider.setLayoutParams(new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		centerSlider.setMax(100);
+						
 		titleLayout.addView(windowLabel);
 		titleLayout.addView(closeButton);
 		
 		windowLayout.addView(titleLayout);
 		axisSelection.addTo(windowLayout);
 		
+		minSliderLayout.addView(minSliderValue);
+		minSliderLayout.addView(minSlider);
+		
+		maxSliderLayout.addView(maxSliderValue);
+		maxSliderLayout.addView(maxSlider);
+		
+		centerSliderLayout.addView(centerSliderValue);
+		centerSliderLayout.addView(centerSlider);
+		
+		windowLayout.addView(minSliderLayout);
+		windowLayout.addView(maxSliderLayout);
+		windowLayout.addView(centerSliderLayout);
+		
 		windowLayout.addView(invertButton);
-		windowLayout.addView(filterButton);
 		
 		mainWindow.setContentView(windowLayout);
 	}
@@ -89,8 +121,10 @@ public class ConfigWindow{
 		axisSelection.selectItem(parametersInfo.accelState[currentParameterNumber]);
 		if(parametersInfo.accelInverterState[currentParameterNumber] == 1) invertButton.setChecked(true);
 		else invertButton.setChecked(false);
-		if(parametersInfo.accelFilterState[currentParameterNumber] == 1) filterButton.setChecked(true);
-		else filterButton.setChecked(false);
+		
+		setValue(minSlider,minSliderValue,parametersInfo.accelMin[currentParameterNumber]);
+		setValue(maxSlider,maxSliderValue,parametersInfo.accelMax[currentParameterNumber]);
+		setValue(centerSlider,centerSliderValue,parametersInfo.accelCenter[currentParameterNumber]);
 		
 		mainWindow.showAtLocation(mainWindowLayout, Gravity.CENTER,0,0);
 		mainWindow.update(0, 0, screenSizeX*700/800, screenSizeY*800/1280);
@@ -102,6 +136,50 @@ public class ConfigWindow{
 			}
 		});
 		
+		minSlider.setOnSeekBarChangeListener( new OnSeekBarChangeListener() {
+			public void onStopTrackingTouch(SeekBar seekBar) {}
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				float scaledProgress = progress*0.2f - 10.0f;
+				if(scaledProgress >= parametersInfo.accelMax[currentParameterNumber])
+					setValue(minSlider,minSliderValue,parametersInfo.accelMax[currentParameterNumber]);
+				else{ 
+					parametersInfo.accelMin[currentParameterNumber] = scaledProgress;
+					minSliderValue.setText(String.format("%.1f", scaledProgress));
+				}
+	          }
+	    });
+		
+		maxSlider.setOnSeekBarChangeListener( new OnSeekBarChangeListener() {
+			public void onStopTrackingTouch(SeekBar seekBar) {}
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				float scaledProgress = progress*0.2f - 10.0f;
+				if(scaledProgress <= parametersInfo.accelMin[currentParameterNumber])
+					setValue(maxSlider,maxSliderValue,parametersInfo.accelMin[currentParameterNumber]);
+				else{ 
+					parametersInfo.accelMax[currentParameterNumber] = scaledProgress;
+					maxSliderValue.setText(String.format("%.1f", scaledProgress));
+				}
+	          }
+	    });
+		
+		centerSlider.setOnSeekBarChangeListener( new OnSeekBarChangeListener() {
+			public void onStopTrackingTouch(SeekBar seekBar) {}
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				float scaledProgress = progress*0.2f - 10.0f;
+				if(scaledProgress <= parametersInfo.accelMin[currentParameterNumber])
+					setValue(centerSlider,centerSliderValue,parametersInfo.accelMin[currentParameterNumber]);
+				else if(scaledProgress >= parametersInfo.accelMax[currentParameterNumber])
+					setValue(centerSlider,centerSliderValue,parametersInfo.accelMax[currentParameterNumber]);
+				else{ 
+					parametersInfo.accelCenter[currentParameterNumber] = scaledProgress;	
+					centerSliderValue.setText(String.format("%.1f", scaledProgress));
+				}
+	          }
+	    });
+		
 		invertButton.setOnCheckedChangeListener(new OnCheckedChangeListener(){
         	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         		if(isChecked){
@@ -110,15 +188,11 @@ public class ConfigWindow{
         		else parametersInfo.accelInverterState[currentParameterNumber] = 0;
         	}
         });
-		
-		filterButton.setOnCheckedChangeListener(new OnCheckedChangeListener(){
-        	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        		if(isChecked){
-        			parametersInfo.accelFilterState[currentParameterNumber] = 1;
-        		}
-        		else parametersInfo.accelFilterState[currentParameterNumber] = 0;
-        	}
-        });
+	}
+	
+	void setValue(SeekBar s, TextView t, float x){
+		t.setText(String.format("%.1f",x));
+		s.setProgress(Math.round((x+10.0f)*5.0f));
 	}
 	
 	/*
