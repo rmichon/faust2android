@@ -6,6 +6,7 @@ public class AccelUtil{
 		return (accelValue+10)*0.05f;
 	}
 	
+	// TODO: curve mode doesn't work properly
 	public float transform(float currentValue, float min, float max, float center, int shape){
 		float out = 0.0f;
 		float range = max-min;

@@ -135,14 +135,20 @@ containing a value of this type.
         public static final int progress_gray_dark=0x7f040001;
     }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
-        public static final int ic_zoomin=0x7f020001;
-        public static final int ic_zoomout=0x7f020002;
-        public static final int scrubber_control_disabled_holo=0x7f020003;
-        public static final int scrubber_control_focused_holo=0x7f020004;
-        public static final int scrubber_control_normal_holo=0x7f020005;
-        public static final int scrubber_control_pressed_holo=0x7f020006;
-        public static final int seek_arc_control_selector=0x7f020007;
+        public static final int ic_accelcurveoff=0x7f020000;
+        public static final int ic_accelcurveon=0x7f020001;
+        public static final int ic_accelinvertoff=0x7f020002;
+        public static final int ic_accelinverton=0x7f020003;
+        public static final int ic_accelnormoff=0x7f020004;
+        public static final int ic_accelnormon=0x7f020005;
+        public static final int ic_launcher=0x7f020006;
+        public static final int ic_zoomin=0x7f020007;
+        public static final int ic_zoomout=0x7f020008;
+        public static final int scrubber_control_disabled_holo=0x7f020009;
+        public static final int scrubber_control_focused_holo=0x7f02000a;
+        public static final int scrubber_control_normal_holo=0x7f02000b;
+        public static final int scrubber_control_pressed_holo=0x7f02000c;
+        public static final int seek_arc_control_selector=0x7f02000d;
     }
     public static final class id {
         public static final int action_zoomin=0x7f080002;

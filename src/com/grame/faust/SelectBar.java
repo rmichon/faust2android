@@ -2,9 +2,13 @@ package com.grame.faust;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -12,8 +16,10 @@ public class SelectBar{
 	LinearLayout mainLayout;
 	Context mainContext;
 	TextView[] parameterLabel;
+	LinearLayout[] imgs;
 	int length; 
 	int id = 0;
+	int[] itemsOn, itemsOff;
 	
 	public SelectBar(Context c){
 		mainContext = c;
@@ -27,9 +33,25 @@ public class SelectBar{
 		upperLayout.addView(mainLayout);
 	}
 	
+	public void setItems(int[] itOn, int[] itOff){
+		length = itOn.length;
+		itemsOn = itOn;
+		itemsOff = itOff;
+		imgs = new LinearLayout[length];
+		
+		for(int i=0; i<length; i++){
+			LinearLayout frame = new LinearLayout(mainContext);
+			imgs[i] = new LinearLayout(mainContext);
+			frame.setBackgroundColor(Color.rgb(69,160,197));
+			frame.setPadding(1, 1, 1, 1);
+			frame.addView(imgs[i]);
+			mainLayout.addView(frame);
+		}
+		selectImgItem(0);
+	}
+	
 	public void setItems(String[] items){
 		length = items.length;
-		
 		parameterLabel = new TextView[length];
 		
 		for(int i=0; i<length; i++){
@@ -44,20 +66,10 @@ public class SelectBar{
 			frame.addView(parameterLabel[i]);
 			mainLayout.addView(frame);
 		}
-		
-		for(int i=0; i<length; i++){
-			final int index = i;
-			parameterLabel[i].setOnClickListener(new OnClickListener(){
-				public void onClick(View v){
-					id = index;
-					selectItem(index);
-				}
-			});
-		}
-		selectItem(0);
+		selectTextItem(0);
 	}
 	
-	public void selectItem(int item){
+	public void selectTextItem(int item){
 		id = item;
 		for(int i=0; i<length; i++){
 			if(i == id){ 
@@ -67,6 +79,18 @@ public class SelectBar{
 			else{
 				parameterLabel[i].setBackgroundColor(Color.rgb(70,70,70));
 				parameterLabel[i].setTextColor(Color.rgb(69,160,197));
+			}
+		}
+	}
+	
+	public void selectImgItem(int item){
+		id = item;
+		for(int i=0; i<length; i++){
+			if(i == id){ 
+				imgs[i].setBackgroundResource(itemsOn[i]);
+			}
+			else{
+				imgs[i].setBackgroundResource(itemsOff[i]);
 			}
 		}
 	}
