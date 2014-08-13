@@ -16,6 +16,11 @@ import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
+/*
+ * TODO:
+ * - the min, max and center slider should be aligned
+ */
+
 public class ConfigWindow{
 	PopupWindow mainWindow;
 	LinearLayout mainWindowLayout, minSliderLayout, maxSliderLayout, centerSliderLayout;
@@ -47,7 +52,8 @@ public class ConfigWindow{
 		LinearLayout windowLayout = new LinearLayout(c);
 		LinearLayout titleLayout = new LinearLayout(c);
 		TextView windowLabel = new TextView(c);
-		//TextView assignmentLabel = new TextView(c);
+		TextView axisLabel = new TextView(c);
+		TextView orientationLabel = new TextView(c);
 		
 		LayoutParams wrapped = new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -60,15 +66,17 @@ public class ConfigWindow{
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		titleLayout.setOrientation(LinearLayout.HORIZONTAL);
 		
-		// TODO: perhaps this should be replaced by a nicer button :)
 		closeButton.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		closeButton.setGravity(Gravity.RIGHT);
 		closeButton.setTextSize(20);
 		closeButton.setText("X");
 			
-		windowLabel.setText("Controller Parameters");
+		windowLabel.setText("Accelerometer Parameters");
 		windowLabel.setTextSize(22.f);
+		
+		axisLabel.setText("Axis: ");
+		orientationLabel.setText("Orientation: ");
 		
 		String[] items = {"0","X","Y","Z"};
 		axisSelection.setItems(items);
@@ -93,7 +101,11 @@ public class ConfigWindow{
 		titleLayout.addView(closeButton);
 		
 		windowLayout.addView(titleLayout);
+		windowLayout.addView(axisLabel);
 		axisSelection.addTo(windowLayout);
+		
+		windowLayout.addView(orientationLabel);
+		axisOrientation.addTo(windowLayout);
 		
 		minSliderLayout.addView(minSliderValue);
 		minSliderLayout.addView(minSlider);
@@ -107,8 +119,6 @@ public class ConfigWindow{
 		windowLayout.addView(minSliderLayout);
 		windowLayout.addView(maxSliderLayout);
 		windowLayout.addView(centerSliderLayout);
-		
-		axisOrientation.addTo(windowLayout);
 				
 		mainWindow.setContentView(windowLayout);
 	}
@@ -124,7 +134,7 @@ public class ConfigWindow{
 		setValue(centerSlider,centerSliderValue,"Center: ",parametersInfo.accelCenter[currentParameterNumber]);
 		
 		mainWindow.showAtLocation(mainWindowLayout, Gravity.CENTER,0,0);
-		mainWindow.update(0, 0, screenSizeX*700/800, screenSizeY*800/1280);
+		mainWindow.update(0, 0, screenSizeX*700/800, ViewGroup.LayoutParams.WRAP_CONTENT);
 		
 		closeButton.setOnClickListener(new OnClickListener(){
 			public void onClick(View v){
@@ -137,7 +147,6 @@ public class ConfigWindow{
 			final int index = i;
 			axisSelection.parameterLabel[i].setOnClickListener(new OnClickListener(){
 				public void onClick(View v){
-					axisSelection.id = index; //TODO remove?
 					axisSelection.selectTextItem(index);
 					parametersInfo.accelState[currentParameterNumber] = index;
 				}

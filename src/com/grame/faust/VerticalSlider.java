@@ -18,19 +18,20 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.VerticalSeekBar;
 
-class HorizontalSlider {
+class VerticalSlider {
 	
 	// TODO: private/public
 	float min = 0.0f, max = 100.0f, step = 1.0f;
 	int id = 0;
 	String decimalsDisplay = "", address = "";
 	LinearLayout frame, sliderLayout, localVerticalGroup;
-	SeekBar slider;
+	VerticalSeekBar slider;
 	TextView textValue, textLabel;
 	Point size;
 	
-	public HorizontalSlider(Context c, String addr, int currentParameterNumber, 
+	public VerticalSlider(Context c, String addr, int currentParameterNumber, 
 			int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth) {
 		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
@@ -43,9 +44,10 @@ class HorizontalSlider {
 		int padding = 10*size.x/800;
 		int localScreenSize = (upperViewWidth-padding*2)/nItemsUpperLevel;
 		
-		slider = new SeekBar(c);
+		int sliderHeight = 230*size.x/800;
+		slider = new VerticalSeekBar(c);
 		slider.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+				ViewGroup.LayoutParams.WRAP_CONTENT, sliderHeight));
 		
 		frame = new LinearLayout(c);
 		frame.setLayoutParams(new ViewGroup.LayoutParams(
@@ -56,8 +58,9 @@ class HorizontalSlider {
 		frame.setPadding(2,2,2,2);
 		
 		sliderLayout = new LinearLayout(c);
-		sliderLayout.setOrientation(LinearLayout.HORIZONTAL);
-		sliderLayout.setPadding(padding, 0, padding, 0);
+		sliderLayout.setOrientation(LinearLayout.VERTICAL);
+		sliderLayout.setGravity(Gravity.CENTER);
+		//sliderLayout.setPadding(padding, 0, padding, 0);
 		
 		localVerticalGroup = new LinearLayout(c);
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
@@ -69,6 +72,7 @@ class HorizontalSlider {
 		textLabel.setGravity(Gravity.CENTER);
 		
 		textValue = new TextView(c);
+		textValue.setGravity(Gravity.CENTER);
 		
 		sliderLayout.addView(textValue);
 		sliderLayout.addView(slider);

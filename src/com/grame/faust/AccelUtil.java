@@ -2,7 +2,6 @@ package com.grame.faust;
 
 public class AccelUtil{
 	public float normalize(float accelValue){
-		//return (accelValue+20)*0.025f;
 		return (accelValue+10)*0.05f;
 	}
 	

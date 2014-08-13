@@ -76,7 +76,7 @@ public class ui{
 	// TODO comment that out
 	HorizontalScrollView horizontalScroll;
 	HorizontalSlider[] hsliders;
-	VerticalSeekBar[] vsliders;
+	VerticalSlider[] vsliders;
 	BarGraph[] bargraphs;
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
@@ -104,7 +104,7 @@ public class ui{
 		
 		isSavedParameters = parametersInfo.getSavedParameters(settings);
 
-		if(numberOfVsliders>0) vsliders = new VerticalSeekBar[numberOfVsliders];
+		if(numberOfVsliders>0) vsliders = new VerticalSlider[numberOfVsliders];
 		if(numberOfHsliders>0) hsliders = new HorizontalSlider[numberOfHsliders];
 		if(numberOfBarGraphs>0) bargraphs = new BarGraph[numberOfBarGraphs];
 	}
@@ -588,124 +588,6 @@ public class ui{
 	}
 	
 	/*
-	public void hslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
-			final float min, final float max, final float step, int currentGroupLevel,
-			int nItemsUpperLevel, int upperViewWidth){
-		// the main layout for this view (containing both the slider, its value and its name)
-		LinearLayout localVerticalGroup = new LinearLayout(c);
-		// layout to create a frame around the parameter view
-		LinearLayout frame = new LinearLayout(c);
-		// layout containing the slider and its value
-		LinearLayout sliderLayout = new LinearLayout(c);
-		// the slider
-		hsliders[parametersCounters[0]] = new HorizontalSlider(c,nItemsUpperLevel,upperViewWidth);
-		// the value of the slider
-		final TextView textValue = new TextView(c);
-		// the name of the parameter
-		final TextView textLabel = new TextView(c);
-		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
-		
-		// padding is adjusted in function of the screen definition
-		int padding = 10*screenSizeX/800;
-		int localScreenSize = (upperViewWidth-padding*2)/nItemsUpperLevel;
-		
-		// padding to create a thin frame around the parameter view
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT));
-		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
-		frame.setPadding(2,2,2,2);
-		
-		// the slider should take as much space as it can in the view
-		hsliders[parametersCounters[0]].setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-		
-		// some padding to make sure that the displayed value of the slider on the
-		// left is not too close to the border of the frame
-		sliderLayout.setOrientation(LinearLayout.HORIZONTAL);
-		sliderLayout.setPadding(padding, 0, padding, 0);
-		
-		// the background color of the local group is brighter than the upper one
-		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
-		
-		// if parameters were saved, then they replace init	
-		// TODO: doesn't scale properly for now + this technique should be generalized to all
-		// UI elements -> that's THE clean solution...
-		hsliders[parametersCounters[0]].setSliderParams(min, max, step);
-		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
-		else parametersInfo.values[currentParameterNumber] = init;
-		
-		hsliders[parametersCounters[0]].setValue(init);
-		faust.setParam(address, init);
-		
-		// the number of decimals of the displayed value of the knob is
-		// defined by step
-		int decimals = 0;
-		if(step>=1) decimals = 1;
-		else if(step<1 && step>=0.1) decimals = 1;
-		else decimals = 2;
-		final String decimalsDisplay = "%."+decimals+"f";
-		
-		textValue.setText(String.format(decimalsDisplay, init));
-		textLabel.setText(label);
-		textLabel.setGravity(Gravity.CENTER);
-		
-		// Listener for the parameters window 
-		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
-			public boolean onLongClick (View v){
-				parametersWindow.showWindow(screenSizeX, screenSizeY, parametersInfo, currentParameterNumber);
-				return true;
-			}
-		});
-		
-		OnSeekBarChangeListener sliderListener = new OnSeekBarChangeListener() {
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				parametersInfo.accelItemFocus[currentParameterNumber] = 0;
-			}
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				parametersInfo.accelItemFocus[currentParameterNumber] = 1;
-			}
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				if(parametersInfo.accelState[currentParameterNumber] >= 1 && 
-						parametersInfo.accelItemFocus[currentParameterNumber] == 1) 
-					parametersInfo.accelParameterCenter[currentParameterNumber] = (float) progress*step/(max-min);
-				parametersInfo.values[currentParameterNumber] = (float) progress*step + min;
-				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
-				textValue.setText(String.format(decimalsDisplay, parametersInfo.values[currentParameterNumber]));
-	          }
-	    };
-	    hsliders[parametersCounters[0]].setOnSeekBarChangeListener(sliderListener);
-	    
-	    // TODO: should be generalized to all the other UI elements
-	    hsliders[parametersCounters[0]].setOnTouchListener(new OnTouchListener()
-	    {
-	        @Override
-	        public boolean onTouch(final View view, final MotionEvent event)
-	        {
-	          if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE)
-	            horizontalScroll.requestDisallowInterceptTouchEvent(true);
-	          return false;
-	        }
-	    });
-	    
-	    sliderLayout.addView(textValue);
-	    sliderLayout.addView(hsliders[parametersCounters[0]]);
-	    localVerticalGroup.addView(textLabel);
-	    localVerticalGroup.addView(sliderLayout);
-	    frame.addView(localVerticalGroup);
-	    currentGroup.addView(frame);
-	    
-	    parametersCounters[0]++;
-	}
-	*/
-	
-	/*
 	 * Creates a vertical slider and adds it to currentGroup.
 	 * PARAMETERS:
 	 * 	c: the context (this)
@@ -719,6 +601,29 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
+	public void vslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
+			final float min, final float max, final float step, int currentGroupLevel,
+			int nItemsUpperLevel, int upperViewWidth){
+		// the slider
+		vsliders[parametersCounters[1]] = new VerticalSlider(c,address,parameterNumber,
+				currentGroupLevel,nItemsUpperLevel,upperViewWidth);
+		
+		// index for the parameters values array
+		final int currentParameterNumber = parameterNumber;
+		
+		// TODO: doesn't scale properly for now + this technique should be generalized to all
+		vsliders[parametersCounters[1]].setSliderParams(label, min, max, step);
+		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
+		else parametersInfo.values[currentParameterNumber] = init;
+		
+		vsliders[parametersCounters[1]].setValue(init);
+		faust.setParam(address, init);
+	    vsliders[parametersCounters[1]].linkTo(parametersInfo, parametersWindow, horizontalScroll, faust);
+	    vsliders[parametersCounters[1]].addTo(currentGroup);
+	    
+	    parametersCounters[1]++;
+	}
+	/*
 	public void vslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int currentGroupLevel,
 			int nItemsUpperLevel, int upperViewWidth){
@@ -821,6 +726,7 @@ public class ui{
 	    
 	    parametersCounters[1]++;
 	}
+	*/
 	
 	/*
 	 * Creates a knob and adds it to currentGroup.
