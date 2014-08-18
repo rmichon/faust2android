@@ -3,16 +3,20 @@ package com.grame.faust;
 import android.content.SharedPreferences;
 
 class ParametersInfo{
+	// Saved Parameters
 	String[] address;
 	float[] values;
 	int zoom;
-	
 	int[] accelState;
 	int[] accelInverterState;
 	float[] accelMin;
 	float[] accelMax;
 	float[] accelCenter;
-	int[] accelItemFocus;
+	int[] accelItemFocus; //TODO: delete?
+	
+	// Other Parameters
+	int[] parameterType;
+	int[] localId;
 	
 	int nParams;
 	int saved = 1;
@@ -27,6 +31,8 @@ class ParametersInfo{
 		accelMax = new float[nParams];
 		accelCenter = new float[nParams];
 		accelItemFocus = new int[nParams];
+		parameterType = new int[nParams]; //0: hslider, 1: vslider
+		localId = new int[nParams];
 		// assigning default values
 		for(int i=0; i<nParams; i++){
 			accelMin[i] = -10.0f;

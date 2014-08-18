@@ -20,6 +20,11 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.VerticalSeekBar;
 
+/*
+ * TODO: with accelerometers, when using setNormalizedValue the handle of the 
+ * slider doesn't move.
+ */
+
 class VerticalSlider {
 	
 	// TODO: private/public
@@ -106,7 +111,7 @@ class VerticalSlider {
 	}
 	
 	public void setNormizedValue(float theValue){
-		slider.setProgress(Math.round(theValue*max/step));
+		slider.setProgress(Math.round(theValue*(max-min)/step));
 	}
 	
 	public void addTo(LinearLayout group){

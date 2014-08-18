@@ -48,6 +48,11 @@ import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
 
 /*
  * REMARKS:
+ * 	- The class elements of the UI should be static and their size/
+ * 		backgorund color should be defined when the interface is built
+ * 		and not directly inside the function: the whole system should
+ * 		be reviewed and made cleaner!
+ * 
  * 	- All the UI elements with a size greater than 2 pixels vary
  * 	in function of the screen definition. The others are considered
  * 	to be neglectable. The size of the text is the only exception and
@@ -571,19 +576,18 @@ public class ui{
 		hsliders[parametersCounters[0]] = new HorizontalSlider(c,address,parameterNumber,
 				currentGroupLevel,nItemsUpperLevel,upperViewWidth);
 		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
-		
 		// TODO: doesn't scale properly for now + this technique should be generalized to all
 		hsliders[parametersCounters[0]].setSliderParams(label, min, max, step);
-		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
-		else parametersInfo.values[currentParameterNumber] = init;
+		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
+		else parametersInfo.values[parameterNumber] = init;
 		
 		hsliders[parametersCounters[0]].setValue(init);
 		faust.setParam(address, init);
 	    hsliders[parametersCounters[0]].linkTo(parametersInfo, parametersWindow, horizontalScroll, faust);
 	    hsliders[parametersCounters[0]].addTo(currentGroup);
 	    
+	    parametersInfo.parameterType[parameterNumber] = 0;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[0];
 	    parametersCounters[0]++;
 	}
 	
@@ -607,20 +611,19 @@ public class ui{
 		// the slider
 		vsliders[parametersCounters[1]] = new VerticalSlider(c,address,parameterNumber,
 				currentGroupLevel,nItemsUpperLevel,upperViewWidth);
-		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
-		
+
 		// TODO: doesn't scale properly for now + this technique should be generalized to all
 		vsliders[parametersCounters[1]].setSliderParams(label, min, max, step);
-		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
-		else parametersInfo.values[currentParameterNumber] = init;
+		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
+		else parametersInfo.values[parameterNumber] = init;
 		
 		vsliders[parametersCounters[1]].setValue(init);
 		faust.setParam(address, init);
 	    vsliders[parametersCounters[1]].linkTo(parametersInfo, parametersWindow, horizontalScroll, faust);
 	    vsliders[parametersCounters[1]].addTo(currentGroup);
 	    
+	    parametersInfo.parameterType[parameterNumber] = 1;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[1];
 	    parametersCounters[1]++;
 	}
 	/*

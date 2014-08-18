@@ -50,7 +50,6 @@ public class VerticalSeekBar extends SeekBar {
              int i=0;
              i=getMax() - (int) (getMax() * event.getY() / getHeight());
                 setProgress(i);
-                Log.i("Progress",getProgress()+"");
                 onSizeChanged(getWidth(), getHeight(), 0, 0);
                 break;
 

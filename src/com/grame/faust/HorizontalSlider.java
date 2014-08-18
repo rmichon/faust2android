@@ -19,9 +19,11 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+/*
+ * Creates a horizontal slider that displays its current value on its left. 
+ */
+
 class HorizontalSlider {
-	
-	// TODO: private/public
 	float min = 0.0f, max = 100.0f, step = 1.0f;
 	int id = 0;
 	String decimalsDisplay = "", address = "";
@@ -30,14 +32,21 @@ class HorizontalSlider {
 	TextView textValue, textLabel;
 	Point size;
 	
-	public HorizontalSlider(Context c, String addr, int currentParameterNumber, 
-			int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth) {
+	/*
+	 * The constructor.
+	 * addr: the tree address of the parameter controlled by the slider
+	 * currentParameterNumber: the current parameter id in the parameters tree
+	 * currentGroupDepth: the current group depth to change the size of the current
+	 * 		window and it's background color in function.
+	 */
+	public HorizontalSlider(Context c, String addr, int currentParameterId, 
+			int currentGroupDepth, int nItemsUpperLevel, int upperViewWidth) {
 		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		size = new Point();
 		display.getSize(size);
 		
-		id = currentParameterNumber;
+		id = currentParameterId;
 		address = addr;
 		
 		int padding = 10*size.x/800;
@@ -51,8 +60,8 @@ class HorizontalSlider {
 		frame.setLayoutParams(new ViewGroup.LayoutParams(
 				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT));
 		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setBackgroundColor(Color.rgb(currentGroupDepth*15,
+				currentGroupDepth*15, currentGroupDepth*15));
 		frame.setPadding(2,2,2,2);
 		
 		sliderLayout = new LinearLayout(c);
@@ -62,8 +71,8 @@ class HorizontalSlider {
 		localVerticalGroup = new LinearLayout(c);
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
 		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
+		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupDepth+1)*15,
+				(currentGroupDepth+1)*15, (currentGroupDepth+1)*15));
 		
 		textLabel = new TextView(c);
 		textLabel.setGravity(Gravity.CENTER);
@@ -102,7 +111,7 @@ class HorizontalSlider {
 	}
 	
 	public void setNormizedValue(float theValue){
-		slider.setProgress(Math.round(theValue*max/step));
+		slider.setProgress(Math.round(theValue*(max-min)/step));
 	}
 	
 	public void addTo(LinearLayout group){

@@ -17,6 +17,10 @@
  ************************************************************************
  ************************************************************************/
 
+/*
+ * TODO: why use a class for that. Why not just use functions for the API?
+ */
+
 #include <android/log.h>
 #include "opensl_io.h"
 #include "faust_dsp.h"

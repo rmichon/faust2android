@@ -88,7 +88,7 @@ public class faust extends Activity {
 				float finalParameterValue = 0.0f;
 				// TODO: the accelerometer class should be used to clean this a little bit
 				while(on){
-					// for each UI element we control the accelerometer parameters
+					// for each UI element we control the acceleirometer parameters
 					for(int i = 0; i<numberOfParameters; i++){
 						if(parametersInfo.accelState[i] >= 1 && parametersInfo.accelItemFocus[i] == 0){
 							if(parametersInfo.accelState[i] == 1){ 
@@ -104,12 +104,16 @@ public class faust extends Activity {
 										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.accelInverterState[i]);							
 							}	
 							// the slider value is modified by the accelerometer 
-							UI.hsliders[i].setNormizedValue(finalParameterValue);
+							// TODO: for some reason this seems to create a minor memory leak. May be this has something to do with the
+							// priority of the thread. Also, lowering the sampling rate of the accelerometers seems to solve partially
+							// solce this problem.
+							if(parametersInfo.parameterType[i] == 0) UI.hsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
+							else if(parametersInfo.parameterType[i] == 1) UI.vsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
 						}
 					}
 					/*
 					try {
-						accelThread.sleep(100);
+						accelThread.sleep(50);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
