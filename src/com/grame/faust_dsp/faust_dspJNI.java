@@ -19,14 +19,6 @@ public class faust_dspJNI {
     }
   }
 
-  public final static native long new_floatArray(int jarg1);
-  public final static native void delete_floatArray(long jarg1);
-  public final static native float floatArray_getitem(long jarg1, int jarg2);
-  public final static native void floatArray_setitem(long jarg1, int jarg2, float jarg3);
-  public final static native String new_charArray(int jarg1);
-  public final static native void delete_charArray(String jarg1);
-  public final static native char charArray_getitem(String jarg1, int jarg2);
-  public final static native void charArray_setitem(String jarg1, int jarg2, char jarg3);
   public final static native void initFaust();
   public final static native String getJSON();
   public final static native int getParamsCount();

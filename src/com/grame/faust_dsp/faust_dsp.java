@@ -9,39 +9,6 @@
 package com.grame.faust_dsp;
 
 public class faust_dsp {
-  public static SWIGTYPE_p_float new_floatArray(int nelements) {
-    long cPtr = faust_dspJNI.new_floatArray(nelements);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_float(cPtr, false);
-  }
-
-  public static void delete_floatArray(SWIGTYPE_p_float ary) {
-    faust_dspJNI.delete_floatArray(SWIGTYPE_p_float.getCPtr(ary));
-  }
-
-  public static float floatArray_getitem(SWIGTYPE_p_float ary, int index) {
-    return faust_dspJNI.floatArray_getitem(SWIGTYPE_p_float.getCPtr(ary), index);
-  }
-
-  public static void floatArray_setitem(SWIGTYPE_p_float ary, int index, float value) {
-    faust_dspJNI.floatArray_setitem(SWIGTYPE_p_float.getCPtr(ary), index, value);
-  }
-
-  public static String new_charArray(int nelements) {
-    return faust_dspJNI.new_charArray(nelements);
-  }
-
-  public static void delete_charArray(String ary) {
-    faust_dspJNI.delete_charArray(ary);
-  }
-
-  public static char charArray_getitem(String ary, int index) {
-    return faust_dspJNI.charArray_getitem(ary, index);
-  }
-
-  public static void charArray_setitem(String ary, int index, char value) {
-    faust_dspJNI.charArray_setitem(ary, index, value);
-  }
-
   public static void initFaust() {
     faust_dspJNI.initFaust();
   }
