@@ -373,253 +373,98 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_charArray_1setit
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cnt_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
-  Para *arg1 = (Para *) 0 ;
-  int arg2 ;
-  
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_initFaust(JNIEnv *jenv, jclass jcls) {
   (void)jenv;
   (void)jcls;
-  (void)jarg1_;
-  arg1 = *(Para **)&jarg1; 
-  arg2 = (int)jarg2; 
-  if (arg1) (arg1)->cnt = arg2;
+  initFaust();
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cnt_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jint jresult = 0 ;
-  Para *arg1 = (Para *) 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(Para **)&jarg1; 
-  result = (int) ((arg1)->cnt);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cntHsliders_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
-  Para *arg1 = (Para *) 0 ;
-  int arg2 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(Para **)&jarg1; 
-  arg2 = (int)jarg2; 
-  if (arg1) (arg1)->cntHsliders = arg2;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cntHsliders_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jint jresult = 0 ;
-  Para *arg1 = (Para *) 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(Para **)&jarg1; 
-  result = (int) ((arg1)->cntHsliders);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cntVsliders_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
-  Para *arg1 = (Para *) 0 ;
-  int arg2 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(Para **)&jarg1; 
-  arg2 = (int)jarg2; 
-  if (arg1) (arg1)->cntVsliders = arg2;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_Para_1cntVsliders_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jint jresult = 0 ;
-  Para *arg1 = (Para *) 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(Para **)&jarg1; 
-  result = (int) ((arg1)->cntVsliders);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jlong JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_new_1Para(JNIEnv *jenv, jclass jcls) {
-  jlong jresult = 0 ;
-  Para *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  result = (Para *)new Para();
-  *(Para **)&jresult = result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_delete_1Para(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  Para *arg1 = (Para *) 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(Para **)&jarg1; 
-  delete arg1;
-}
-
-
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1initFaust(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  faustObject *arg1 = (faustObject *) 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(faustObject **)&jarg1; 
-  (arg1)->initFaust();
-}
-
-
-SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1getJSON(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getJSON(JNIEnv *jenv, jclass jcls) {
   jstring jresult = 0 ;
-  faustObject *arg1 = (faustObject *) 0 ;
   char *result = 0 ;
   
   (void)jenv;
   (void)jcls;
-  (void)jarg1_;
-  arg1 = *(faustObject **)&jarg1; 
-  result = (char *)(arg1)->getJSON();
+  result = (char *)getJSON();
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1getParamsCount(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamsCount(JNIEnv *jenv, jclass jcls) {
   jint jresult = 0 ;
-  faustObject *arg1 = (faustObject *) 0 ;
   int result;
   
   (void)jenv;
   (void)jcls;
-  (void)jarg1_;
-  arg1 = *(faustObject **)&jarg1; 
-  result = (int)(arg1)->getParamsCount();
+  result = (int)getParamsCount();
   jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1startAudio(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  faustObject *arg1 = (faustObject *) 0 ;
-  
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_startAudio(JNIEnv *jenv, jclass jcls) {
   (void)jenv;
   (void)jcls;
-  (void)jarg1_;
-  arg1 = *(faustObject **)&jarg1; 
-  (arg1)->startAudio();
+  startAudio();
 }
 
 
-SWIGEXPORT jfloat JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1getParam(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+SWIGEXPORT jfloat JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParam(JNIEnv *jenv, jclass jcls, jstring jarg1) {
   jfloat jresult = 0 ;
-  faustObject *arg1 = (faustObject *) 0 ;
-  char *arg2 = (char *) 0 ;
+  char *arg1 = (char *) 0 ;
   float result;
   
   (void)jenv;
   (void)jcls;
-  (void)jarg1_;
-  arg1 = *(faustObject **)&jarg1; 
-  arg2 = 0;
-  if (jarg2) {
-    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return 0;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
   }
-  result = (float)(arg1)->getParam((char const *)arg2);
+  result = (float)getParam((char const *)arg1);
   jresult = (jfloat)result; 
-  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1setParam(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jfloat jarg3) {
-  faustObject *arg1 = (faustObject *) 0 ;
-  char *arg2 = (char *) 0 ;
-  float arg3 ;
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_setParam(JNIEnv *jenv, jclass jcls, jstring jarg1, jfloat jarg2) {
+  char *arg1 = (char *) 0 ;
+  float arg2 ;
   
   (void)jenv;
   (void)jcls;
-  (void)jarg1_;
-  arg1 = *(faustObject **)&jarg1; 
-  arg2 = 0;
-  if (jarg2) {
-    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return ;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return ;
   }
-  arg3 = (float)jarg3; 
-  (arg1)->setParam((char const *)arg2,arg3);
-  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  arg2 = (float)jarg2; 
+  setParam((char const *)arg1,arg2);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1stopAudio(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  faustObject *arg1 = (faustObject *) 0 ;
-  
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_stopAudio(JNIEnv *jenv, jclass jcls) {
   (void)jenv;
   (void)jcls;
-  (void)jarg1_;
-  arg1 = *(faustObject **)&jarg1; 
-  (arg1)->stopAudio();
+  stopAudio();
 }
 
 
-SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_faustObject_1getParamPath(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamPath(JNIEnv *jenv, jclass jcls, jint jarg1) {
   jstring jresult = 0 ;
-  faustObject *arg1 = (faustObject *) 0 ;
-  int arg2 ;
+  int arg1 ;
   char *result = 0 ;
   
   (void)jenv;
   (void)jcls;
-  (void)jarg1_;
-  arg1 = *(faustObject **)&jarg1; 
-  arg2 = (int)jarg2; 
-  result = (char *)(arg1)->getParamPath(arg2);
+  arg1 = (int)jarg1; 
+  result = (char *)getParamPath(arg1);
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
-}
-
-
-SWIGEXPORT jlong JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_new_1faustObject(JNIEnv *jenv, jclass jcls) {
-  jlong jresult = 0 ;
-  faustObject *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  result = (faustObject *)new faustObject();
-  *(faustObject **)&jresult = result; 
-  return jresult;
-}
-
-
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_delete_1faustObject(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  faustObject *arg1 = (faustObject *) 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(faustObject **)&jarg1; 
-  delete arg1;
 }
 
 

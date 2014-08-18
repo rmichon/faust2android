@@ -42,7 +42,7 @@ import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.VerticalSeekBar;
 
-import com.grame.faust_dsp.faustObject;
+import com.grame.faust_dsp.faust_dsp;
 import com.triggertrap.seekarc.SeekArc; 
 import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
 
@@ -63,8 +63,6 @@ public class ui{
 	/*
 	 * Global Variables (accessible from outside the class).
 	 */
-	// the faust C++ class
-	faustObject faust;
 	// string to store the full JSON description
 	String JSONparameters = new String();
 	// the values of the different UI elements 
@@ -86,17 +84,13 @@ public class ui{
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
 	
-	public ui(faustObject faustObj){
-		faust = faustObj;
-	}
-	
 	/*
 	 * Initialize parametersValues in function of the total
 	 * number of parameters.
 	 */
 	public void initUI(ParametersInfo paramsInfo, SharedPreferences settings){
-		JSONparameters = faust.getJSON();
-		int numberOfParameters = faust.getParamsCount();
+		JSONparameters = faust_dsp.getJSON();
+		int numberOfParameters = faust_dsp.getParamsCount();
 		int numberOfVsliders = countStringOccurrences(JSONparameters,"vslider");
 		int numberOfHsliders = countStringOccurrences(JSONparameters,"hslider");
 		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
@@ -104,7 +98,7 @@ public class ui{
 		
 		parametersInfo = paramsInfo;
 		for(int i=0; i<numberOfParameters; i++){ 
-			parametersInfo.address[i] = faust.getParamPath(i);
+			parametersInfo.address[i] = faust_dsp.getParamPath(i);
 		}
 		
 		isSavedParameters = parametersInfo.getSavedParameters(settings);
@@ -441,7 +435,7 @@ public class ui{
         menu.setOnItemSelectedListener(new OnItemSelectedListener(){
         	public void onItemSelected(AdapterView parent, View view, int pos, long id) {
         		parametersInfo.values[currentParameterNumber] = (float) pos+min;
-        		faust.setParam(address, parametersInfo.values[currentParameterNumber]);
+        		faust_dsp.setParam(address, parametersInfo.values[currentParameterNumber]);
         	} 
         	public void onNothingSelected(AdapterView parent) {	 		
         	}
@@ -544,7 +538,7 @@ public class ui{
 	    {
 	        public void onCheckedChanged(RadioGroup group, int checkedId) {
 	        	parametersInfo.values[currentParameterNumber] = (float) checkedId;
-				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
+				faust_dsp.setParam(address, parametersInfo.values[currentParameterNumber]);
 	        }
 	    });
 		
@@ -582,8 +576,8 @@ public class ui{
 		else parametersInfo.values[parameterNumber] = init;
 		
 		hsliders[parametersCounters[0]].setValue(init);
-		faust.setParam(address, init);
-	    hsliders[parametersCounters[0]].linkTo(parametersInfo, parametersWindow, horizontalScroll, faust);
+		faust_dsp.setParam(address, init);
+	    hsliders[parametersCounters[0]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
 	    hsliders[parametersCounters[0]].addTo(currentGroup);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 0;
@@ -618,8 +612,8 @@ public class ui{
 		else parametersInfo.values[parameterNumber] = init;
 		
 		vsliders[parametersCounters[1]].setValue(init);
-		faust.setParam(address, init);
-	    vsliders[parametersCounters[1]].linkTo(parametersInfo, parametersWindow, horizontalScroll, faust);
+		faust_dsp.setParam(address, init);
+	    vsliders[parametersCounters[1]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
 	    vsliders[parametersCounters[1]].addTo(currentGroup);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 1;
@@ -834,7 +828,7 @@ public class ui{
 				// TODO: we should try the interface with negative values: not 100% sure
 				// the value of the parameter is updated and is displayed when the knob is used
 				parametersInfo.values[currentParameterNumber] = (float) progress*0.01f*(max-min) + min;
-				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
+				faust_dsp.setParam(address, parametersInfo.values[currentParameterNumber]);
 				textValue.setText(String.format(decimalsDisplay, parametersInfo.values[currentParameterNumber]));
 	          }
 	    };
@@ -965,10 +959,10 @@ public class ui{
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
                 	parametersInfo.values[currentParameterNumber] = 1.f;
-                	faust.setParam(address, 1.f);
+                	faust_dsp.setParam(address, 1.f);
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                 	parametersInfo.values[currentParameterNumber] = 0.f;
-                	faust.setParam(address, 0.f);
+                	faust_dsp.setParam(address, 0.f);
                 }
 	          	return true;
             }

@@ -1,6 +1,6 @@
 package com.grame.faust;
 
-import com.grame.faust_dsp.faustObject;
+import com.grame.faust_dsp.faust_dsp;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -118,7 +118,7 @@ class HorizontalSlider {
 		group.addView(frame);
 	}
 	
-	public void linkTo(final ParametersInfo parametersInfo, final ConfigWindow parametersWindow, final HorizontalScrollView horizontalScroll, final faustObject faust){
+	public void linkTo(final ParametersInfo parametersInfo, final ConfigWindow parametersWindow, final HorizontalScrollView horizontalScroll){
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
 				parametersWindow.showWindow(size.x, size.y, parametersInfo, id);
@@ -135,7 +135,7 @@ class HorizontalSlider {
 			}
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				parametersInfo.values[id] = (float) progress*step + min;
-				faust.setParam(address, parametersInfo.values[id]);
+				faust_dsp.setParam(address, parametersInfo.values[id]);
 				setDisplayedValue(parametersInfo.values[id]);
 	          }
 	    });

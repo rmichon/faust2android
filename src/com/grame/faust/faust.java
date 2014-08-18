@@ -1,6 +1,6 @@
 package com.grame.faust;
 
-import com.grame.faust_dsp.faustObject;
+import com.grame.faust_dsp.faust_dsp;
 
 import android.app.Activity;
 import android.content.Context;
@@ -23,8 +23,7 @@ public class faust extends Activity {
 	Thread displayThread, accelThread;
 	boolean on = true; // process on/off
 	
-	faustObject faust = new faustObject();
-	ui UI = new ui(faust); 
+	ui UI = new ui(); 
 	ParametersInfo parametersInfo = new ParametersInfo();
 	AccelUtil accelUtil = new AccelUtil();
 	
@@ -32,9 +31,9 @@ public class faust extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        faust.initFaust();
+        faust_dsp.initFaust();
         
-        final int numberOfParameters = faust.getParamsCount();
+        final int numberOfParameters = faust_dsp.getParamsCount();
         
         parametersInfo.init(numberOfParameters);
         SharedPreferences settings = getSharedPreferences("savedParameters", 0);
@@ -62,7 +61,7 @@ public class faust extends Activity {
         System.out.println("Voila:" + myAudioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER));
         */
         
-        faust.startAudio();
+        faust_dsp.startAudio();
         
         final int displayThreadUpdateRate = 30;
         displayThread = new Thread() {
@@ -70,7 +69,7 @@ public class faust extends Activity {
         		while(on){
         			if(UI.parametersCounters[2] > 0){
         				for(int i=0; i<UI.parametersCounters[2]; i++){
-        					UI.bargraphs[i].setValue(UI.faust.getParam(UI.parametersInfo.address[UI.bargraphs[i].id]));
+        					//UI.bargraphs[i].setValue(UI.faust.getParam(UI.parametersInfo.address[UI.bargraphs[i].id]));
         				}
         			}
         			try {
@@ -185,7 +184,7 @@ public class faust extends Activity {
     public void onDestroy(){
     	super.onDestroy();
     	on = false;
-    	faust.stopAudio();
+    	faust_dsp.stopAudio();
     	try {
 			displayThread.join();
 			accelThread.join();

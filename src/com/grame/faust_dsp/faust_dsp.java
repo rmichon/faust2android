@@ -42,4 +42,36 @@ public class faust_dsp {
     faust_dspJNI.charArray_setitem(ary, index, value);
   }
 
+  public static void initFaust() {
+    faust_dspJNI.initFaust();
+  }
+
+  public static String getJSON() {
+    return faust_dspJNI.getJSON();
+  }
+
+  public static int getParamsCount() {
+    return faust_dspJNI.getParamsCount();
+  }
+
+  public static void startAudio() {
+    faust_dspJNI.startAudio();
+  }
+
+  public static float getParam(String arg0) {
+    return faust_dspJNI.getParam(arg0);
+  }
+
+  public static void setParam(String arg0, float arg1) {
+    faust_dspJNI.setParam(arg0, arg1);
+  }
+
+  public static void stopAudio() {
+    faust_dspJNI.stopAudio();
+  }
+
+  public static String getParamPath(int arg0) {
+    return faust_dspJNI.getParamPath(arg0);
+  }
+
 }

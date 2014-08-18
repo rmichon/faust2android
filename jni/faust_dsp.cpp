@@ -17,10 +17,6 @@
  ************************************************************************
  ************************************************************************/
 
-/*
- * TODO: why use a class for that. Why not just use functions for the API?
- */
-
 #include <android/log.h>
 #include "opensl_io.h"
 #include "faust_dsp.h"
@@ -43,7 +39,7 @@ pthread_t audioThread;
 int inChanNumb, outChanNumb, on;
 float **bufferout,**bufferin;
 
-void faustObject::initFaust(){
+void initFaust(){
 	DSP = new mydsp();
 	mapUI = new MapUI();
 	DSP->init(SR);
@@ -66,7 +62,7 @@ void faustObject::initFaust(){
 	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s", mapUI->getParamPath(0));
 }
 
-const char *faustObject::getJSON(){
+const char *getJSON(){
 	mydsp myDSP;
 	JSONUI json(myDSP.getNumInputs(), myDSP.getNumOutputs());
 	mydsp::metadata(&json);
@@ -75,7 +71,7 @@ const char *faustObject::getJSON(){
 	return strdup(json.JSON().c_str());
 }
 
-int faustObject::getParamsCount(){
+int getParamsCount(){
 	return mapUI->getParamsCount();
 }
 
@@ -104,12 +100,12 @@ void *processDSP(void *threadID){
 	android_CloseAudioDevice(p);
 }
 
-void faustObject::startAudio(){
+void startAudio(){
 	on = 1;
-	pthread_create(&audioThread, NULL, processDSP, this);
+	pthread_create(&audioThread, NULL, processDSP, NULL);
 }
 
-void faustObject::stopAudio(){
+void stopAudio(){
 	on = 0;
 	pthread_join(audioThread, 0);
 	delete [] bufferin;
@@ -117,15 +113,15 @@ void faustObject::stopAudio(){
 	delete [] bufferout;
 }
 
-float faustObject::getParam(const char* address){
+float getParam(const char* address){
 	return mapUI->getValue(address);
 }
 
-void faustObject::setParam(const char* address, float value){
+void setParam(const char* address, float value){
 	mapUI->setValue(address, value);
 }
 
-const char *faustObject::getParamPath(int index){
+const char *getParamPath(int index){
 	return strdup(mapUI->getParamPath(index).c_str());
 }
 
