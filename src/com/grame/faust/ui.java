@@ -185,6 +185,9 @@ public class ui{
 		JSONArray currentArray = new JSONArray();
 		if(currentGroupType == 0) groupDivisions = 1;
 		else groupDivisions = nItemsTopLevel;
+		int localPadding = 10*screenSizeX/800;
+		int localScreenWidth = (currentViewWidth-localPadding*2)/groupDivisions;
+		int localBackgroundColor = currentGroupLevel*15;
 		try {
 			for(int i=0; i<nItemsTopLevel; i++){
 				currentObject = uiArray.getJSONObject(i);
@@ -230,7 +233,7 @@ public class ui{
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								currentGroupLevel,groupDivisions,currentViewWidth);	
+								localScreenWidth,localBackgroundColor);	
 					}
 					parameterNumber++;
 				}
@@ -265,7 +268,7 @@ public class ui{
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								currentGroupLevel,groupDivisions,currentViewWidth);	
+								localScreenWidth,localBackgroundColor,localPadding);	
 					}
 					parameterNumber++;
 				}
@@ -564,11 +567,11 @@ public class ui{
 	 *  upperViewWidth: width of the upper group
 	 */
 	public void hslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
-			final float min, final float max, final float step, int currentGroupLevel,
-			int nItemsUpperLevel, int upperViewWidth){
+			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor, 
+			int localPadding){
 		// the slider
 		hsliders[parametersCounters[0]] = new HorizontalSlider(c,address,parameterNumber,
-				currentGroupLevel,nItemsUpperLevel,upperViewWidth);
+				localScreenWidth, localBackgroundColor, localPadding);
 		
 		// TODO: doesn't scale properly for now + this technique should be generalized to all
 		hsliders[parametersCounters[0]].setSliderParams(label, min, max, step);
@@ -600,11 +603,10 @@ public class ui{
 	 *  upperViewWidth: width of the upper group
 	 */
 	public void vslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
-			final float min, final float max, final float step, int currentGroupLevel,
-			int nItemsUpperLevel, int upperViewWidth){
+			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor){
 		// the slider
 		vsliders[parametersCounters[1]] = new VerticalSlider(c,address,parameterNumber,
-				currentGroupLevel,nItemsUpperLevel,upperViewWidth);
+				localScreenWidth, localBackgroundColor);
 
 		// TODO: doesn't scale properly for now + this technique should be generalized to all
 		vsliders[parametersCounters[1]].setSliderParams(label, min, max, step);

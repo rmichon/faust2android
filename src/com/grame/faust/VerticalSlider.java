@@ -25,6 +25,10 @@ import android.widget.VerticalSeekBar;
  * slider doesn't move.
  */
 
+/*
+ * Create a horizontal slider that displays its current value on its left. 
+ */
+
 class VerticalSlider {
 	
 	// TODO: private/public
@@ -36,18 +40,22 @@ class VerticalSlider {
 	TextView textValue, textLabel;
 	Point size;
 	
-	public VerticalSlider(Context c, String addr, int currentParameterNumber, 
-			int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth) {
+	/*
+	 * The constructor.
+	 * addr: the tree address of the parameter controlled by the slider
+	 * currentParameterID: the current parameter id in the parameters tree
+	 * width: width of the view in pxs
+	 * backgroundColor: grey level of the background of the view (0-255)
+	 */
+	public VerticalSlider(Context c, String addr, int currentParameterID,
+			int width, int backgroundColor){
 		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		size = new Point();
 		display.getSize(size);
 		
-		id = currentParameterNumber;
+		id = currentParameterID;
 		address = addr;
-		
-		int padding = 10*size.x/800;
-		int localScreenSize = (upperViewWidth-padding*2)/nItemsUpperLevel;
 		
 		int sliderHeight = 230*size.x/800;
 		slider = new VerticalSeekBar(c);
@@ -56,22 +64,21 @@ class VerticalSlider {
 		
 		frame = new LinearLayout(c);
 		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				localScreenSize, ViewGroup.LayoutParams.WRAP_CONTENT));
+				width, ViewGroup.LayoutParams.WRAP_CONTENT));
 		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
+		frame.setBackgroundColor(Color.rgb(backgroundColor, 
+				backgroundColor, backgroundColor));
 		frame.setPadding(2,2,2,2);
 		
 		sliderLayout = new LinearLayout(c);
 		sliderLayout.setOrientation(LinearLayout.VERTICAL);
 		sliderLayout.setGravity(Gravity.CENTER);
-		//sliderLayout.setPadding(padding, 0, padding, 0);
 		
 		localVerticalGroup = new LinearLayout(c);
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
 		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
+		localVerticalGroup.setBackgroundColor(Color.rgb(backgroundColor+15, 
+				backgroundColor+15, backgroundColor+15));
 		
 		textLabel = new TextView(c);
 		textLabel.setGravity(Gravity.CENTER);
@@ -86,6 +93,13 @@ class VerticalSlider {
 		frame.addView(localVerticalGroup);
 	}
 	
+	/*
+	 * Set the slider parameters
+	 * label: the name of the parameter
+	 * minimum: the slider's minimum value
+	 * maximum: the slider's maximum value
+	 * stp: the slider's step
+	 */
 	public void setSliderParams(String label, float minimum, float maximum, float stp){
 		textLabel.setText(label);
 		min = minimum;
@@ -99,25 +113,39 @@ class VerticalSlider {
 		decimalsDisplay = "%."+decimals+"f";
 	}
 	
+	/*
+	 * Set the value displayed next to the slider
+	 */
 	public void setDisplayedValue(float theValue){
 		textValue.setText(String.format(decimalsDisplay, theValue));
 	}
 	
-	// TODO: doesn't scale properly
+	/*
+	 * Set the slider's value
+	 */
 	public void setValue(float theValue){
 		if(theValue<=0 && min<0) slider.setProgress(Math.round((theValue-min)*(1/step)));
 		else slider.setProgress(Math.round((theValue+min)*(1/step)));
 		setDisplayedValue(theValue);
 	}
 	
+	/*
+	 * Set the value of the slider as a number between 0 and 1
+	 */
 	public void setNormizedValue(float theValue){
 		slider.setProgress(Math.round(theValue*(max-min)/step));
 	}
 	
+	/*
+	 * Add the slider to group
+	 */
 	public void addTo(LinearLayout group){
 		group.addView(frame);
 	}
 	
+	/*
+	 * Set the slider's listeners
+	 */
 	public void linkTo(final ParametersInfo parametersInfo, final ConfigWindow parametersWindow, final HorizontalScrollView horizontalScroll){
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
