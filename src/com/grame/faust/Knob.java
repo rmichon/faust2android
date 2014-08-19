@@ -94,7 +94,7 @@ class Knob{
 	 * maximum: the slider's maximum value
 	 * stp: the slider's step
 	 */
-	public void setKnobParams(String label, float minimum, float maximum, float stp){
+	public void setParams(String label, float minimum, float maximum, float stp){
 		textLabel.setText(label);
 		min = minimum;
 		max = maximum;

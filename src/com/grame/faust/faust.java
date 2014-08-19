@@ -81,6 +81,9 @@ public class faust extends Activity {
         };
         displayThread.start();
 		
+        // TODO: should be run as runOnUiThread(new Runnable() { @Override public void run() {}};
+        // indeed UI elements should only be modified by the thread that created them. That's also probably
+        // why you get memory leaks sometimes 
 		accelThread = new Thread() {
 			public void run() {
 				float finalParameterValue = 0.0f;
@@ -107,7 +110,8 @@ public class faust extends Activity {
 							// solce this problem.
 							if(parametersInfo.parameterType[i] == 0) UI.hsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
 							else if(parametersInfo.parameterType[i] == 1) UI.vsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
-							//else if(parametersInfo.parameterType[i] == 2) UI.knobs[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
+							//else if(parametrsInfo.parameterType[i] == 2) UI.knobs[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
+							//else if(parametersInfo.parameterType[i] == 3) UI.nentries[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
 						}
 					}
 					/*

@@ -4,13 +4,10 @@ import com.grame.faust_dsp.faust_dsp;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Point;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.HorizontalScrollView;
@@ -85,7 +82,7 @@ class HorizontalSlider {
 	 * maximum: the slider's maximum value
 	 * stp: the slider's step
 	 */
-	public void setSliderParams(String label, float minimum, float maximum, float stp){
+	public void setParams(String label, float minimum, float maximum, float stp){
 		textLabel.setText(label);
 		min = minimum;
 		max = maximum;

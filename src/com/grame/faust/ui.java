@@ -66,8 +66,8 @@ public class ui{
 	// for now, this just contains the accelerometer values
 	//int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders, 
-	// third member: knobs
-	int[] parametersCounters = {0,0,0};
+	// third member: knobs, fourth member: nentry
+	int[] parametersCounters = {0,0,0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
 	boolean isSavedParameters;
@@ -77,6 +77,7 @@ public class ui{
 	HorizontalSlider[] hsliders;
 	VerticalSlider[] vsliders;
 	Knob[] knobs;
+	Nentry[] nentries;
 	BarGraph[] bargraphs;
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
@@ -91,6 +92,7 @@ public class ui{
 		int numberOfVsliders = countStringOccurrences(JSONparameters,"vslider");
 		int numberOfHsliders = countStringOccurrences(JSONparameters,"hslider");
 		int numberOfKnobs = countStringOccurrences(JSONparameters,"knob");
+		int numberOfNentries = countStringOccurrences(JSONparameters,"nentry");
 		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
 				countStringOccurrences(JSONparameters,"vbargraph");
 		
@@ -104,6 +106,7 @@ public class ui{
 		if(numberOfVsliders>0) vsliders = new VerticalSlider[numberOfVsliders];
 		if(numberOfHsliders>0) hsliders = new HorizontalSlider[numberOfHsliders];
 		if(numberOfKnobs>0) knobs = new Knob[numberOfKnobs];
+		if(numberOfNentries>0) nentries = new Nentry[numberOfNentries];
 		if(numberOfBarGraphs>0) bargraphs = new BarGraph[numberOfBarGraphs];
 	}
 	
@@ -203,15 +206,6 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("vslider")){
 					if(metaDataStyle.equals("knob")){
-						/*
-						knob(c,currentGroup,currentObject.getString("address"),
-								currentObject.getString("label"), 
-								Float.parseFloat(currentObject.getString("init")), 
-								Float.parseFloat(currentObject.getString("min")), 
-								Float.parseFloat(currentObject.getString("max")), 
-								Float.parseFloat(currentObject.getString("step")), 
-								currentGroupLevel,groupDivisions,currentViewWidth);
-						*/
 						knob(c, currentGroup, currentObject.getString("address"),
 								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
@@ -247,15 +241,6 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("hslider")){
 					if(metaDataStyle.equals("knob")){
-						/*
-						knob(c,currentGroup,currentObject.getString("address"),
-								currentObject.getString("label"), 
-								Float.parseFloat(currentObject.getString("init")), 
-								Float.parseFloat(currentObject.getString("min")), 
-								Float.parseFloat(currentObject.getString("max")), 
-								Float.parseFloat(currentObject.getString("step")), 
-								currentGroupLevel,groupDivisions,currentViewWidth);
-						*/
 						knob(c, currentGroup, currentObject.getString("address"),
 								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
@@ -291,15 +276,6 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("nentry")){
 					if(metaDataStyle.equals("knob")){
-						/*
-						knob(c,currentGroup,currentObject.getString("address"),
-								currentObject.getString("label"), 
-								Float.parseFloat(currentObject.getString("init")), 
-								Float.parseFloat(currentObject.getString("min")), 
-								Float.parseFloat(currentObject.getString("max")), 
-								Float.parseFloat(currentObject.getString("step")), 
-								currentGroupLevel,groupDivisions,currentViewWidth);
-						*/
 						knob(c, currentGroup, currentObject.getString("address"),
 								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
@@ -327,9 +303,9 @@ public class ui{
 								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
 								Float.parseFloat(currentObject.getString("min")), 
-								Float.parseFloat(currentObject.getString("max")),
-								Float.parseFloat(currentObject.getString("step")),
-								currentGroupLevel,groupDivisions,currentViewWidth);
+								Float.parseFloat(currentObject.getString("max")), 
+								Float.parseFloat(currentObject.getString("step")), 
+								localScreenWidth,localBackgroundColor);	
 						}
 					parameterNumber++;
 				}
@@ -599,7 +575,7 @@ public class ui{
 		hsliders[parametersCounters[0]] = new HorizontalSlider(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor, localPadding);
 		
-		hsliders[parametersCounters[0]].setSliderParams(label, min, max, step);
+		hsliders[parametersCounters[0]].setParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
 		
@@ -633,7 +609,7 @@ public class ui{
 		vsliders[parametersCounters[1]] = new VerticalSlider(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor);
 
-		vsliders[parametersCounters[1]].setSliderParams(label, min, max, step);
+		vsliders[parametersCounters[1]].setParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
 		
@@ -666,7 +642,7 @@ public class ui{
 			int localPadding){
 		knobs[parametersCounters[2]] = new Knob(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor, localPadding);
-		knobs[parametersCounters[2]].setKnobParams(label, min, max, step);
+		knobs[parametersCounters[2]].setParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
 		
@@ -692,75 +668,23 @@ public class ui{
 	 *  step: the slider step
 	 *  currentGroupLevel: current group's depth
 	 */
-	public void nentry(Context c, LinearLayout currentGroup, final String address, final String label, 
-			final float init, final float min, final float max, final float step,
-			int currentGroupLevel,int nItemsUpperLevel, int upperViewWidth){
-		// the main layout for this view (containing both the knob, its value and its name)
-		LinearLayout localVerticalGroup = new LinearLayout(c);
-		// layout to create a frame around the parameter view
-		LinearLayout frame = new LinearLayout(c);
-		// the "nentry"
-		final EditText nentry = new EditText(c);
-		// the name of the parameter
-		TextView textLabel = new TextView(c);
+	public void nentry(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
+			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor){
+		nentries[parametersCounters[3]] = new Nentry(c,address,parameterNumber,
+				localScreenWidth, localBackgroundColor);
+		nentries[parametersCounters[3]].setParams(label, min, max, step);
 		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
+		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
+		else parametersInfo.values[parameterNumber] = init;
 		
-		// padding is adjusted in function of the screen definition
-		int padding = 10*screenSizeX/800;
-		int localViewWidth = (upperViewWidth-padding*2)/nItemsUpperLevel;
-
-		// frame to create some padding around the view
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				localViewWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
-		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
-		frame.setPadding(2,2,2,2);
-		
-		// nentry parameters
-		nentry.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-		nentry.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
-		nentry.setText(Float.toString(init));
-		nentry.setGravity(Gravity.CENTER);
-		parametersInfo.values[currentParameterNumber] = init;
-		
-		// the background color of the local group is brighter than the upper one
-		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
-		
-		textLabel.setText(label);
-		textLabel.setGravity(Gravity.CENTER);
-		
-		// listener...
-		TextWatcher textWatcher = new TextWatcher() { 
-		    @Override
-		    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-		    }
-		    @Override
-		    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-		    }
-		    @Override
-		    public void afterTextChanged(Editable editable) {
-		       String value = nentry.getText().toString();
-		       if(isNumeric(value)){
-		    	   if(Float.parseFloat(value) >= min & Float.parseFloat(value) <= max) 
-		    		   parametersInfo.values[currentParameterNumber] = Float.parseFloat(value);
-		    	   else parametersInfo.values[currentParameterNumber] = init;
-		       }
-		    }
-		};
-		nentry.addTextChangedListener(textWatcher);
-		
-		// putting things together...
-		localVerticalGroup.addView(nentry);
-		localVerticalGroup.addView(textLabel);
-		frame.addView(localVerticalGroup);
-		currentGroup.addView(frame);
+		nentries[parametersCounters[3]].setValue(init);
+		faust_dsp.setParam(address, init);
+	    nentries[parametersCounters[3]].linkTo(parametersInfo, parametersWindow);
+	    nentries[parametersCounters[3]].addTo(currentGroup);
+	    
+	    parametersInfo.parameterType[parameterNumber] = 3;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[3];
+	    parametersCounters[3]++;
 	}
 	
 	/*

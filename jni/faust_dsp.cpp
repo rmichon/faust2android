@@ -787,12 +787,12 @@ class mydsp : public dsp {
 	float 	fConst0;
 	float 	fRec2[2];
 	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT 	fslider2;
+	FAUSTFLOAT 	fentry0;
 	float 	fRec1[2];
 	FAUSTFLOAT 	fbutton0;
 	float 	fRec3[2];
-	FAUSTFLOAT 	fslider3;
-	FAUSTFLOAT 	fslider4;
+	FAUSTFLOAT 	fentry1;
+	FAUSTFLOAT 	fentry2;
   public:
 	static void metadata(Meta* m) 	{ 
 		m->declare("music.lib/name", "Music Library");
@@ -826,12 +826,12 @@ class mydsp : public dsp {
 		fConst0 = (1.0f / float(min(192000, max(1, fSamplingFreq))));
 		for (int i=0; i<2; i++) fRec2[i] = 0;
 		fslider1 = 0.0f;
-		fslider2 = 4.4e+02f;
+		fentry0 = 4.4e+02f;
 		for (int i=0; i<2; i++) fRec1[i] = 0;
 		fbutton0 = 0.0;
 		for (int i=0; i<2; i++) fRec3[i] = 0;
-		fslider3 = 0.0f;
-		fslider4 = 0.5f;
+		fentry1 = 0.0f;
+		fentry2 = 0.5f;
 	}
 	virtual void init(int samplingFreq) {
 		classInit(samplingFreq);
@@ -840,15 +840,13 @@ class mydsp : public dsp {
 	virtual void buildUserInterface(UI* interface) {
 		interface->openVerticalBox("0x00");
 		interface->openVerticalBox("Carrier");
-		interface->declare(&fslider2, "accel", "1 2 3");
-		interface->declare(&fslider2, "osc", "/freq");
-		interface->addHorizontalSlider("Frequency", &fslider2, 4.4e+02f, 2e+01f, 8e+03f, 1.0f);
+		interface->declare(&fentry0, "accel", "1 2 3");
+		interface->declare(&fentry0, "osc", "/freq");
+		interface->addNumEntry("Frequency", &fentry0, 4.4e+02f, 2e+01f, 8e+03f, 1.0f);
 		interface->closeBox();
 		interface->openHorizontalBox("General Parameters");
-		interface->declare(&fslider4, "style", "knob");
-		interface->addVerticalSlider("Balance", &fslider4, 0.5f, 0.0f, 1.0f, 0.1f);
-		interface->declare(&fslider3, "style", "knob");
-		interface->addVerticalSlider("Volume", &fslider3, 0.0f, -96.0f, 0.0f, 0.1f);
+		interface->addNumEntry("Balance", &fentry2, 0.5f, 0.0f, 1.0f, 0.1f);
+		interface->addNumEntry("Volume", &fentry1, 0.0f, -96.0f, 0.0f, 0.1f);
 		interface->closeBox();
 		interface->openVerticalBox("Modulator");
 		interface->addHorizontalSlider("Frequency", &fslider0, 4.4e+02f, 2e+01f, 1.5e+04f, 1.0f);
@@ -860,10 +858,10 @@ class mydsp : public dsp {
 	virtual void compute (int count, FAUSTFLOAT** input, FAUSTFLOAT** output) {
 		float 	fSlow0 = (fConst0 * float(fslider0));
 		float 	fSlow1 = float(fslider1);
-		float 	fSlow2 = float(fslider2);
+		float 	fSlow2 = float(fentry0);
 		float 	fSlow3 = (0.0010000000000000009f * float(fbutton0));
-		float 	fSlow4 = powf(10,(0.05f * float(fslider3)));
-		float 	fSlow5 = float(fslider4);
+		float 	fSlow4 = powf(10,(0.05f * float(fentry1)));
+		float 	fSlow5 = float(fentry2);
 		float 	fSlow6 = (fSlow5 * fSlow4);
 		float 	fSlow7 = ((1 - fSlow5) * fSlow4);
 		FAUSTFLOAT* output0 = output[0];
