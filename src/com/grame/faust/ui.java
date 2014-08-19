@@ -45,6 +45,7 @@ import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
  * DONE:
  * vslider
  * hslider
+ * nentry
  */
 
 /*
@@ -66,8 +67,8 @@ public class ui{
 	// for now, this just contains the accelerometer values
 	//int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders, 
-	// third member: knobs, fourth member: nentry
-	int[] parametersCounters = {0,0,0,0};
+	// third member: knobs, fourth member: nentry, fifth member: menu
+	int[] parametersCounters = {0,0,0,0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
 	boolean isSavedParameters;
@@ -78,6 +79,7 @@ public class ui{
 	VerticalSlider[] vsliders;
 	Knob[] knobs;
 	Nentry[] nentries;
+	Menu[] menus;
 	BarGraph[] bargraphs;
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
@@ -93,6 +95,7 @@ public class ui{
 		int numberOfHsliders = countStringOccurrences(JSONparameters,"hslider");
 		int numberOfKnobs = countStringOccurrences(JSONparameters,"knob");
 		int numberOfNentries = countStringOccurrences(JSONparameters,"nentry");
+		int numberOfMenus = countStringOccurrences(JSONparameters,"menu");
 		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
 				countStringOccurrences(JSONparameters,"vbargraph");
 		
@@ -107,6 +110,7 @@ public class ui{
 		if(numberOfHsliders>0) hsliders = new HorizontalSlider[numberOfHsliders];
 		if(numberOfKnobs>0) knobs = new Knob[numberOfKnobs];
 		if(numberOfNentries>0) nentries = new Nentry[numberOfNentries];
+		if(numberOfMenus>0) menus = new Menu[numberOfMenus];
 		if(numberOfBarGraphs>0) bargraphs = new BarGraph[numberOfBarGraphs];
 	}
 	
@@ -215,11 +219,17 @@ public class ui{
 								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
+						/*
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle,groupDivisions,
 								currentViewWidth);
+						*/
+						dropDownMenu(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
+								Float.parseFloat(currentObject.getString("init")),
+								localScreenWidth,localBackgroundColor,metaDataStyle);
 					}
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
@@ -250,11 +260,17 @@ public class ui{
 								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
+						/*
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle,groupDivisions,
 								currentViewWidth);
+						*/
+						dropDownMenu(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
+								Float.parseFloat(currentObject.getString("init")),
+								localScreenWidth,localBackgroundColor,metaDataStyle);
 					}
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
@@ -285,11 +301,17 @@ public class ui{
 								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
+						/*
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
 								Float.parseFloat(currentObject.getString("init")),
 								currentGroupLevel, metaDataStyle,groupDivisions,
 								currentViewWidth);
+						*/
+						dropDownMenu(c,currentGroup,currentObject.getString("address"),
+								currentObject.getString("label"),
+								Float.parseFloat(currentObject.getString("init")),
+								localScreenWidth,localBackgroundColor,metaDataStyle);
 					}
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
@@ -360,7 +382,27 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	// TODO: not sure if the priority should be for the slider parameters of the metadata for min max and range
+	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label, float init,
+			int localScreenWidth, int localBackgroundColor, String parameters){
+		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, 
+				parameters.indexOf("}"));
+		menus[parametersCounters[4]] = new Menu(c,address,parameterNumber,
+				localScreenWidth, localBackgroundColor, parsedParameters);
+		
+		menus[parametersCounters[4]].setLabel(label);
+		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
+		else parametersInfo.values[parameterNumber] = init;
+		
+		//menus[parametersCounters[4]].setValue(init);
+		faust_dsp.setParam(address, init);
+	    //menus[parametersCounters[4]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
+	    menus[parametersCounters[4]].addTo(currentGroup);
+	    
+	    parametersInfo.parameterType[parameterNumber] = 4;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[4];
+	    parametersCounters[4]++;
+	}
+	/*
 	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label, float init, int currentGroupLevel, 
 			 String parameters, int nItemsUpperLevel, int upperViewWidth){
 		// the main layout for this view (containing both the slider, its value and its name)
@@ -452,6 +494,7 @@ public class ui{
 		frame.addView(localVerticalGroup);
 		currentGroup.addView(frame);
 	}
+	*/
 	
 	/*
 	 * Creates a radio buttons menu and adds it to currentGroup.
