@@ -30,8 +30,6 @@ import android.widget.VerticalSeekBar;
  */
 
 class VerticalSlider {
-	
-	// TODO: private/public
 	float min = 0.0f, max = 100.0f, step = 1.0f;
 	int id = 0;
 	String decimalsDisplay = "", address = "";
@@ -57,7 +55,7 @@ class VerticalSlider {
 		id = currentParameterID;
 		address = addr;
 		
-		int sliderHeight = 230*size.x/800;
+		int sliderHeight = 300*(size.x+size.y)/2080;
 		slider = new VerticalSeekBar(c);
 		slider.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.WRAP_CONTENT, sliderHeight));
@@ -149,7 +147,7 @@ class VerticalSlider {
 	public void linkTo(final ParametersInfo parametersInfo, final ConfigWindow parametersWindow, final HorizontalScrollView horizontalScroll){
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
-				parametersWindow.showWindow(size.x, size.y, parametersInfo, id);
+				parametersWindow.showWindow(parametersInfo, id);
 				return true;
 			}
 		});

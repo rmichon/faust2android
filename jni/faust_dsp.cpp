@@ -844,9 +844,11 @@ class mydsp : public dsp {
 		interface->declare(&fslider2, "osc", "/freq");
 		interface->addHorizontalSlider("Frequency", &fslider2, 4.4e+02f, 2e+01f, 8e+03f, 1.0f);
 		interface->closeBox();
-		interface->openVerticalBox("General Parameters");
-		interface->addHorizontalSlider("Balance", &fslider4, 0.5f, 0.0f, 1.0f, 0.1f);
-		interface->addHorizontalSlider("Volume", &fslider3, 0.0f, -96.0f, 0.0f, 0.1f);
+		interface->openHorizontalBox("General Parameters");
+		interface->declare(&fslider4, "style", "knob");
+		interface->addVerticalSlider("Balance", &fslider4, 0.5f, 0.0f, 1.0f, 0.1f);
+		interface->declare(&fslider3, "style", "knob");
+		interface->addVerticalSlider("Volume", &fslider3, 0.0f, -96.0f, 0.0f, 0.1f);
 		interface->closeBox();
 		interface->openVerticalBox("Modulator");
 		interface->addHorizontalSlider("Frequency", &fslider0, 4.4e+02f, 2e+01f, 1.5e+04f, 1.0f);

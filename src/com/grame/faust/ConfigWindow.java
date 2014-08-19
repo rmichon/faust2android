@@ -1,10 +1,13 @@
 package com.grame.faust;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.CompoundButton;
@@ -27,8 +30,13 @@ public class ConfigWindow{
 	SelectBar axisSelection, axisOrientation;
 	TextView closeButton,minSliderValue, maxSliderValue, centerSliderValue;
 	SeekBar minSlider, maxSlider, centerSlider;
+	Point size;
 	
 	public void buildWindow(Context c){
+		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		size = new Point();
+		display.getSize(size);
 		// the global elements are instantiated
 		mainWindowLayout = new LinearLayout(c);
 		minSliderLayout = new LinearLayout(c);
@@ -123,8 +131,7 @@ public class ConfigWindow{
 		mainWindow.setContentView(windowLayout);
 	}
 	
-	public void showWindow(int screenSizeX, int screenSizeY, 
-			final ParametersInfo parametersInfo, final int currentParameterNumber){
+	public void showWindow(final ParametersInfo parametersInfo, final int currentParameterNumber){
 		// Saved state is used
 		axisSelection.selectTextItem(parametersInfo.accelState[currentParameterNumber]);
 		axisOrientation.selectImgItem(parametersInfo.accelInverterState[currentParameterNumber]);
@@ -134,7 +141,7 @@ public class ConfigWindow{
 		setValue(centerSlider,centerSliderValue,"Center: ",parametersInfo.accelCenter[currentParameterNumber]);
 		
 		mainWindow.showAtLocation(mainWindowLayout, Gravity.CENTER,0,0);
-		mainWindow.update(0, 0, screenSizeX*700/800, ViewGroup.LayoutParams.WRAP_CONTENT);
+		mainWindow.update(0, 0, size.x*700/800, ViewGroup.LayoutParams.WRAP_CONTENT);
 		
 		closeButton.setOnClickListener(new OnClickListener(){
 			public void onClick(View v){

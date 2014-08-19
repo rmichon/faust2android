@@ -18,7 +18,6 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
@@ -32,27 +31,24 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.VerticalSeekBar;
 
 import com.grame.faust_dsp.faust_dsp;
 import com.triggertrap.seekarc.SeekArc; 
 import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
 
 /*
+ * DONE:
+ * vslider
+ * hslider
+ */
+
+/*
  * REMARKS:
- * 	- The class elements of the UI should be static and their size/
- * 		backgorund color should be defined when the interface is built
- * 		and not directly inside the function: the whole system should
- * 		be reviewed and made cleaner!
- * 
  * 	- All the UI elements with a size greater than 2 pixels vary
  * 	in function of the screen definition. The others are considered
  * 	to be neglectable. The size of the text is the only exception and
@@ -70,7 +66,7 @@ public class ui{
 	// for now, this just contains the accelerometer values
 	//int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders, 
-	// third member: bargraphs 
+	// third member: knobs
 	int[] parametersCounters = {0,0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
@@ -80,6 +76,7 @@ public class ui{
 	HorizontalScrollView horizontalScroll;
 	HorizontalSlider[] hsliders;
 	VerticalSlider[] vsliders;
+	Knob[] knobs;
 	BarGraph[] bargraphs;
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
@@ -93,6 +90,7 @@ public class ui{
 		int numberOfParameters = faust_dsp.getParamsCount();
 		int numberOfVsliders = countStringOccurrences(JSONparameters,"vslider");
 		int numberOfHsliders = countStringOccurrences(JSONparameters,"hslider");
+		int numberOfKnobs = countStringOccurrences(JSONparameters,"knob");
 		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
 				countStringOccurrences(JSONparameters,"vbargraph");
 		
@@ -105,6 +103,7 @@ public class ui{
 
 		if(numberOfVsliders>0) vsliders = new VerticalSlider[numberOfVsliders];
 		if(numberOfHsliders>0) hsliders = new HorizontalSlider[numberOfHsliders];
+		if(numberOfKnobs>0) knobs = new Knob[numberOfKnobs];
 		if(numberOfBarGraphs>0) bargraphs = new BarGraph[numberOfBarGraphs];
 	}
 	
@@ -204,6 +203,7 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("vslider")){
 					if(metaDataStyle.equals("knob")){
+						/*
 						knob(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
@@ -211,6 +211,14 @@ public class ui{
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
 								currentGroupLevel,groupDivisions,currentViewWidth);
+						*/
+						knob(c, currentGroup, currentObject.getString("address"),
+								currentObject.getString("label"), 
+								Float.parseFloat(currentObject.getString("init")), 
+								Float.parseFloat(currentObject.getString("min")), 
+								Float.parseFloat(currentObject.getString("max")), 
+								Float.parseFloat(currentObject.getString("step")), 
+								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
@@ -239,6 +247,7 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("hslider")){
 					if(metaDataStyle.equals("knob")){
+						/*
 						knob(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
@@ -246,6 +255,14 @@ public class ui{
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
 								currentGroupLevel,groupDivisions,currentViewWidth);
+						*/
+						knob(c, currentGroup, currentObject.getString("address"),
+								currentObject.getString("label"), 
+								Float.parseFloat(currentObject.getString("init")), 
+								Float.parseFloat(currentObject.getString("min")), 
+								Float.parseFloat(currentObject.getString("max")), 
+								Float.parseFloat(currentObject.getString("step")), 
+								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
@@ -274,6 +291,7 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("nentry")){
 					if(metaDataStyle.equals("knob")){
+						/*
 						knob(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"), 
 								Float.parseFloat(currentObject.getString("init")), 
@@ -281,6 +299,14 @@ public class ui{
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
 								currentGroupLevel,groupDivisions,currentViewWidth);
+						*/
+						knob(c, currentGroup, currentObject.getString("address"),
+								currentObject.getString("label"), 
+								Float.parseFloat(currentObject.getString("init")), 
+								Float.parseFloat(currentObject.getString("min")), 
+								Float.parseFloat(currentObject.getString("max")), 
+								Float.parseFloat(currentObject.getString("step")), 
+								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
@@ -573,7 +599,6 @@ public class ui{
 		hsliders[parametersCounters[0]] = new HorizontalSlider(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor, localPadding);
 		
-		// TODO: doesn't scale properly for now + this technique should be generalized to all
 		hsliders[parametersCounters[0]].setSliderParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
@@ -608,7 +633,6 @@ public class ui{
 		vsliders[parametersCounters[1]] = new VerticalSlider(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor);
 
-		// TODO: doesn't scale properly for now + this technique should be generalized to all
 		vsliders[parametersCounters[1]].setSliderParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
@@ -622,110 +646,6 @@ public class ui{
 	    parametersInfo.localId[parameterNumber] = parametersCounters[1];
 	    parametersCounters[1]++;
 	}
-	/*
-	public void vslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
-			final float min, final float max, final float step, int currentGroupLevel,
-			int nItemsUpperLevel, int upperViewWidth){
-		// the main layout for this view (containing both the slider, its value and its name)
-		LinearLayout localVerticalGroup = new LinearLayout(c);
-		// layout to create a frame around the parameter view
-		LinearLayout frame = new LinearLayout(c);
-		// layout containing the slider and its value
-		LinearLayout sliderLayout = new LinearLayout(c);
-		// the slider
-		//VerticalSeekBar slider = new VerticalSeekBar(c);
-		vsliders[parametersCounters[1]] = new VerticalSeekBar(c);
-		// the value of the slider
-		final TextView textValue = new TextView(c);
-		// the name of the parameter
-		final TextView textLabel = new TextView(c);
-		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
-		
-		// padding is adjusted in function of the screen definition
-		int padding = 10*screenSizeX/800;
-		int localViewWidth  = (upperViewWidth-padding*2)/nItemsUpperLevel;
-		
-		// the slider height is hard coded and adapted in function
-		// of the screen size
-		int sliderHeight = 230*screenSizeX/800;
-		
-		vsliders[parametersCounters[1]].setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, sliderHeight));
-
-		sliderLayout.setGravity(Gravity.CENTER);
-		sliderLayout.setOrientation(LinearLayout.VERTICAL);
-		
-		// the background color of the local group is brighter than the upper one
-		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
-		
-		// frame to create some padding around the view
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				localViewWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
-		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
-		frame.setPadding(2,2,2,2);
-		
-		// if parameters were saved, then they replace init
-		vsliders[parametersCounters[1]].setMax(Math.round((max-min)*(1/step)));
-		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
-		else parametersInfo.values[currentParameterNumber] = init;
-		
-		// TODO new assignment technique should be applied here
-		if(init<=0 && min<0) vsliders[parametersCounters[1]].setProgress(Math.round((init-min)*(1/step)));
-		else vsliders[parametersCounters[1]].setProgress(Math.round((init+min)*(1/step)));
-	
-		// the number of decimals of the displayed value of the knob is
-		// defined by step
-		int decimals = 0;
-		if(step>=1) decimals = 1;
-		else if(step<1 && step>=0.1) decimals = 1;
-		else decimals = 2;
-		final String decimalsDisplay = "%."+decimals+"f";		
-				
-		textValue.setText(String.format(decimalsDisplay, init));
-		textLabel.setText(label);
-		textValue.setGravity(Gravity.CENTER);
-		textLabel.setGravity(Gravity.CENTER);
-		
-		// listener...
-		OnSeekBarChangeListener sliderListener = new OnSeekBarChangeListener() {
-			public void onStopTrackingTouch(SeekBar seekBar) {}
-			public void onStartTrackingTouch(SeekBar seekBar) {}
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				parametersInfo.values[currentParameterNumber] = (float) progress*step + min;
-				faust.setParam(address, parametersInfo.values[currentParameterNumber]);
-				textValue.setText(String.format(decimalsDisplay, parametersInfo.values[currentParameterNumber]));
-	          }
-	    };
-	    vsliders[parametersCounters[1]].setOnSeekBarChangeListener(sliderListener);
-	    
-	    vsliders[parametersCounters[1]].setOnTouchListener(new OnTouchListener()
-	    {
-	        @Override
-	        public boolean onTouch(final View view, final MotionEvent event)
-	        {
-	          if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE)
-	            horizontalScroll.requestDisallowInterceptTouchEvent(true);
-	          return false;
-	        }
-	    });
-	    
-	    sliderLayout.addView(vsliders[parametersCounters[1]]);
-	    sliderLayout.addView(textValue);
-	    localVerticalGroup.addView(sliderLayout);
-	    localVerticalGroup.addView(textLabel);
-	    frame.addView(localVerticalGroup);
-	    currentGroup.addView(frame);
-	    
-	    parametersCounters[1]++;
-	}
-	*/
 	
 	/*
 	 * Creates a knob and adds it to currentGroup.
@@ -742,106 +662,22 @@ public class ui{
 	 *  upperViewWidth: width of the upper group
 	 */
 	public void knob(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
-			final float min, final float max, final float step, int currentGroupLevel, 
-			int nItemsUpperLevel, int upperViewWidth){
-		// the main layout for this view (containing both the knob, its value and its name)
-		LinearLayout localVerticalGroup = new LinearLayout(c);
-		// layout to create a frame around the parameter view
-		LinearLayout frame = new LinearLayout(c);
-		// the layout containing the knob and its value
-		FrameLayout knobGroup = new FrameLayout(c);
-		// the knob
-		SeekArc knob = new SeekArc(c);
-		// the value of the knob to be displayed in the knob
-		final TextView textValue = new TextView(c);
-		// the name of the parameter
-		final TextView textLabel = new TextView(c);
+			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor,
+			int localPadding){
+		knobs[parametersCounters[2]] = new Knob(c,address,parameterNumber,
+				localScreenWidth, localBackgroundColor, localPadding);
+		knobs[parametersCounters[2]].setKnobParams(label, min, max, step);
+		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
+		else parametersInfo.values[parameterNumber] = init;
 		
-		// index for the parameters values array 
-		final int currentParameterNumber = parameterNumber;
-		
-		// the padding and the width of the view are calculated in function of the size of 
-		// the view at the upper level
-		int padding = 10*screenSizeX/800;
-		//int paddingH = 60*screenSizeX/800;
-		int localViewWidth = (upperViewWidth-padding*2)/nItemsUpperLevel;
-		
-		// as the size of the knob is defined by the size of the layout it is in,
-		// the height of knobGroup has to be "hard coded"
-		knobGroup.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, localViewWidth));
-		// because we want textValue to be centered at the middle of the knob,
-		// both its width and height should fill the upper layout
-		textValue.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-		
-		// frame to create some padding around the view
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				localViewWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
-		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
-		frame.setPadding(2,2,2,2);
-		
-		// knob parameters
-		knob.setPadding(padding, padding, padding, padding);
-		knob.setRotation(180);
-		knob.setStartAngle(30);
-		knob.setSweepAngle(300);
-		knob.setTouchInSide(true);
-		/*
-		knob.setLayoutParams(new ViewGroup.LayoutParams(
-				localViewWidth, localViewWidth));
-		*/
-		
-		// the background color of the local group is brighter than the upper one
-		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
-		
-		// if parameters were saved, then they replace init
-		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
-		else parametersInfo.values[currentParameterNumber] = init;
-		
-		// the initial value of the knob is set (SeekArc's range is 0-100)
-		if(min < 0) knob.setProgress(Math.round((init-min)*-100/(max-min)));
-		knob.setProgress(Math.round(((init-min)*100)/(max-min)));
-		
-		// the number of decimals of the displayed value of the knob is
-		// defined by step
-		int decimals = 0;
-		if(step>=1) decimals = 1;
-		else if(step<1 && step>=0.1) decimals = 1;
-		else decimals = 2;
-		final String decimalsDisplay = "%."+decimals+"f";
-		
-		textValue.setText(String.format(decimalsDisplay, init));
-		textValue.setGravity(Gravity.CENTER);
-		knobGroup.addView(textValue);
-		
-		textLabel.setText(label);
-		textLabel.setGravity(Gravity.CENTER);
-		
-		// listener...
-		OnSeekArcChangeListener sliderListener = new OnSeekArcChangeListener() {
-			public void onStopTrackingTouch(SeekArc seekArc) {}
-			public void onStartTrackingTouch(SeekArc seekArc) {}
-			public void onProgressChanged(SeekArc seekArc, int progress, boolean fromUser) {
-				// TODO: we should try the interface with negative values: not 100% sure
-				// the value of the parameter is updated and is displayed when the knob is used
-				parametersInfo.values[currentParameterNumber] = (float) progress*0.01f*(max-min) + min;
-				faust_dsp.setParam(address, parametersInfo.values[currentParameterNumber]);
-				textValue.setText(String.format(decimalsDisplay, parametersInfo.values[currentParameterNumber]));
-	          }
-	    };
+		knobs[parametersCounters[2]].setValue(init);
+		faust_dsp.setParam(address, init);
+	    knobs[parametersCounters[2]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
+	    knobs[parametersCounters[2]].addTo(currentGroup);
 	    
-	    // putting things together...
-	    knob.setOnSeekArcChangeListener(sliderListener);
-	    knobGroup.addView(knob);
-		localVerticalGroup.addView(knobGroup);
-		localVerticalGroup.addView(textLabel);
-		frame.addView(localVerticalGroup);
-	    currentGroup.addView(frame);
+	    parametersInfo.parameterType[parameterNumber] = 2;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[2];
+	    parametersCounters[2]++;
 	}
 	
 	/*

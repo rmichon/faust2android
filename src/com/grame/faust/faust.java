@@ -38,7 +38,6 @@ public class faust extends Activity {
         parametersInfo.init(numberOfParameters);
         SharedPreferences settings = getSharedPreferences("savedParameters", 0);
         
-        
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
         HorizontalScrollView horizontalScroll = (HorizontalScrollView) findViewById(R.id.horizontalScroll);
         UI.horizontalScroll = horizontalScroll;
@@ -108,6 +107,7 @@ public class faust extends Activity {
 							// solce this problem.
 							if(parametersInfo.parameterType[i] == 0) UI.hsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
 							else if(parametersInfo.parameterType[i] == 1) UI.vsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
+							//else if(parametersInfo.parameterType[i] == 2) UI.knobs[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
 						}
 					}
 					/*
