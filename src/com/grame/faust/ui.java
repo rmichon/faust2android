@@ -16,8 +16,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -26,8 +24,6 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import com.grame.faust_dsp.faust_dsp;
-import com.triggertrap.seekarc.SeekArc; 
-import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
 
 /*
  * DONE:
@@ -35,6 +31,7 @@ import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
  * hslider
  * nentry
  * checkbox
+ * button	
  */
 
 /*
@@ -57,7 +54,8 @@ public class ui{
 	//int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders, 
 	// third member: knobs, fourth member: nentry, fifth member: menu, sixth member: checkbox
-	int[] parametersCounters = {0,0,0,0,0,0};
+	// seventh member: button
+	int[] parametersCounters = {0,0,0,0,0,0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
 	boolean isSavedParameters;
@@ -70,6 +68,7 @@ public class ui{
 	Nentry[] nentries;
 	Menu[] menus;
 	Checkbox[] checkboxes;
+	PushButton[] buttons;
 	BarGraph[] bargraphs;
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
@@ -87,6 +86,7 @@ public class ui{
 		int numberOfNentries = countStringOccurrences(JSONparameters,"nentry");
 		int numberOfMenus = countStringOccurrences(JSONparameters,"menu");
 		int numberOfCheckboxes = countStringOccurrences(JSONparameters,"checkbox");
+		int numberOfButtons = countStringOccurrences(JSONparameters,"button");
 		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
 				countStringOccurrences(JSONparameters,"vbargraph");
 		
@@ -103,6 +103,7 @@ public class ui{
 		if(numberOfNentries>0) nentries = new Nentry[numberOfNentries];
 		if(numberOfMenus>0) menus = new Menu[numberOfMenus];
 		if(numberOfCheckboxes>0) checkboxes = new Checkbox[numberOfCheckboxes];
+		if(numberOfButtons>0) buttons = new PushButton[numberOfButtons];
 		if(numberOfBarGraphs>0) bargraphs = new BarGraph[numberOfBarGraphs];
 	}
 	
@@ -325,8 +326,8 @@ public class ui{
 				}
 				else if(currentObject.getString("type").equals("button")){
 					button(c,currentGroup,currentObject.getString("address"),
-							currentObject.getString("label"),
-							currentGroupLevel,groupDivisions,currentViewWidth);
+							currentObject.getString("label"), 
+							localScreenWidth,localBackgroundColor);	
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("checkbox")){
@@ -734,40 +735,17 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	public void button(Context c, LinearLayout currentGroup, final String address, final String label,
-			int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth){
-		// the button
-		Button button = new Button(c);
+	public void button(Context c, LinearLayout currentGroup, final String address, final String label, 
+			int localScreenWidth, int localBackgroundColor){
+		buttons[parametersCounters[6]] = new PushButton(c,address,parameterNumber,
+				localScreenWidth, localBackgroundColor, label);
 		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
-		
-		// padding is adjusted in function of the screen definition
-		int padding = 10*screenSizeX/800;
-		int localViewWidth = (upperViewWidth-padding*2)/nItemsUpperLevel;
-		
-		// the button width is "hard coded"
-		button.setLayoutParams(new ViewGroup.LayoutParams(
-				localViewWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
-		button.setText(label);
-        button.setTextColor(Color.WHITE);
-        
-        // listener...
-        button.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                	parametersInfo.values[currentParameterNumber] = 1.f;
-                	faust_dsp.setParam(address, 1.f);
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                	parametersInfo.values[currentParameterNumber] = 0.f;
-                	faust_dsp.setParam(address, 0.f);
-                }
-	          	return true;
-            }
-        });
-        
-        currentGroup.addView(button);
+	    buttons[parametersCounters[6]].linkTo(parametersInfo);
+	    buttons[parametersCounters[6]].addTo(currentGroup);
+	    
+	    parametersInfo.parameterType[parameterNumber] = 6;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[6];
+	    parametersCounters[6]++;
 	}
 	
 	/*

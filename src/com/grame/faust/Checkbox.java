@@ -22,6 +22,7 @@ class Checkbox{
 	 * currentParameterID: the current parameter id in the parameters tree
 	 * width: width of the view in pxs
 	 * backgroundColor: grey level of the background of the view (0-255)
+	 * label: the parameter's name
 	 */
 	public Checkbox(Context c, String addr, int currentParameterID,
 			int width, int backgroundColor, String label){
@@ -63,7 +64,7 @@ class Checkbox{
 	}
 	
 	/*
-	 * Set the slider's listeners
+	 * Set the checkbox's listeners
 	 */
 	public void linkTo(final ParametersInfo parametersInfo){
 		checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
