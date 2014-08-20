@@ -16,14 +16,14 @@ import android.view.MenuItem;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
-public class faust extends Activity {
+public class Faust extends Activity {
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
 	
 	Thread displayThread, accelThread;
 	boolean on = true; // process on/off
 	
-	ui UI = new ui(); 
+	UI ui = new UI(); 
 	ParametersInfo parametersInfo = new ParametersInfo();
 	AccelUtil accelUtil = new AccelUtil();
 	
@@ -40,10 +40,10 @@ public class faust extends Activity {
         
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
         HorizontalScrollView horizontalScroll = (HorizontalScrollView) findViewById(R.id.horizontalScroll);
-        UI.horizontalScroll = horizontalScroll;
+        ui.horizontalScroll = horizontalScroll;
         
-        UI.initUI(parametersInfo,settings);	
-        UI.buildUI(this, mainGroup);
+        ui.initUI(parametersInfo,settings);	
+        ui.buildUI(this, mainGroup);
         
         /*
          * ACCELEROMETERS
@@ -66,8 +66,8 @@ public class faust extends Activity {
         displayThread = new Thread() {
         	public void run() {
         		while(on){
-        			if(UI.parametersCounters[2] > 0){
-        				for(int i=0; i<UI.parametersCounters[2]; i++){
+        			if(ui.parametersCounters[2] > 0){
+        				for(int i=0; i<ui.parametersCounters[2]; i++){
         					//UI.bargraphs[i].setValue(UI.faust.getParam(UI.parametersInfo.address[UI.bargraphs[i].id]));
         				}
         			}
@@ -108,8 +108,8 @@ public class faust extends Activity {
 							// TODO: for some reason this seems to create a minor memory leak. May be this has something to do with the
 							// priority of the thread. Also, lowering the sampling rate of the accelerometers seems to solve partially
 							// solce this problem.
-							if(parametersInfo.parameterType[i] == 0) UI.hsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
-							else if(parametersInfo.parameterType[i] == 1) UI.vsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
+							if(parametersInfo.parameterType[i] == 0) ui.hsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
+							else if(parametersInfo.parameterType[i] == 1) ui.vsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
 							//else if(parametrsInfo.parameterType[i] == 2) UI.knobs[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
 							//else if(parametersInfo.parameterType[i] == 3) UI.nentries[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
 						}

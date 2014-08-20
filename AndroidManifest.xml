@@ -14,7 +14,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name="com.grame.faust.faust"
+            android:name="com.grame.faust.Faust"
             android:label="@string/app_name" 
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>

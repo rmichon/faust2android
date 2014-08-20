@@ -42,7 +42,7 @@ import com.grame.faust_dsp.faust_dsp;
  * 	remains the same on every screen. Perhaps this should be changed?
  */
 
-public class ui{
+public class UI{
 	/*
 	 * Global Variables (accessible from outside the class).
 	 */
@@ -794,8 +794,6 @@ public class ui{
 		LinearLayout frame = new LinearLayout(c);
 		// the local group
 		LinearLayout localGroup = new LinearLayout(c);
-		// the group name
-		TextView textLabel = new TextView(c);
 		
 		// for the local groups background color
 		int localGroupLevel = currentGroupLevel+1;
@@ -818,9 +816,12 @@ public class ui{
 		localGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
 		localGroup.setPadding(padding,padding,padding,padding);
 		
-		textLabel.setText(label);
-		textLabel.setTextSize(22.f);
-		localGroup.addView(textLabel);
+		if(!label.contains("0x00")){
+			TextView textLabel = new TextView(c);
+			textLabel.setText(label);
+			textLabel.setTextSize(22.f);
+			localGroup.addView(textLabel);
+		}
 		
 		frame.addView(localGroup);
 		currentGroup.addView(frame);
@@ -848,8 +849,6 @@ public class ui{
 		LinearLayout localGroup = new LinearLayout(c);
 		// the local vertical group (required to have the group name above the content of the group)
 		LinearLayout localVerticalGroup = new LinearLayout(c);
-		// the group name
-		TextView textLabel = new TextView(c);
 		
 		// for the local groups background color
 		int localGroupLevel = currentGroupLevel+1;
@@ -874,10 +873,13 @@ public class ui{
 		localVerticalGroup.setBackgroundColor(Color.rgb(localGroupLevel*15,localGroupLevel*15,localGroupLevel*15));
 		localVerticalGroup.setPadding(padding,padding,padding,padding);
 		
-		textLabel.setText(label);
-		textLabel.setTextSize(22.f);
+		if(!label.contains("0x00")){
+			TextView textLabel = new TextView(c);
+			textLabel.setText(label);
+			textLabel.setTextSize(22.f);
+			localVerticalGroup.addView(textLabel);
+		}
 		
-		localVerticalGroup.addView(textLabel);
 		localVerticalGroup.addView(localGroup);
 		frame.addView(localVerticalGroup);
 		currentGroup.addView(frame);

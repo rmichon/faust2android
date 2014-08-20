@@ -36,7 +36,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.grame.faust.R;
-import com.grame.faust.faust;
 
 /**
  * 
