@@ -96,16 +96,20 @@ public class Faust extends Activity {
 										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.accelInverterState[i]);							
 							}	
 							// the slider value is modified by the accelerometer 
-							final float f = finalParameterValue;
+							final float finalParamValue = finalParameterValue;
 							final int index = i;
 							// the UI elements must be updated within the UI thread...
 							runOnUiThread(new Runnable() {
 		        	        	@Override 
 		        	        	public void run() {
-		        	        		if(parametersInfo.parameterType[index] == 0) ui.hsliders[parametersInfo.localId[index]].setNormizedValue(f);
-		        	        		else if(parametersInfo.parameterType[index] == 1) ui.vsliders[parametersInfo.localId[index]].setNormizedValue(f);
-		        	        		else if(parametersInfo.parameterType[index] == 2) ui.knobs[parametersInfo.localId[index]].setNormizedValue(f);
-		        	        		else if(parametersInfo.parameterType[index] == 3) ui.nentries[parametersInfo.localId[index]].setNormizedValue(f);
+		        	        		if(parametersInfo.parameterType[index] == 0) 
+		        	        			ui.hsliders[parametersInfo.localId[index]].setNormizedValue(finalParamValue);
+		        	        		else if(parametersInfo.parameterType[index] == 1) 
+		        	        			ui.vsliders[parametersInfo.localId[index]].setNormizedValue(finalParamValue);
+		        	        		else if(parametersInfo.parameterType[index] == 2) 
+		        	        			ui.knobs[parametersInfo.localId[index]].setNormizedValue(finalParamValue);
+		        	        		else if(parametersInfo.parameterType[index] == 3) 
+		        	        			ui.nentries[parametersInfo.localId[index]].setNormizedValue(finalParamValue);
 		        	        	}
 							});
 						}
@@ -113,7 +117,6 @@ public class Faust extends Activity {
 					try {
 						accelThread.sleep(accelUpdateRate);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}		

@@ -140,11 +140,9 @@ public class UI{
 				try{
 					value = currentObject.getString(member);
 				} catch (JSONException e) {
-					e.printStackTrace();
 				}
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 		// returns the content of the member or 
 		// null if it doesn't exist
@@ -175,6 +173,22 @@ public class UI{
 			for(int i=0; i<nItemsTopLevel; i++){
 				currentObject = uiArray.getJSONObject(i);
 				String metaDataStyle = parseJSONMetaData(currentObject, "style");
+				
+				if(!isSavedParameters){
+					String metaDataAccelX = parseJSONMetaData(currentObject, "accx");
+					String metaDataAccelY = parseJSONMetaData(currentObject, "accy");
+					String metaDataAccelZ = parseJSONMetaData(currentObject, "accz");
+					if(!metaDataAccelX.equals("")){
+						parametersInfo.accelState[parameterNumber] = 1;
+					}
+					else if(!metaDataAccelY.equals("")){
+						parametersInfo.accelState[parameterNumber] = 2;
+					}
+					if(!metaDataAccelZ.equals("")){
+						parametersInfo.accelState[parameterNumber] = 3;
+					}
+				}
+				
 				if(currentObject.getString("type").equals("vgroup")){
 					currentArray = currentObject.getJSONArray("items");
 					vgroup(c,currentArray,currentGroup,currentObject.getString("label"),
