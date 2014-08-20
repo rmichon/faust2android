@@ -50,23 +50,22 @@ public class UI{
 	String JSONparameters = new String();
 	// the values of the different UI elements 
 	ParametersInfo parametersInfo; // TODO
-	// for now, this just contains the accelerometer values
-	//int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders, 
 	// third member: knobs, fourth member: nentry, fifth member: menu, sixth member: checkbox
-	// seventh member: button
-	int[] parametersCounters = {0,0,0,0,0,0,0};
+	// seventh member: button, eighth member: radio
+	int[] parametersCounters = {0,0,0,0,0,0,0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
 	boolean isSavedParameters;
 	
-	// TODO comment that out
+	// TODO comment this
 	HorizontalScrollView horizontalScroll;
 	HorizontalSlider[] hsliders;
 	VerticalSlider[] vsliders;
 	Knob[] knobs;
 	Nentry[] nentries;
 	Menu[] menus;
+	Radio[] radios;
 	Checkbox[] checkboxes;
 	PushButton[] buttons;
 	BarGraph[] bargraphs;
@@ -85,6 +84,7 @@ public class UI{
 		int numberOfKnobs = countStringOccurrences(JSONparameters,"knob");
 		int numberOfNentries = countStringOccurrences(JSONparameters,"nentry");
 		int numberOfMenus = countStringOccurrences(JSONparameters,"menu");
+		int numberOfRadios = countStringOccurrences(JSONparameters,"radio");
 		int numberOfCheckboxes = countStringOccurrences(JSONparameters,"checkbox");
 		int numberOfButtons = countStringOccurrences(JSONparameters,"button");
 		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
@@ -102,6 +102,7 @@ public class UI{
 		if(numberOfKnobs>0) knobs = new Knob[numberOfKnobs];
 		if(numberOfNentries>0) nentries = new Nentry[numberOfNentries];
 		if(numberOfMenus>0) menus = new Menu[numberOfMenus];
+		if(numberOfRadios>0) radios = new Radio[numberOfRadios];
 		if(numberOfCheckboxes>0) checkboxes = new Checkbox[numberOfCheckboxes];
 		if(numberOfButtons>0) buttons = new PushButton[numberOfButtons];
 		if(numberOfBarGraphs>0) bargraphs = new BarGraph[numberOfBarGraphs];
@@ -219,9 +220,7 @@ public class UI{
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
-								currentGroupLevel, metaDataStyle,0,groupDivisions,
-								currentViewWidth);
+								localScreenWidth,localBackgroundColor,metaDataStyle,0);
 					}
 					else{
 						vslider(c,currentGroup,currentObject.getString("address"),
@@ -252,9 +251,7 @@ public class UI{
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
-								currentGroupLevel, metaDataStyle, 1,groupDivisions,
-								currentViewWidth);
+								localScreenWidth,localBackgroundColor,metaDataStyle,1);
 					}
 					else{
 						hslider(c, currentGroup, currentObject.getString("address"),
@@ -285,9 +282,7 @@ public class UI{
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
-								currentGroupLevel, metaDataStyle,0,groupDivisions,
-								currentViewWidth);
+								localScreenWidth,localBackgroundColor,metaDataStyle,0);
 					}
 					else{
 						nentry(c,currentGroup,currentObject.getString("address"),
@@ -352,20 +347,21 @@ public class UI{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
+	//TODO: init?
 	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label,
 			int localScreenWidth, int localBackgroundColor, String parameters){
 		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, 
 				parameters.indexOf("}"));
 		menus[parametersCounters[4]] = new Menu(c,address,parameterNumber,
-				localScreenWidth, localBackgroundColor, parsedParameters);
-		
+				localScreenWidth, localBackgroundColor, parsedParameters);	
 		menus[parametersCounters[4]].setLabel(label);
+		
 		int init = 0;
 		if(isSavedParameters) init = (int) parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
 		
 		menus[parametersCounters[4]].setSelection(init);
-		faust_dsp.setParam(address, init);
+		//faust_dsp.setParam(address, init);
 	    menus[parametersCounters[4]].linkTo(parametersInfo);
 	    menus[parametersCounters[4]].addTo(currentGroup);
 	    
@@ -388,91 +384,25 @@ public class UI{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	// TODO: not sure if the priority should be for the slider parameters of the metadata for min max and range
-	public void radio(Context c, LinearLayout currentGroup, final String address, final String label, float init, int currentGroupLevel, 
-			String parameters, int orientation, int nItemsUpperLevel, int upperViewWidth){
-		// the main layout for this view (containing both the slider, its value and its name)
-		LinearLayout localVerticalGroup = new LinearLayout(c);
-		// layout to create a frame around the parameter view
-		LinearLayout frame = new LinearLayout(c);
-		// the radio buttons
-		RadioGroup radio = new RadioGroup(c);
-		// the name of the parameter
-		TextView textLabel = new TextView(c);
-		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
-		
-		// padding is adjusted in function of the screen definition
-		int padding = 10*screenSizeX/800;
-		int localViewWidth  = (upperViewWidth-padding*2)/nItemsUpperLevel;
-		
-		// the background color of the local group is brighter than the upper one
-		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
-		
-		radio.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-		
-		// padding to create a thin frame around the parameter view		
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				localViewWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
-		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
-		frame.setPadding(2,2,2,2);
-		
-		// orientation can be adapated...	
-		if(orientation == 0) radio.setOrientation(LinearLayout.VERTICAL);
-		else radio.setOrientation(LinearLayout.HORIZONTAL);
-		
-		// if parameters were saved, then they replace init		
-		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
-		else parametersInfo.values[currentParameterNumber] = init;
-		
-		textLabel.setText(label);
-		textLabel.setGravity(Gravity.CENTER);
-		
-		// the elements of the menu are extracted
+	//TODO: init?
+	public void radio(Context c, LinearLayout currentGroup, final String address, final String label,
+			int localScreenWidth, int localBackgroundColor, String parameters, int orientation){
 		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, parameters.indexOf("}"));
-		// length of the elements array
-		int length = parsedParameters.length(), parameterValue = 0; 
-		boolean stop = true;
-		// a button is created for each element of the array
-		while(stop){
-			String parameterName = parsedParameters.substring(1, parsedParameters.indexOf(":") - 1);
-			if(parsedParameters.contains(";")){
-				parameterValue = Integer.parseInt(parsedParameters.substring(parsedParameters.indexOf(":") + 1, parsedParameters.indexOf(";")));
-				parsedParameters = parsedParameters.substring(parsedParameters.indexOf(";") + 1, length);
-				length = parsedParameters.length();
-			}
-			else{
-				parameterValue = Integer.parseInt(parsedParameters.substring(parsedParameters.indexOf(":") + 1, length));
-				stop = false;
-			}
-			RadioButton button = new RadioButton(c);
-			button.setText(parameterName);
-			button.setId(parameterValue);
-			if(init == parameterValue) button.setChecked(true);
-			radio.addView(button);
-		}
+		int init = 0;
+		if(isSavedParameters) init = (int) parametersInfo.values[parameterNumber];
+		else parametersInfo.values[parameterNumber] = init;
 		
-		// listener...
-		radio.setOnCheckedChangeListener(new OnCheckedChangeListener() 
-	    {
-	        public void onCheckedChanged(RadioGroup group, int checkedId) {
-	        	parametersInfo.values[currentParameterNumber] = (float) checkedId;
-				faust_dsp.setParam(address, parametersInfo.values[currentParameterNumber]);
-	        }
-	    });
+		radios[parametersCounters[7]] = new Radio(c,address,parameterNumber,
+				localScreenWidth, localBackgroundColor, parsedParameters, orientation, init);
+		radios[parametersCounters[7]].setLabel(label);
 		
-		// putting things together
-		localVerticalGroup.addView(textLabel);
-		localVerticalGroup.addView(radio);
-		frame.addView(localVerticalGroup);
-	    currentGroup.addView(frame);
+		//faust_dsp.setParam(address, init);
+	    radios[parametersCounters[7]].linkTo(parametersInfo);
+	    radios[parametersCounters[7]].addTo(currentGroup);
+	    
+	    parametersInfo.parameterType[parameterNumber] = 7;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[7];
+	    parametersCounters[7]++;
 	}
 	
 	/*
