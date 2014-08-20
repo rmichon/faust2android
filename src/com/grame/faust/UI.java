@@ -9,30 +9,13 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.view.Display;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.View.OnTouchListener;
-import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import com.grame.faust_dsp.faust_dsp;
-
-/*
- * DONE:
- * vslider
- * hslider
- * nentry
- * checkbox
- * button	
- */
 
 /*
  * REMARKS:

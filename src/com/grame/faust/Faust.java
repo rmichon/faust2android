@@ -17,6 +17,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
 public class Faust extends Activity {
+	int accelUpdateRate = 30; //in ms
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
 	
@@ -52,14 +53,6 @@ public class Faust extends Activity {
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
         		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
         
-        /*
-         * TODO: apparently matching the sampling rate and the buffer length of the app with that of 
-         * the device provide a better latency. Should explore that...
-        AudioManager myAudioManager;
-        myAudioManager = (AudioManager)getSystemService(this.AUDIO_SERVICE);
-        System.out.println("Voila:" + myAudioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER));
-        */
-        
         faust_dsp.startAudio();
         
         final int displayThreadUpdateRate = 30;
@@ -81,9 +74,7 @@ public class Faust extends Activity {
         };
         displayThread.start();
 		
-        // TODO: should be run as runOnUiThread(new Runnable() { @Override public void run() {}};
-        // indeed UI elements should only be modified by the thread that created them. That's also probably
-        // why you get memory leaks sometimes 
+        // System.out.println("Voila: ");
 		accelThread = new Thread() {
 			public void run() {
 				float finalParameterValue = 0.0f;
@@ -105,23 +96,26 @@ public class Faust extends Activity {
 										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.accelInverterState[i]);							
 							}	
 							// the slider value is modified by the accelerometer 
-							// TODO: for some reason this seems to create a minor memory leak. May be this has something to do with the
-							// priority of the thread. Also, lowering the sampling rate of the accelerometers seems to solve partially
-							// solce this problem.
-							if(parametersInfo.parameterType[i] == 0) ui.hsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
-							else if(parametersInfo.parameterType[i] == 1) ui.vsliders[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
-							//else if(parametrsInfo.parameterType[i] == 2) UI.knobs[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
-							//else if(parametersInfo.parameterType[i] == 3) UI.nentries[parametersInfo.localId[i]].setNormizedValue(finalParameterValue);
+							final float f = finalParameterValue;
+							final int index = i;
+							// the UI elements must be updated within the UI thread...
+							runOnUiThread(new Runnable() {
+		        	        	@Override 
+		        	        	public void run() {
+		        	        		if(parametersInfo.parameterType[index] == 0) ui.hsliders[parametersInfo.localId[index]].setNormizedValue(f);
+		        	        		else if(parametersInfo.parameterType[index] == 1) ui.vsliders[parametersInfo.localId[index]].setNormizedValue(f);
+		        	        		else if(parametersInfo.parameterType[index] == 2) ui.knobs[parametersInfo.localId[index]].setNormizedValue(f);
+		        	        		else if(parametersInfo.parameterType[index] == 3) ui.nentries[parametersInfo.localId[index]].setNormizedValue(f);
+		        	        	}
+							});
 						}
 					}
-					/*
 					try {
-						accelThread.sleep(50);
+						accelThread.sleep(accelUpdateRate);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					*/
 				}		
 			}
 		};
