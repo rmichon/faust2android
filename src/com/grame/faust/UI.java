@@ -212,16 +212,8 @@ public class UI{
 								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
-						/*
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
-								currentGroupLevel, metaDataStyle,groupDivisions,
-								currentViewWidth);
-						*/
-						dropDownMenu(c,currentGroup,currentObject.getString("address"),
-								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
 								localScreenWidth,localBackgroundColor,metaDataStyle);
 					}
 					else if(metaDataStyle.contains("radio")){
@@ -253,16 +245,8 @@ public class UI{
 								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
-						/*
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
-								currentGroupLevel, metaDataStyle,groupDivisions,
-								currentViewWidth);
-						*/
-						dropDownMenu(c,currentGroup,currentObject.getString("address"),
-								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
 								localScreenWidth,localBackgroundColor,metaDataStyle);
 					}
 					else if(metaDataStyle.contains("radio")){
@@ -294,16 +278,8 @@ public class UI{
 								localScreenWidth,localBackgroundColor,localPadding);
 					}
 					else if(metaDataStyle.contains("menu")){
-						/*
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
-								currentGroupLevel, metaDataStyle,groupDivisions,
-								currentViewWidth);
-						*/
-						dropDownMenu(c,currentGroup,currentObject.getString("address"),
-								currentObject.getString("label"),
-								Float.parseFloat(currentObject.getString("init")),
 								localScreenWidth,localBackgroundColor,metaDataStyle);
 					}
 					else if(metaDataStyle.contains("radio")){
@@ -376,8 +352,7 @@ public class UI{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	// TODO must be finished
-	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label, float init,
+	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label,
 			int localScreenWidth, int localBackgroundColor, String parameters){
 		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, 
 				parameters.indexOf("}"));
@@ -385,111 +360,19 @@ public class UI{
 				localScreenWidth, localBackgroundColor, parsedParameters);
 		
 		menus[parametersCounters[4]].setLabel(label);
-		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
+		int init = 0;
+		if(isSavedParameters) init = (int) parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
 		
-		//menus[parametersCounters[4]].setValue(init);
+		menus[parametersCounters[4]].setSelection(init);
 		faust_dsp.setParam(address, init);
-	    //menus[parametersCounters[4]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
+	    menus[parametersCounters[4]].linkTo(parametersInfo);
 	    menus[parametersCounters[4]].addTo(currentGroup);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 4;
 	    parametersInfo.localId[parameterNumber] = parametersCounters[4];
 	    parametersCounters[4]++;
 	}
-	/*
-	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label, float init, int currentGroupLevel, 
-			 String parameters, int nItemsUpperLevel, int upperViewWidth){
-		// the main layout for this view (containing both the slider, its value and its name)
-		LinearLayout localVerticalGroup = new LinearLayout(c);
-		// layout to create a frame around the parameter view
-		LinearLayout frame = new LinearLayout(c);
-		// list of elements to fill the menu
-		List<String> parametersList = new ArrayList<String>();
-		// the menu
-		Spinner menu = new Spinner(c);
-		// the name of the parameter
-		TextView textLabel = new TextView(c);
-		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
-		
-		// padding is adjusted in function of the screen definition
-		int padding = 10*screenSizeX/800;
-		int localViewWidth  = (upperViewWidth-padding*2)/nItemsUpperLevel;
-		
-		// the background color of the local group is brighter than the upper one
-		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
-		
-		menu.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-		
-		// padding to create a thin frame around the parameter view
-		// should be tested...
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				localViewWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
-		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
-		frame.setPadding(2,2,2,2);
-				
-		// if parameters were saved, then they replace init		
-		if(isSavedParameters) init = parametersInfo.values[currentParameterNumber];
-		else parametersInfo.values[currentParameterNumber] = init;
-		
-		textLabel.setText(label);
-		textLabel.setGravity(Gravity.CENTER);
-		
-		// the elements of the menu are extracted
-		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, 
-				parameters.indexOf("}"));
-		// length of the elements array
-		int length = parsedParameters.length(); 
-		boolean stop = true;
-		// the value of the first element defines the minimum value of the parameter
-		final int min = Integer.parseInt(parsedParameters.substring(parsedParameters.indexOf(":") 
-				+ 1, parsedParameters.indexOf(";")));
-		// a menu item with a value assigned to it is created for each element of the array
-		while(stop){
-			String parameterName = parsedParameters.substring(1, parsedParameters.indexOf(":") - 1);
-			if(parsedParameters.contains(";")){
-				parsedParameters = parsedParameters.substring(parsedParameters.indexOf(";") + 1, length);
-				length = parsedParameters.length();
-			}
-			else{
-				stop = false;
-			}
-			parametersList.add(parameterName);	
-		}
-		
-		// the menu is configured with the list created in the previous step
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>
-        (c, android.R.layout.simple_spinner_item,parametersList);
-        dataAdapter.setDropDownViewResource
-        (android.R.layout.simple_spinner_dropdown_item);
-        menu.setAdapter(dataAdapter);
-        menu.setSelection((int) init-min);
-        
-        // listener...
-        menu.setOnItemSelectedListener(new OnItemSelectedListener(){
-        	public void onItemSelected(AdapterView parent, View view, int pos, long id) {
-        		parametersInfo.values[currentParameterNumber] = (float) pos+min;
-        		faust_dsp.setParam(address, parametersInfo.values[currentParameterNumber]);
-        	} 
-        	public void onNothingSelected(AdapterView parent) {	 		
-        	}
-        });
-		
-		// putting things together
-		localVerticalGroup.addView(textLabel);
-		localVerticalGroup.addView(menu);
-		frame.addView(localVerticalGroup);
-		currentGroup.addView(frame);
-	}
-	*/
 	
 	/*
 	 * Creates a radio buttons menu and adds it to currentGroup.

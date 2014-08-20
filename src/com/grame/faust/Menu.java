@@ -18,8 +18,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 class Menu{
-	float min = 0.0f, max = 100.0f, step = 1.0f;
 	int ID = 0;
+	float[] values;
 	String address = "";
 	Spinner menu;
 	List<String> parametersList;
@@ -63,20 +63,19 @@ class Menu{
 		
 		// length of the elements array
 		int length = parsedParameters.length(); 
-		boolean stop = true;
-		// the value of the first element defines the minimum value of the parameter
-		final int min = Integer.parseInt(parsedParameters.substring(parsedParameters.indexOf(":") 
-				+ 1, parsedParameters.indexOf(";")));
+		
+		int nElements = countStringOccurrences(parsedParameters,";")+1;
+		values = new float[nElements];
 		// a menu item with a value assigned to it is created for each element of the array
-		while(stop){
+		for(int i=0; i<nElements; i++){
 			String parameterName = parsedParameters.substring(1, parsedParameters.indexOf(":") - 1);
-			if(parsedParameters.contains(";")){
-				parsedParameters = parsedParameters.substring(parsedParameters.indexOf(";") + 1, length);
-				length = parsedParameters.length();
-			}
-			else{
-				stop = false;
-			}
+			if(parsedParameters.indexOf(";") != -1) values[i] = Float.valueOf(parsedParameters.substring(
+					parsedParameters.indexOf(":")+1, parsedParameters.indexOf(";")));
+			else values[i] = Float.valueOf(parsedParameters.substring(
+					parsedParameters.indexOf(":")+1));
+			parsedParameters = parsedParameters.substring(parsedParameters.indexOf(";") + 1, length);
+			length = parsedParameters.length();
+			
 			parametersList.add(parameterName);	
 		}
 		// the menu is configured with the list created in the previous step
@@ -99,14 +98,30 @@ class Menu{
 		group.addView(frame);
 	}
 	
+	public void setSelection(int item){
+		menu.setSelection(item);
+	}
+	
 	public void linkTo(final ParametersInfo parametersInfo){
 		menu.setOnItemSelectedListener(new OnItemSelectedListener(){
         	public void onItemSelected(AdapterView parent, View view, int pos, long id) {
-        		parametersInfo.values[ID] = (float) pos+min;
-        		faust_dsp.setParam(address, parametersInfo.values[ID]);
+        		parametersInfo.values[ID] = pos;
+        		faust_dsp.setParam(address, values[pos]);
         	} 
         	public void onNothingSelected(AdapterView parent) {	 		
         	}
         });
+	}
+	
+	private int countStringOccurrences(String input, String pattern){
+		int lastIndex = 0, count = 0;
+		while(lastIndex != -1){
+			lastIndex = input.indexOf(pattern,lastIndex);
+			if( lastIndex != -1){
+				count ++;
+				lastIndex += pattern.length();
+			}
+		}
+		return count;
 	}
 }
