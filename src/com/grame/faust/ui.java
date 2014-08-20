@@ -1,8 +1,5 @@
 package com.grame.faust;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,9 +8,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -21,20 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.grame.faust_dsp.faust_dsp;
@@ -46,6 +34,7 @@ import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
  * vslider
  * hslider
  * nentry
+ * checkbox
  */
 
 /*
@@ -67,8 +56,8 @@ public class ui{
 	// for now, this just contains the accelerometer values
 	//int[][] UIelementsParameters;
 	// TODO explain what this does, first member: hsliders, second member: vsliders, 
-	// third member: knobs, fourth member: nentry, fifth member: menu
-	int[] parametersCounters = {0,0,0,0,0};
+	// third member: knobs, fourth member: nentry, fifth member: menu, sixth member: checkbox
+	int[] parametersCounters = {0,0,0,0,0,0};
 	// incremented every time a new parameter is created
 	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
 	boolean isSavedParameters;
@@ -80,6 +69,7 @@ public class ui{
 	Knob[] knobs;
 	Nentry[] nentries;
 	Menu[] menus;
+	Checkbox[] checkboxes;
 	BarGraph[] bargraphs;
 	
 	ConfigWindow parametersWindow = new ConfigWindow();
@@ -96,6 +86,7 @@ public class ui{
 		int numberOfKnobs = countStringOccurrences(JSONparameters,"knob");
 		int numberOfNentries = countStringOccurrences(JSONparameters,"nentry");
 		int numberOfMenus = countStringOccurrences(JSONparameters,"menu");
+		int numberOfCheckboxes = countStringOccurrences(JSONparameters,"checkbox");
 		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
 				countStringOccurrences(JSONparameters,"vbargraph");
 		
@@ -111,6 +102,7 @@ public class ui{
 		if(numberOfKnobs>0) knobs = new Knob[numberOfKnobs];
 		if(numberOfNentries>0) nentries = new Nentry[numberOfNentries];
 		if(numberOfMenus>0) menus = new Menu[numberOfMenus];
+		if(numberOfCheckboxes>0) checkboxes = new Checkbox[numberOfCheckboxes];
 		if(numberOfBarGraphs>0) bargraphs = new BarGraph[numberOfBarGraphs];
 	}
 	
@@ -338,8 +330,9 @@ public class ui{
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("checkbox")){
-					checkbox(c,currentGroup,currentObject.getString("label"),
-							currentGroupLevel,groupDivisions,currentViewWidth);
+					checkbox(c,currentGroup,currentObject.getString("address"),
+							currentObject.getString("label"), 
+							localScreenWidth,localBackgroundColor);	
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("hbargraph")){
@@ -382,6 +375,7 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
+	// TODO must be finished
 	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label, float init,
 			int localScreenWidth, int localBackgroundColor, String parameters){
 		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, 
@@ -786,53 +780,23 @@ public class ui{
 	 *  nItemsUpperLevel: number of items in the upper group
 	 *  upperViewWidth: width of the upper group
 	 */
-	// TODO: deffault value?
-	public void checkbox(Context c, LinearLayout currentGroup, final String label,
-			int currentGroupLevel, int nItemsUpperLevel, int upperViewWidth){
-		// the main layout for this view (containing both the slider, its value and its name)
-		LinearLayout localVerticalGroup = new LinearLayout(c);
-		// layout to create a frame around the parameter view
-		LinearLayout frame = new LinearLayout(c);
-		// the check box
-		CheckBox checkbox = new CheckBox(c);
+	public void checkbox(Context c, LinearLayout currentGroup, final String address, final String label, 
+			int localScreenWidth, int localBackgroundColor){
+		checkboxes[parametersCounters[5]] = new Checkbox(c,address,parameterNumber,
+				localScreenWidth, localBackgroundColor, label);
 		
-		// index for the parameters values array
-		final int currentParameterNumber = parameterNumber;
+		float init = 0.0f; //default value for the checkbox
+		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
+		else parametersInfo.values[parameterNumber] = init;
 		
-		// padding is adjusted in function of the screen definition
-		int padding = 0;
-		if(currentGroupLevel != 0) padding = 10*screenSizeX/800;
-		int localViewWidth = (upperViewWidth-padding*2)/nItemsUpperLevel;
-		
-		// the background color of the local group is brighter than the upper one
-		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
-		localVerticalGroup.setGravity(Gravity.CENTER);
-		localVerticalGroup.setBackgroundColor(Color.rgb((currentGroupLevel+1)*15,
-				(currentGroupLevel+1)*15, (currentGroupLevel+1)*15));
-
-		// frame to create some padding around the view
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				localViewWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
-		frame.setOrientation(LinearLayout.VERTICAL);
-		frame.setBackgroundColor(Color.rgb(currentGroupLevel*15,
-				currentGroupLevel*15, currentGroupLevel*15));
-		frame.setPadding(2,2,2,2);
-		
-		checkbox.setGravity(Gravity.CENTER);
-		checkbox.setText(label);
-		parametersInfo.values[currentParameterNumber] = 0.0f;
-		
-		checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-        	@Override
-        	public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
-        		if (isChecked) parametersInfo.values[currentParameterNumber] = 1.f;
-        		else parametersInfo.values[currentParameterNumber] = 0.f;
-        	}
-        });
-		
-		localVerticalGroup.addView(checkbox);
-	    frame.addView(localVerticalGroup);
-	    currentGroup.addView(frame);
+		checkboxes[parametersCounters[5]].setStatus(init);
+		faust_dsp.setParam(address, init);
+	    checkboxes[parametersCounters[5]].linkTo(parametersInfo);
+	    checkboxes[parametersCounters[5]].addTo(currentGroup);
+	    
+	    parametersInfo.parameterType[parameterNumber] = 5;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[5];
+	    parametersCounters[5]++;
 	}
 	
 	/*
@@ -942,22 +906,6 @@ public class ui{
 		
 		// we iterate the group's items
 		parseJSON(c,currentArray,localGroup,localGroupLevel,1,localViewWidth);
-	}
-		
-	/*
-	 * Check if a string is a number.
-	 */
-	private static boolean isNumeric(String str)  
-	{  
-	  try  
-	  {  
-	    double d = Double.parseDouble(str);  
-	  }  
-	  catch(NumberFormatException nfe)  
-	  {  
-	    return false;  
-	  }  
-	  return true;  
 	}
 	
 	private int countStringOccurrences(String input, String pattern){
