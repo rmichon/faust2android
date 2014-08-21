@@ -31,17 +31,29 @@ public class UI{
 	 */
 	// string to store the full JSON description
 	String JSONparameters = new String();
-	// the values of the different UI elements 
-	ParametersInfo parametersInfo; // TODO
-	// TODO explain what this does, first member: hsliders, second member: vsliders, 
-	// third member: knobs, fourth member: nentry, fifth member: menu, sixth member: checkbox
-	// seventh member: button, eighth member: radio
+	// the values and parameters of the different UI elements saved and retrieved 
+	// every time a new activity is created
+	ParametersInfo parametersInfo;
+	/*
+	 * Counters for the different UI element types with:
+	 * parametersCounters[0]: hslider 
+	 * parametersCounters[1]: vslider
+	 * parametersCounters[2]: knob
+	 * parametersCounters[3]: nentry
+	 * parametersCounters[4]: menu
+	 * parametersCounters[5]: radio
+	 * parametersCounters[7]: checkbox
+	 * parametersCounters[8]: button 
+	 */
 	int[] parametersCounters = {0,0,0,0,0,0,0,0};
-	// incremented every time a new parameter is created
-	int parameterNumber = 0, screenSizeX = 0, screenSizeY = 0;
+	// global counter of the UI elements
+	int parameterNumber = 0; 
+	// screen dimensions
+	int screenSizeX, screenSizeY;
+	// true if parameters were saved during a previous instance
 	boolean isSavedParameters;
 	
-	// TODO comment this
+	// public UI elements (accessible from outside the class)
 	HorizontalScrollView horizontalScroll;
 	HorizontalSlider[] hsliders;
 	VerticalSlider[] vsliders;
@@ -53,15 +65,22 @@ public class UI{
 	PushButton[] buttons;
 	BarGraph[] bargraphs;
 	
-	ConfigWindow parametersWindow = new ConfigWindow();
+	ConfigWindow parametersWindow;
 	
 	/*
 	 * Initialize parametersValues in function of the total
 	 * number of parameters.
 	 */
 	public void initUI(ParametersInfo paramsInfo, SharedPreferences settings){
+		parametersWindow = new ConfigWindow();
+		
+		// get the JSON description from the native code
 		JSONparameters = faust_dsp.getJSON();
+		
+		// get the total number of parameters
 		int numberOfParameters = faust_dsp.getParamsCount();
+		
+		// get the number of each UI elements
 		int numberOfVsliders = countStringOccurrences(JSONparameters,"vslider");
 		int numberOfHsliders = countStringOccurrences(JSONparameters,"hslider");
 		int numberOfKnobs = countStringOccurrences(JSONparameters,"knob");
@@ -73,13 +92,18 @@ public class UI{
 		int numberOfBarGraphs = countStringOccurrences(JSONparameters,"hbargraph") +
 				countStringOccurrences(JSONparameters,"vbargraph");
 		
+		// the instance of ParametersInfo from the class Faust is associated to parametersInfo
 		parametersInfo = paramsInfo;
+		
+		// the addresses of each param in the tree are retrieved from the native code
 		for(int i=0; i<numberOfParameters; i++){ 
 			parametersInfo.address[i] = faust_dsp.getParamPath(i);
 		}
 		
+		// the saved parameters of each UI element are retrieved
 		isSavedParameters = parametersInfo.getSavedParameters(settings);
-
+		
+		// UI elements are instantiated
 		if(numberOfVsliders>0) vsliders = new VerticalSlider[numberOfVsliders];
 		if(numberOfHsliders>0) hsliders = new HorizontalSlider[numberOfHsliders];
 		if(numberOfKnobs>0) knobs = new Knob[numberOfKnobs];
@@ -337,12 +361,11 @@ public class UI{
 	 * 	c: the context (this)
 	 * 	currentGroup: the group to add the menu
 	 *  label: the name of the menu
-	 *  init: the default item of the menu
+	 *  localScreenWidth: width of the view
+	 *  localBackgroundColor: background color of the view
 	 *  currentGroupLevel: the "depth" of the parameter in the UI
 	 *  parameters: string containing the parameters of the menu extracted
 	 *  	from the JSON description
-	 *  nItemsUpperLevel: number of items in the upper group
-	 *  upperViewWidth: width of the upper group
 	 */
 	//TODO: init?
 	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label,
@@ -373,13 +396,12 @@ public class UI{
 	 * 	c: the context (this)
 	 * 	currentGroup: the group to add the menu
 	 *  label: the name of the menu
-	 *  init: the default item of the menu
+	 *  localScreenWidth: width of the view
+	 *  localBackgroundColor: background color of the view
 	 *  currentGroupLevel: the "depth" of the parameter in the UI
 	 *  parameters: string containing the parameters of the menu extracted
 	 *  	from the JSON description
 	 *  orientation: 0 for vertical, 1 for horizontal
-	 *  nItemsUpperLevel: number of items in the upper group
-	 *  upperViewWidth: width of the upper group
 	 */
 	//TODO: init?
 	public void radio(Context c, LinearLayout currentGroup, final String address, final String label,
@@ -389,17 +411,17 @@ public class UI{
 		if(isSavedParameters) init = (int) parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
 		
-		radios[parametersCounters[7]] = new Radio(c,address,parameterNumber,
+		radios[parametersCounters[5]] = new Radio(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor, parsedParameters, orientation, init);
-		radios[parametersCounters[7]].setLabel(label);
+		radios[parametersCounters[5]].setLabel(label);
 		
 		//faust_dsp.setParam(address, init);
-	    radios[parametersCounters[7]].linkTo(parametersInfo);
-	    radios[parametersCounters[7]].addTo(currentGroup);
+	    radios[parametersCounters[5]].linkTo(parametersInfo);
+	    radios[parametersCounters[5]].addTo(currentGroup);
 	    
-	    parametersInfo.parameterType[parameterNumber] = 7;
-	    parametersInfo.localId[parameterNumber] = parametersCounters[7];
-	    parametersCounters[7]++;
+	    parametersInfo.parameterType[parameterNumber] = 5;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[5];
+	    parametersCounters[5]++;
 	}
 	
 	/*
@@ -407,14 +429,15 @@ public class UI{
 	 * PARAMETERS:
 	 * 	c: the context (this)
 	 * 	currentGroup: the group to add the menu
+	 * 	address: the parameter address
 	 *  label: the name of the menu
 	 *  init: the default item of the menu
 	 *  min: the minimum value
 	 *  max: the maximum value
 	 *  step: the slider step
-	 *  currentGroupLevel: the "depth" of the parameter in the UI
-	 *  nItemsUpperLevel: number of items in the upper group
-	 *  upperViewWidth: width of the upper group
+	 *  localScreenWidth: the width of the view
+	 *  localBackgroundColor: the background color of the view
+	 *  localPadding: the padding of the view
 	 */
 	public void hslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor, 
@@ -442,14 +465,14 @@ public class UI{
 	 * PARAMETERS:
 	 * 	c: the context (this)
 	 * 	currentGroup: the group to add the menu
+	 * 	address: the parameter address
 	 *  label: the name of the menu
 	 *  init: the default item of the menu
 	 *  min: the minimum value
 	 *  max: the maximum value
 	 *  step: the slider step
-	 *  currentGroupLevel: current group's depth
-	 *  nItemsUpperLevel: number of items in the upper group
-	 *  upperViewWidth: width of the upper group
+	 *  localScreenWidth: the width of the view
+	 *  localBackgroundColor: the background color of the view
 	 */
 	public void vslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor){
@@ -476,14 +499,15 @@ public class UI{
 	 * PARAMETERS:
 	 * 	c: the context (this)
 	 * 	currentGroup: the group to add the menu
+	 * 	address: the parameter address
 	 *  label: the name of the menu
 	 *  init: the default item of the menu
 	 *  min: the minimum value
 	 *  max: the maximum value
 	 *  step: the slider step
-	 *  currentGroupLevel: current group's depth
-	 *  nItemsUpperLevel: number of items in the upper group
-	 *  upperViewWidth: width of the upper group
+	 *  localScreenWidth: the width of the view
+	 *  localBackgroundColor: the background color of the view
+	 *  localPadding: the padding of the view
 	 */
 	public void knob(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor,
@@ -509,12 +533,14 @@ public class UI{
 	 * PARAMETERS:
 	 * 	c: the context (this)
 	 * 	currentGroup: the group to add the menu
+	 * 	address: the parameter address
 	 *  label: the name of the menu
 	 *  init: the default item of the menu
 	 *  min: the minimum value
 	 *  max: the maximum value
 	 *  step: the slider step
-	 *  currentGroupLevel: current group's depth
+	 *  localScreenWidth: the width of the view
+	 *  localBackgroundColor: the background color of the view
 	 */
 	public void nentry(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor){
@@ -540,10 +566,10 @@ public class UI{
 	 * PARAMETERS:
 	 * 	c: the context (this)
 	 * 	currentGroup: the group to add the menu
+	 * 	address: the parameter address
 	 *  label: the name of the menu
-	 *  currentGroupLevel: current group's depth
-	 *  nItemsUpperLevel: number of items in the upper group
-	 *  upperViewWidth: width of the upper group
+	 *  localScreenWidth: the width of the view
+	 *  localBackgroundColor: the background color of the view
 	 */
 	public void button(Context c, LinearLayout currentGroup, final String address, final String label, 
 			int localScreenWidth, int localBackgroundColor){
@@ -563,28 +589,28 @@ public class UI{
 	 * PARAMETERS:
 	 * 	c: the context (this)
 	 * 	currentGroup: the group to add the menu
+	 * 	address: the parameter address
 	 *  label: the name of the menu
-	 *  currentGroupLevel: current group's depth
-	 *  nItemsUpperLevel: number of items in the upper group
-	 *  upperViewWidth: width of the upper group
+	 *  localScreenWidth: the width of the view
+	 *  localBackgroundColor: the background color of the view
 	 */
 	public void checkbox(Context c, LinearLayout currentGroup, final String address, final String label, 
 			int localScreenWidth, int localBackgroundColor){
-		checkboxes[parametersCounters[5]] = new Checkbox(c,address,parameterNumber,
+		checkboxes[parametersCounters[7]] = new Checkbox(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor, label);
 		
 		float init = 0.0f; //default value for the checkbox
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
 		
-		checkboxes[parametersCounters[5]].setStatus(init);
+		checkboxes[parametersCounters[7]].setStatus(init);
 		faust_dsp.setParam(address, init);
-	    checkboxes[parametersCounters[5]].linkTo(parametersInfo);
-	    checkboxes[parametersCounters[5]].addTo(currentGroup);
+	    checkboxes[parametersCounters[7]].linkTo(parametersInfo);
+	    checkboxes[parametersCounters[7]].addTo(currentGroup);
 	    
-	    parametersInfo.parameterType[parameterNumber] = 5;
-	    parametersInfo.localId[parameterNumber] = parametersCounters[5];
-	    parametersCounters[5]++;
+	    parametersInfo.parameterType[parameterNumber] = 7;
+	    parametersInfo.localId[parameterNumber] = parametersCounters[7];
+	    parametersCounters[7]++;
 	}
 	
 	/*
@@ -698,6 +724,9 @@ public class UI{
 		parseJSON(c,currentArray,localGroup,localGroupLevel,1,localViewWidth);
 	}
 	
+	/*
+	 * Count the number of pattern in input
+	 */
 	private int countStringOccurrences(String input, String pattern){
 		int lastIndex = 0, count = 0;
 		while(lastIndex != -1){
