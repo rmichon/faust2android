@@ -17,7 +17,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int arcColor=0x7f010009;
+        public static final int arcColor=0x7f01000a;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -27,7 +27,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int arcWidth=0x7f010004;
+        public static final int arcWidth=0x7f010005;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -35,7 +35,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int clockwise=0x7f01000d;
+        public static final int clockwise=0x7f01000e;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -43,7 +43,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int max=0x7f010002;
+        public static final int max=0x7f010003;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -51,7 +51,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int progress=0x7f010005;
+        public static final int progress=0x7f010006;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -60,7 +60,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int progressColor=0x7f01000a;
+        public static final int progressColor=0x7f01000b;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -70,7 +70,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int progressWidth=0x7f010003;
+        public static final int progressWidth=0x7f010004;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -78,7 +78,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int rotation=0x7f010006;
+        public static final int rotation=0x7f010007;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -86,11 +86,11 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int roundEdges=0x7f01000b;
+        public static final int roundEdges=0x7f01000c;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int seekArcStyle=0x7f01000e;
+        public static final int seekArcStyle=0x7f01000f;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -98,7 +98,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int startAngle=0x7f010007;
+        public static final int startAngle=0x7f010008;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -106,11 +106,19 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int sweepAngle=0x7f010008;
+        public static final int sweepAngle=0x7f010009;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int test=0x7f010000;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int thumb=0x7f010000;
+        public static final int thumb=0x7f010001;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -120,7 +128,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int thumbOffset=0x7f010001;
+        public static final int thumbOffset=0x7f010002;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -128,7 +136,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int touchInside=0x7f01000c;
+        public static final int touchInside=0x7f01000d;
     }
     public static final class color {
         public static final int progress_gray=0x7f040000;
@@ -144,20 +152,30 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020006;
         public static final int ic_zoomin=0x7f020007;
         public static final int ic_zoomout=0x7f020008;
-        public static final int scrubber_control_disabled_holo=0x7f020009;
-        public static final int scrubber_control_focused_holo=0x7f02000a;
-        public static final int scrubber_control_normal_holo=0x7f02000b;
-        public static final int scrubber_control_pressed_holo=0x7f02000c;
-        public static final int seek_arc_control_selector=0x7f02000d;
+        public static final int piano_key_black=0x7f020009;
+        public static final int piano_key_black_down=0x7f02000a;
+        public static final int piano_key_center=0x7f02000b;
+        public static final int piano_key_center_down=0x7f02000c;
+        public static final int piano_key_left=0x7f02000d;
+        public static final int piano_key_left_down=0x7f02000e;
+        public static final int piano_key_right=0x7f02000f;
+        public static final int piano_key_right_down=0x7f020010;
+        public static final int scrubber_control_disabled_holo=0x7f020011;
+        public static final int scrubber_control_focused_holo=0x7f020012;
+        public static final int scrubber_control_normal_holo=0x7f020013;
+        public static final int scrubber_control_pressed_holo=0x7f020014;
+        public static final int seek_arc_control_selector=0x7f020015;
     }
     public static final class id {
-        public static final int action_zoomin=0x7f080002;
-        public static final int action_zoomout=0x7f080003;
+        public static final int PianoKeyboard=0x7f080002;
+        public static final int action_zoomin=0x7f080003;
+        public static final int action_zoomout=0x7f080004;
         public static final int horizontalScroll=0x7f080000;
         public static final int the_layout=0x7f080001;
     }
     public static final class layout {
         public static final int main=0x7f030000;
+        public static final int piano=0x7f030001;
     }
     public static final class menu {
         public static final int main_activity_actions=0x7f070000;
@@ -198,6 +216,33 @@ containing a value of this type.
         public static final int SeekArcLight=0x7f060003;
     }
     public static final class styleable {
+        /** Attributes that can be used with a PianoKeyboard.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #PianoKeyboard_test com.grame.faust:test}</code></td><td></td></tr>
+           </table>
+           @see #PianoKeyboard_test
+         */
+        public static final int[] PianoKeyboard = {
+            0x7f010000
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.grame.faust.R.attr#test}
+          attribute's value can be found in the {@link #PianoKeyboard} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.grame.faust:test
+        */
+        public static final int PianoKeyboard_test = 0;
         /** Attributes that can be used with a SeekArc.
            <p>Includes the following attributes:</p>
            <table>
@@ -235,10 +280,10 @@ containing a value of this type.
            @see #SeekArc_touchInside
          */
         public static final int[] SeekArc = {
-            0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003,
-            0x7f010004, 0x7f010005, 0x7f010006, 0x7f010007,
-            0x7f010008, 0x7f010009, 0x7f01000a, 0x7f01000b,
-            0x7f01000c, 0x7f01000d
+            0x7f010001, 0x7f010002, 0x7f010003, 0x7f010004,
+            0x7f010005, 0x7f010006, 0x7f010007, 0x7f010008,
+            0x7f010009, 0x7f01000a, 0x7f01000b, 0x7f01000c,
+            0x7f01000d, 0x7f01000e
         };
         /**
           <p>This symbol is the offset where the {@link com.grame.faust.R.attr#arcColor}
@@ -451,7 +496,7 @@ containing a value of this type.
            @see #SeekArcTheme_seekArcStyle
          */
         public static final int[] SeekArcTheme = {
-            0x7f01000e
+            0x7f01000f
         };
         /**
           <p>This symbol is the offset where the {@link com.grame.faust.R.attr#seekArcStyle}
