@@ -20,11 +20,16 @@ public class faust_dspJNI {
   }
 
   public final static native void initFaust();
+  public final static native void initFaustPoly();
   public final static native String getJSON();
   public final static native int getParamsCount();
   public final static native void startAudio();
+  public final static native void startAudioPoly();
+  public final static native void keyOn(int jarg1, int jarg2);
+  public final static native void keyOff(int jarg1);
   public final static native float getParam(String jarg1);
   public final static native void setParam(String jarg1, float jarg2);
+  public final static native void setParamPoly(String jarg1, float jarg2);
   public final static native void stopAudio();
   public final static native String getParamPath(int jarg1);
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -25,6 +26,8 @@ class PianoKeyboard extends ViewGroup{
 	
 	public interface OnKeyboardChangeListener {
 		void onKeyChanged(int note, boolean statu);
+		void onPressureChanged(float pressure);
+		void onXChanged(float x);
 		//void onStartTrackingTouch(PianoKeyboard keyboard);
 		//void onStopTrackingTouch(PianoKeyboard keyboard);
 	}
@@ -66,7 +69,79 @@ class PianoKeyboard extends ViewGroup{
 				addView(keys[i]);
 			}
 		}
+		
+		for(int i=0; i<numberOfKeys; i++){
+			final int ID = i;
+			keys[i].setOnTouchListener(new OnTouchListener() {
+				int on = 0;
+				public boolean onTouch(final View view, final MotionEvent event){
+					int x = (int)event.getRawX();
+		            int y = (int)event.getRawY();
+		            if(ID>0 && inViewBounds(keys[ID-1], x, y)){
+		            		on = 0;
+		            		keys[ID-1].dispatchTouchEvent(event);
+		            		keys[ID].setKeyUp();
+							if (mOnKeyboardChangeListener != null) {
+								mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
+							}
+		            }
+		            else if(ID<numberOfKeys && inViewBounds(keys[ID+1], x, y)){
+		            		//System.out.println("Voila: ");
+		            		on = 0;
+		            		keys[ID+1].dispatchTouchEvent(event);
+		            		keys[ID].setKeyUp();
+							if (mOnKeyboardChangeListener != null) {
+								mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
+							}
+		            }
+		            else{
+		            	if(ID<numberOfKeys){ 
+		            		keys[ID+1].setKeyUp();
+		            		if (mOnKeyboardChangeListener != null) {
+								mOnKeyboardChangeListener.onKeyChanged(ID+1+baseNote,false);
+							}
+		            	}
+		            	if(ID>0){
+		            		keys[ID-1].setKeyUp();
+		            		if (mOnKeyboardChangeListener != null) {
+								mOnKeyboardChangeListener.onKeyChanged(ID-1+baseNote,false);
+							}
+		            	}
+		            /*
+					if (mOnKeyboardChangeListener != null) {
+						mOnKeyboardChangeListener.onPressureChanged(event.getPressure());
+						if(event.getX() < 150 && event.getX() >= 0) mOnKeyboardChangeListener.onXChanged(event.getX());
+					}
+					*/
+		            	if(event.getAction() == MotionEvent.ACTION_UP){
+		            		on = 0;
+		            		keys[ID].setKeyUp();
+		            		if (mOnKeyboardChangeListener != null) {
+		            			mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
+		            		}
+		            	}
+		            	else if(on == 0){
+		            		on = 1;
+		            		keys[ID].setKeyDown();
+		            		if (mOnKeyboardChangeListener != null) {
+		            			mOnKeyboardChangeListener.onKeyChanged(ID+baseNote, true);
+		            		}
+		            	}
+		            }
+					return true;
+				}
+			});
+		}
 	}
+	
+    private boolean inViewBounds(View view, int x, int y){
+    	Rect outRect = new Rect();
+        int[] location = new int[2];
+        view.getDrawingRect(outRect);
+        view.getLocationOnScreen(location);
+        outRect.offset(location[0], location[1]);
+        return outRect.contains(x, y);
+    }
 	
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -78,13 +153,10 @@ class PianoKeyboard extends ViewGroup{
 		int viewWidth =  (int) (w - xpad);
 		int viewHeight = (int) (h - ypad);
 		
-		int keysSpacing = 6;
-		keysSpacing = (int) 6*viewWidth/1280; // TODO not sure this is really necessary...
+		int whiteKeysWidth = viewWidth/(numberOfWhiteKeys);
 		
-		int whiteKeysWidth = viewWidth/(numberOfWhiteKeys) - (numberOfWhiteKeys-2)*keysSpacing/numberOfWhiteKeys;
-		
-		int blackKeysWidth = (int) (whiteKeysWidth*0.62f) - keysSpacing;
-		int blackKeysHeight = (int) (viewHeight*0.54f) - keysSpacing;
+		int blackKeysWidth = (int) (whiteKeysWidth*0.62f);
+		int blackKeysHeight = (int) (viewHeight*0.54f);
 		
 		int whiteKeysIndex = 0;
 		int blackKeysIndex = 1;
@@ -92,12 +164,12 @@ class PianoKeyboard extends ViewGroup{
 		for(int i=0; i<numberOfKeys; i++){
 			if(keysType[i%12] == 3){ 
 				keys[i].layout(0, 0, blackKeysWidth, blackKeysHeight);
-				keys[i].offsetLeftAndRight((int) (whiteKeysOffset+whiteKeysWidth*0.694444444f+keysSpacing));
+				keys[i].offsetLeftAndRight((int) (whiteKeysOffset+whiteKeysWidth*0.694444444f));
 				blackKeysIndex++;
 			}
 			else{ 
 				keys[i].layout(0, 0, whiteKeysWidth, viewHeight);
-				whiteKeysOffset = (whiteKeysWidth+keysSpacing)*whiteKeysIndex;
+				whiteKeysOffset = (whiteKeysWidth)*whiteKeysIndex;
 				keys[i].offsetLeftAndRight(whiteKeysOffset);
 				whiteKeysIndex++;
 			}		
@@ -126,6 +198,14 @@ class PianoKeyboard extends ViewGroup{
 			keyDown.setVisibility(INVISIBLE);
 		}
 		
+		public void setKeyDown(){
+			keyDown.setVisibility(VISIBLE);
+		}
+		
+		public void setKeyUp(){
+			keyDown.setVisibility(INVISIBLE);
+		}
+		
 		@Override
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 			super.onSizeChanged(w, h, oldw, oldh);
@@ -142,28 +222,27 @@ class PianoKeyboard extends ViewGroup{
 		
 		/*
 		@Override
-		public boolean onGenericMotionEvent(MotionEvent event) {
-			System.out.println("Voila: " + event.getAction());
-			return true;
-		}
-		*/
-
-		@Override
 		public boolean onTouchEvent(MotionEvent event) {
+			//if(event.getX() < 150 && event.getX() >= 0) System.out.println("Voila: " + event.getX());
+			if (mOnKeyboardChangeListener != null) {
+				mOnKeyboardChangeListener.onPressureChanged(event.getPressure());
+				if(event.getX() < 150 && event.getX() >= 0) mOnKeyboardChangeListener.onXChanged(event.getX());
+			}
 			if (event.getAction() == MotionEvent.ACTION_DOWN){
-				keyDown.setVisibility(VISIBLE);
+				setKeyDown();
 				if (mOnKeyboardChangeListener != null) {
 					mOnKeyboardChangeListener.onKeyChanged(ID+baseNote, true);
 				}
 			}
 			else if(event.getAction() == MotionEvent.ACTION_UP){
-				keyDown.setVisibility(INVISIBLE);
+				setKeyUp();
 				if (mOnKeyboardChangeListener != null) {
 					mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
 				}
 			}
 			return true;
 		}
+		*/
 		
 		@Override
 	    protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -175,7 +254,7 @@ class PianoKeyboard extends ViewGroup{
 	
 		public PianoKeyElement(Context context, int type, int mode){
 			super(context);
-		
+			
 			Resources res = context.getResources();
 			if(type == 0){
 				if(mode == 1) keyUp = res.getDrawable(R.drawable.piano_key_left_down);
@@ -202,7 +281,9 @@ class PianoKeyboard extends ViewGroup{
 		@Override
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 			super.onSizeChanged(w, h, oldw, oldh);
-        
+			
+			setPadding(3,0,3,3);
+			
 			float xpad = (float) (getPaddingLeft() + getPaddingRight());
 			float ypad = (float) (getPaddingTop() + getPaddingBottom());
         

@@ -4,6 +4,7 @@ import com.grame.faust_dsp.faust_dsp;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,9 +53,11 @@ class PushButton{
 		button.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+            	int x = (int)event.getRawX();
+	            int y = (int)event.getRawY();
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
                 	parametersInfo.values[id] = 1.f;
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                } else if (event.getAction() == MotionEvent.ACTION_UP || !inViewBounds(v, x, y)) {
                 	parametersInfo.values[id] = 0.f;
                 }
                 faust_dsp.setParam(address, parametersInfo.values[id]);
@@ -62,4 +65,13 @@ class PushButton{
             }
         });
 	}
+	
+	private boolean inViewBounds(View view, int x, int y){
+    	Rect outRect = new Rect();
+        int[] location = new int[2];
+        view.getDrawingRect(outRect);
+        view.getLocationOnScreen(location);
+        outRect.offset(location[0], location[1]);
+        return outRect.contains(x, y);
+    }
 }

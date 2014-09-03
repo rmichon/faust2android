@@ -13,6 +13,10 @@ public class faust_dsp {
     faust_dspJNI.initFaust();
   }
 
+  public static void initFaustPoly() {
+    faust_dspJNI.initFaustPoly();
+  }
+
   public static String getJSON() {
     return faust_dspJNI.getJSON();
   }
@@ -25,12 +29,28 @@ public class faust_dsp {
     faust_dspJNI.startAudio();
   }
 
+  public static void startAudioPoly() {
+    faust_dspJNI.startAudioPoly();
+  }
+
+  public static void keyOn(int arg0, int arg1) {
+    faust_dspJNI.keyOn(arg0, arg1);
+  }
+
+  public static void keyOff(int arg0) {
+    faust_dspJNI.keyOff(arg0);
+  }
+
   public static float getParam(String arg0) {
     return faust_dspJNI.getParam(arg0);
   }
 
   public static void setParam(String arg0, float arg1) {
     faust_dspJNI.setParam(arg0, arg1);
+  }
+
+  public static void setParamPoly(String arg0, float arg1) {
+    faust_dspJNI.setParamPoly(arg0, arg1);
   }
 
   public static void stopAudio() {

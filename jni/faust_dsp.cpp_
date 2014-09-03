@@ -783,17 +783,16 @@ class mydsp : public dsp {
 
 
 	static float 	ftbl0[65536];
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT 	fentry0;
 	float 	fConst0;
 	float 	fRec2[2];
 	FAUSTFLOAT 	fentry1;
+	FAUSTFLOAT 	fslider0;
 	float 	fRec1[2];
 	FAUSTFLOAT 	fbutton0;
 	float 	fRec3[2];
+	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT 	fslider2;
-	FAUSTFLOAT 	fslider3;
   public:
 	static void metadata(Meta* m) 	{ 
 		m->declare("music.lib/name", "Music Library");
@@ -823,17 +822,16 @@ class mydsp : public dsp {
 	}
 	virtual void instanceInit(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
-		fslider0 = 0.0f;
-		fslider1 = 4.4e+02f;
-		fentry0 = 777.0f;
+		fentry0 = 4.4e+02f;
 		fConst0 = (1.0f / float(min(192000, max(1, fSamplingFreq))));
 		for (int i=0; i<2; i++) fRec2[i] = 0;
-		fentry1 = 1e+02f;
+		fentry1 = 0.0f;
+		fslider0 = 4.4e+02f;
 		for (int i=0; i<2; i++) fRec1[i] = 0;
 		fbutton0 = 0.0;
 		for (int i=0; i<2; i++) fRec3[i] = 0;
+		fslider1 = 0.0f;
 		fslider2 = 0.5f;
-		fslider3 = 1.0f;
 	}
 	virtual void init(int samplingFreq) {
 		classInit(samplingFreq);
@@ -841,36 +839,37 @@ class mydsp : public dsp {
 	}
 	virtual void buildUserInterface(UI* interface) {
 		interface->openVerticalBox("0x00");
+		interface->openHorizontalBox("Carrier");
+		interface->declare(&fslider0, "accx", "1. 0 0.166 1");
+		interface->declare(&fslider0, "osc", "/freq");
+		interface->addHorizontalSlider("Frequency", &fslider0, 4.4e+02f, 2e+01f, 8e+03f, 1.0f);
+		interface->closeBox();
 		interface->openHorizontalBox("General Parameters");
 		interface->addHorizontalSlider("Balance", &fslider2, 0.5f, 0.0f, 1.0f, 0.1f);
-		interface->addHorizontalSlider("Bending", &fslider0, 0.0f, -1.0f, 1.0f, 0.01f);
-		interface->declare(&fslider1, "accx", "1. 0 0.166 1");
-		interface->declare(&fslider1, "osc", "/freq");
-		interface->addHorizontalSlider("freq", &fslider1, 4.4e+02f, 2e+01f, 8e+03f, 1.0f);
+		interface->addHorizontalSlider("Volume", &fslider1, 0.0f, -96.0f, 0.0f, 0.1f);
 		interface->closeBox();
 		interface->openHorizontalBox("Modulator");
-		interface->addNumEntry("Frequency", &fentry0, 777.0f, 2e+01f, 1.5e+04f, 1.0f);
-		interface->addNumEntry("Modulation Index", &fentry1, 1e+02f, 0.0f, 1e+03f, 0.1f);
+		interface->addNumEntry("Frequency", &fentry0, 4.4e+02f, 2e+01f, 1.5e+04f, 1.0f);
+		interface->addNumEntry("Modulation Index", &fentry1, 0.0f, 0.0f, 1e+03f, 0.1f);
 		interface->closeBox();
-		interface->addHorizontalSlider("gain", &fslider3, 1.0f, 0.0f, 1.0f, 0.01f);
 		interface->addButton("gate", &fbutton0);
 		interface->closeBox();
 	}
 	virtual void compute (int count, FAUSTFLOAT** input, FAUSTFLOAT** output) {
-		float 	fSlow0 = (float(fslider1) * (1 + (0.1f * float(fslider0))));
-		float 	fSlow1 = (fConst0 * float(fentry0));
-		float 	fSlow2 = float(fentry1);
+		float 	fSlow0 = (fConst0 * float(fentry0));
+		float 	fSlow1 = float(fentry1);
+		float 	fSlow2 = float(fslider0);
 		float 	fSlow3 = (0.0010000000000000009f * float(fbutton0));
-		float 	fSlow4 = float(fslider2);
-		float 	fSlow5 = float(fslider3);
+		float 	fSlow4 = powf(10,(0.05f * float(fslider1)));
+		float 	fSlow5 = float(fslider2);
 		float 	fSlow6 = (fSlow5 * fSlow4);
-		float 	fSlow7 = (fSlow5 * (1 - fSlow4));
+		float 	fSlow7 = ((1 - fSlow5) * fSlow4);
 		FAUSTFLOAT* output0 = output[0];
 		FAUSTFLOAT* output1 = output[1];
 		for (int i=0; i<count; i++) {
-			float fTemp0 = (fRec2[1] + fSlow1);
+			float fTemp0 = (fRec2[1] + fSlow0);
 			fRec2[0] = (fTemp0 - floorf(fTemp0));
-			float fTemp1 = (fRec1[1] + (fConst0 * ((fSlow2 * ftbl0[int((65536.0f * fRec2[0]))]) + fSlow0)));
+			float fTemp1 = (fRec1[1] + (fConst0 * (fSlow2 + (fSlow1 * ftbl0[int((65536.0f * fRec2[0]))]))));
 			fRec1[0] = (fTemp1 - floorf(fTemp1));
 			fRec3[0] = ((0.999f * fRec3[1]) + fSlow3);
 			float fTemp2 = (fRec3[0] * ftbl0[int((65536.0f * fRec1[0]))]);
@@ -888,301 +887,6 @@ class mydsp : public dsp {
 float 	mydsp::ftbl0[65536];
 
 //**************************************************************
-// Polyphony
-//**************************************************************
-
-/************************************************************************
- IMPORTANT NOTE : this file contains two clearly delimited sections :
- the ARCHITECTURE section (in two parts) and the USER section. Each section
- is governed by its own copyright and license. Please check individually
- each section for license and copyright information.
- *************************************************************************/
-/*******************BEGIN ARCHITECTURE SECTION (part 1/2)****************/
-
-/************************************************************************
- FAUST Architecture File
- Copyright (C) 2003-2011 GRAME, Centre National de Creation Musicale
- ---------------------------------------------------------------------
- This Architecture section is free software; you can redistribute it
- and/or modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 3 of
- the License, or (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with this program; If not, see <http://www.gnu.org/licenses/>.
- 
- EXCEPTION : As a special exception, you may create a larger work
- that contains this FAUST architecture section and distribute
- that work under terms of your choice, so long as this FAUST
- architecture section is not modified.
- 
- 
- ************************************************************************
- ************************************************************************/
-
-#ifndef __poly_dsp__
-#define __poly_dsp__
-
-#include <string>
-#include <math.h>
-
-
-struct mydsp_voice : public MapUI {
-    
-    mydsp fVoice;
-    int fNote;
-    
-    mydsp_voice(int sample_rate)
-    {
-        fVoice.init(sample_rate);
-        fVoice.buildUserInterface(this);
-        fNote = -1;
-    }
-};
-
-struct mydsp_poly
-{
-    std::string fJSON;
-    
-    mydsp_voice** fVoiceTable;
-    
-    std::string fGateLabel;
-    std::string fGainLabel;
-    std::string fFreqLabel;
-    
-    int fMaxPolyphony;
-    
-    FAUSTFLOAT** fNoteOutputs;
-    int fNumOutputs;
-    
-    inline void mixVoice(int count, FAUSTFLOAT** outputBuffer, FAUSTFLOAT** mixBuffer) 
-    {
-        for (int i = 0; i < fNumOutputs; i++) {
-            float* mixChannel = mixBuffer[i];
-            float* outChannel = outputBuffer[i];
-            for (int j = 0; j < count; j++) {
-                mixChannel[j] += outChannel[j];
-            }
-        }
-    }
-    
-    inline float midiToFreq(int note) 
-    {
-        return 440.0f * powf(2.0f, ((float(note))-69.0f)/12.0f);
-    }
-    
-    inline void clearOutput(int count, FAUSTFLOAT** mixBuffer) 
-    {
-        for (int i = 0; i < fNumOutputs; i++) {
-            memset(mixBuffer[i], 0, count * sizeof(FAUSTFLOAT));
-        }
-    }
-    
-    inline int getVoice(int note)
-    {
-        for (int i = 0; i < fMaxPolyphony; i++) {
-            if (fVoiceTable[i]->fNote == note) return i;
-        }
-        return -1;
-    }
-    
-    mydsp_poly(int sample_rate, int buffer_size, int max_polyphony)
-    {
-        fMaxPolyphony = max_polyphony;
-        fVoiceTable = new mydsp_voice*[max_polyphony];
-        
-        // Init it with supplied sample_rate 
-        for (int i = 0; i < fMaxPolyphony; i++) {
-            fVoiceTable[i] = new mydsp_voice(sample_rate);
-        }
-        
-        // Init audio output buffers
-        fNumOutputs = fVoiceTable[0]->fVoice.getNumOutputs();
-        fNoteOutputs = new FAUSTFLOAT*[fNumOutputs];
-        for (int i = 0; i < fNumOutputs; i++) {
-            fNoteOutputs[i] = new FAUSTFLOAT[buffer_size];
-        }
-        
-        // Creates JSON
-        JSONUI builder(fVoiceTable[0]->fVoice.getNumInputs(), fVoiceTable[0]->fVoice.getNumOutputs());
-        mydsp::metadata(&builder);
-        fVoiceTable[0]->fVoice.buildUserInterface(&builder);
-        fJSON = builder.JSON();
-        
-        // Keep gain, freq and gate labels
-        std::map<std::string, FAUSTFLOAT*>::iterator it;
-        
-        for (it = fVoiceTable[0]->getMap().begin(); it != fVoiceTable[0]->getMap().end(); it++) {
-            std::string label = (*it).first;
-            if (label.find("gate") != std::string::npos) {
-                fGateLabel = label;
-            } else if (label.find("freq") != std::string::npos) {
-                fFreqLabel = label;
-            } else if (label.find("gain") != std::string::npos) {
-                fGainLabel = label;
-            }
-        }
-    }
-    
-    virtual ~mydsp_poly()
-    {
-        for (int i = 0; i < fNumOutputs; i++) {
-            delete[] fNoteOutputs[i];
-        }
-        delete[] fNoteOutputs;
-        
-        for (int i = 0; i < fMaxPolyphony; i++) {
-            delete fVoiceTable[i];
-        }
-        delete [] fVoiceTable;
-    }
-    
-    void compute(int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) 
-    {
-        // First clear the outputs
-        clearOutput(count, outputs);
-          
-        // Then mix all voices
-        for (int i = 0; i < fMaxPolyphony; i++) {
-            fVoiceTable[i]->fVoice.compute(count, inputs, fNoteOutputs);
-            mixVoice(count, fNoteOutputs, outputs);
-        }
-    }
-    
-    int getNumInputs()
-    {
-        return fVoiceTable[0]->fVoice.getNumInputs();
-    }
-    
-    int getNumOutputs()
-    {
-        return fVoiceTable[0]->fVoice.getNumOutputs();
-    }
-    
-    void keyOn(int channel, int pitch, int velocity)
-    {
-        int voice = getVoice(-1);  // Gets a free voice
-        if (voice >= 0) {
-            printf("noteOn %d\n", voice);
-            fVoiceTable[voice]->setValue(fFreqLabel, midiToFreq(pitch));
-            fVoiceTable[voice]->setValue(fGainLabel, float(velocity)/127.f);
-            fVoiceTable[voice]->setValue(fGateLabel, 1.0f);
-            fVoiceTable[voice]->fNote = pitch;
-        } else {
-            printf("No more free voice...\n");
-        }
-    }
-    
-    void keyOff(int channel, int pitch)
-    {
-        int voice = getVoice(pitch);
-        if (voice >= 0) {
-            printf("noteOff %d\n", voice);
-            fVoiceTable[voice]->setValue(fGateLabel, 0.0f);
-            fVoiceTable[voice]->fNote = -1;
-        } else {
-            printf("Playing voice not found...\n");
-        }
-    }
-    
-    void ctrlChange(int channel, int ctrl, int value)
-    {}
-    
-    void pitchWheel(int channel, int pitchWheel)
-    {}
-    
-    const char* getJSON()
-    {
-        return fJSON.c_str();
-    }
-    
-    void setValue(const char* path, float value)
-    {
-        for (int i = 0; i < fMaxPolyphony; i++) {
-            fVoiceTable[i]->setValue(path, value);
-        }
-    }
-    
-    float getValue(const char* path)
-    {
-        return fVoiceTable[0]->getValue(path);
-    }
-    
-};
-   
-extern "C" {
-    
-    // C like API
-    mydsp_poly* mydsp_poly_constructor(int sample_rate, int buffer_size, int max_polyphony) 
-    {
-         return new mydsp_poly(sample_rate, buffer_size, max_polyphony);
-    }
-
-    void mydsp_poly_destructor(mydsp_poly* n) 
-    {
-        delete n;
-    }
-
-    const char* mydsp_poly_getJSON(mydsp_poly* n)
-    {
-        return n->getJSON();
-    }
-  
-    void mydsp_poly_compute(mydsp_poly* n, int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) 
-    {
-        n->compute(count, inputs, outputs);
-    }
-
-    int mydsp_poly_getNumInputs(mydsp_poly* n)
-    {
-        return n->getNumInputs();
-    }
-
-    int mydsp_poly_getNumOutputs(mydsp_poly* n)
-    {
-        return n->getNumOutputs();
-    }
-
-    void mydsp_poly_keyOn(mydsp_poly* n, int channel, int pitch, int velocity)
-    {
-        n->keyOn(channel, pitch, velocity);
-    }
-
-    void mydsp_poly_keyOff(mydsp_poly* n, int channel, int pitch)
-    {
-        n->keyOff(channel, pitch);
-    }
-    
-    void mydsp_poly_ctrlChange(mydsp_poly* n, int channel, int ctrl, int value)
-    {
-        n->ctrlChange(channel, ctrl, value);
-    }
-    
-    void mydsp_poly_pitchWheel(mydsp_poly* n, int channel, int pitchWheel)
-    {
-        n->pitchWheel(channel, pitchWheel);
-    }
-    
-    void mydsp_poly_setValue(mydsp_poly* n, const char* path, float value)
-    {
-        n->setValue(path, value);
-    }
-
-    float mydsp_poly_getValue(mydsp_poly* n, const char* path)
-    {
-        return n->getValue(path);
-    }
-        
-}
-
-#endif
-
-//**************************************************************
 // Audio Class
 //**************************************************************
 
@@ -1196,59 +900,28 @@ extern "C" {
 #define BUFFERFRAMES 512
 #define VECSAMPS 512
 #define SR 44100
-#define POLYMAX 6
+#define POLYPHONY 4
 
 using namespace std;
 
 OPENSL_STREAM *p;
-mydsp* DSP;
-mydsp_poly* DSPpoly;
-MapUI* mapUI;
-pthread_t audioThread;
+mydsp* DSP[POLYPHONY];
+MapUI* mapUI[POLYPHONY];
+pthread_t audioThread[POLYPHONY];
 
 int inChanNumb, outChanNumb, on;
-float **bufferout,**bufferin;
-float polyCoef = 1.0f/POLYMAX;
+int delta = 0;
 
 void initFaust(){
-	DSP = new mydsp();
-	mapUI = new MapUI();
-	DSP->init(SR);
-	inChanNumb = DSP->getNumInputs();
-	outChanNumb = DSP->getNumOutputs();
-
-	// Only the JSON interface is built
-	DSP->buildUserInterface(mapUI);
-
-	// allocating memory for output channel
-	bufferout = new float *[outChanNumb];
-	bufferout[0] = new float [VECSAMPS];
-	if(outChanNumb == 2) bufferout[1] = new float [VECSAMPS];
-
-	// allocating memory for input channel
-	if(inChanNumb == 1){
-		bufferin = new float *[1];
-		bufferin[0] = new float [VECSAMPS];
+	for(int i=0; i<POLYPHONY; i++){
+		DSP[i] = new mydsp();
+		mapUI[i] = new MapUI();
+		DSP[i]->init(SR);
+		DSP[i]->buildUserInterface(mapUI[i]);
 	}
-	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s", mapUI->getParamPath(0));
-}
 
-void initFaustPoly(){
-	DSPpoly = new mydsp_poly(SR,BUFFERFRAMES,POLYMAX);
-	mapUI = new MapUI();
-	inChanNumb = DSPpoly->getNumInputs();
-	outChanNumb = DSPpoly->getNumOutputs();
-
-	// allocating memory for output channel
-	bufferout = new float *[outChanNumb];
-	bufferout[0] = new float [VECSAMPS];
-	if(outChanNumb == 2) bufferout[1] = new float [VECSAMPS];
-
-	// allocating memory for input channel
-	if(inChanNumb == 1){
-		bufferin = new float *[1];
-		bufferin[0] = new float [VECSAMPS];
-	}
+	inChanNumb = DSP[0]->getNumInputs();
+	outChanNumb = DSP[0]->getNumOutputs();
 
 	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s", mapUI->getParamPath(0));
 }
@@ -1263,18 +936,28 @@ const char *getJSON(){
 }
 
 int getParamsCount(){
-	return mapUI->getParamsCount();
+	return mapUI[0]->getParamsCount();
 }
 
 void *processDSP(void *threadID){
 	float out[VECSAMPS*2];
+
+	float **bufferout,**bufferin;
+	bufferout = new float *[outChanNumb];
+	bufferout[0] = new float [VECSAMPS];
+	if(outChanNumb == 2) bufferout[1] = new float [VECSAMPS];
+
+	if(inChanNumb == 1){
+		bufferin = new float *[1];
+		bufferin[0] = new float [VECSAMPS];
+	}
 
 	while(on){
 		// getting input signal
 		if(inChanNumb>=1) android_AudioIn(p,bufferin[0],VECSAMPS);
 
 		// computing...
-		DSP->compute(VECSAMPS,bufferin,bufferout);
+		DSP[delta]->compute(VECSAMPS,bufferin,bufferout);
 
 		// sending output signal
 		if(outChanNumb == 1) android_AudioOut(p,bufferout[0],VECSAMPS);
@@ -1287,73 +970,40 @@ void *processDSP(void *threadID){
 			android_AudioOut(p,out,VECSAMPS*2);
 		}
 	}
-	pthread_join(audioThread, 0);
-}
-
-void *processDSPpoly(void *threadID){
-	float out[VECSAMPS*2];
-
-	while(on){
-		// getting input signal
-		if(inChanNumb>=1) android_AudioIn(p,bufferin[0],VECSAMPS);
-
-		// computing...
-		DSPpoly->compute(VECSAMPS,bufferin,bufferout);
-
-		// sending output signal
-		if(outChanNumb == 1) android_AudioOut(p,bufferout[0],VECSAMPS);
-		else{
-			int i,j;
-			for(i = 0, j=0; i < VECSAMPS; i++, j+=2){
-				out[j] = bufferout[0][i]*polyCoef;
-				out[j+1] = bufferout[1][i]*polyCoef;
-			}
-			android_AudioOut(p,out,VECSAMPS*2);
-		}
-	}
-	pthread_join(audioThread, 0);
-}
-
-void startAudio(){
-	on = 1;
-	p = android_OpenAudioDevice(SR,inChanNumb,outChanNumb,BUFFERFRAMES);
-	pthread_create(&audioThread, NULL, processDSP, NULL);
-}
-
-void startAudioPoly(){
-	on = 1;
-	p = android_OpenAudioDevice(SR,inChanNumb,outChanNumb,BUFFERFRAMES);
-	pthread_create(&audioThread, NULL, processDSPpoly, NULL);
-}
-
-void stopAudio(){
-	on = 0;
-	android_CloseAudioDevice(p);
+	pthread_join(audioThread[delta], 0);
 	delete [] bufferin;
 	delete [] *bufferout;
 	delete [] bufferout;
 }
 
-void keyOn(int pitch, int velocity){
-	DSPpoly->keyOn(0,pitch,velocity);
+void startAudio(){
+	on = 1;
+	p = android_OpenAudioDevice(SR,inChanNumb,outChanNumb,BUFFERFRAMES);
+	pthread_create(&audioThread[0], NULL, processDSP, NULL);
+	//delta++;
+	//pthread_create(&audioThread[1], NULL, processDSP, NULL);
 }
 
-void keyOff(int pitch){
-	DSPpoly->keyOff(0,pitch);
+void stopAudio(){
+	on = 0;
+	android_CloseAudioDevice(p);
 }
 
 float getParam(const char* address){
-	return mapUI->getValue(address);
+	return mapUI[0]->getValue(address);
 }
 
 void setParam(const char* address, float value){
-	mapUI->setValue(address, value);
-}
-
-void setParamPoly(const char* address, float value){
-	DSPpoly->setValue(address, value);
+	for(int i=0; i<POLYPHONY; i++){
+		mapUI[i]->setValue(address, value);
+	}
+	mapUI[1]->setValue("/0x00/Carrier/Frequency", 440);
 }
 
 const char *getParamPath(int index){
-	return strdup(mapUI->getParamPath(index).c_str());
+	return strdup(mapUI[0]->getParamPath(index).c_str());
+}
+
+void noteOn(){
+
 }

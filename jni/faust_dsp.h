@@ -18,11 +18,16 @@
  ************************************************************************/
 
 void initFaust(void);
+void initFaustPoly(void);
 const char *getJSON(void);
 int getParamsCount(void);
 void startAudio(void);
+void startAudioPoly(void);
+void keyOn(int, int);
+void keyOff(int);
 float getParam(const char*);
 void setParam(const char*, float);
+void setParamPoly(const char*, float);
 void stopAudio(void);
 const char *getParamPath(int);
 

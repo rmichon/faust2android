@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
-public class Faust extends Activity {
+public class FaustActivity extends Activity {
 	int accelUpdateRate = 30; //in ms
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
