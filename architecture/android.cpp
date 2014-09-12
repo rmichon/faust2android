@@ -206,6 +206,10 @@ void setParam(const char* address, float value){
 	mapUI->setValue(address, value);
 }
 
+void setParamPoly(const char* address, float value){
+	DSPpoly->setValue(address, value);
+}
+
 const char *getParamPath(int index){
 	return strdup(mapUI->getParamPath(index).c_str());
 }
