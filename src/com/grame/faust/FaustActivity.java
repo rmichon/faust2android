@@ -102,6 +102,7 @@ public class FaustActivity extends Activity {
 							runOnUiThread(new Runnable() {
 		        	        	@Override 
 		        	        	public void run() {
+		        	        		setPriority(Thread.MAX_PRIORITY);
 		        	        		if(parametersInfo.parameterType[index] == 0) 
 		        	        			ui.hsliders[parametersInfo.localId[index]].setNormizedValue(finalParamValue);
 		        	        		else if(parametersInfo.parameterType[index] == 1) 
@@ -124,7 +125,8 @@ public class FaustActivity extends Activity {
 		};
 		accelThread.start();
     }
-        
+    
+    
     private final SensorEventListener mSensorListener = new SensorEventListener() {
 		public void onSensorChanged(SensorEvent se) {
 			rawAccel[0] = se.values[0];

@@ -57,10 +57,12 @@ class PushButton{
 	            int y = (int)event.getRawY();
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
                 	parametersInfo.values[id] = 1.f;
+                	faust_dsp.setParam(address, parametersInfo.values[id]);
                 } else if (event.getAction() == MotionEvent.ACTION_UP || !inViewBounds(v, x, y)) {
                 	parametersInfo.values[id] = 0.f;
+                	faust_dsp.setParam(address, parametersInfo.values[id]);
                 }
-                faust_dsp.setParam(address, parametersInfo.values[id]);
+                //faust_dsp.setParam(address, parametersInfo.values[id]);
 	          	return true;
             }
         });

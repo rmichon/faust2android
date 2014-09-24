@@ -143,7 +143,6 @@ void *processDSP(void *threadID){
 			android_AudioOut(p,out,VECSAMPS*2);
 		}
 	}
-	pthread_join(audioThread, 0);
 }
 
 void *processDSPpoly(void *threadID){
@@ -167,7 +166,6 @@ void *processDSPpoly(void *threadID){
 			android_AudioOut(p,out,VECSAMPS*2);
 		}
 	}
-	pthread_join(audioThread, 0);
 }
 
 void startAudio(){
@@ -184,6 +182,7 @@ void startAudioPoly(){
 
 void stopAudio(){
 	on = 0;
+	pthread_join(audioThread, 0);
 	android_CloseAudioDevice(p);
 	delete [] bufferin;
 	delete [] *bufferout;
