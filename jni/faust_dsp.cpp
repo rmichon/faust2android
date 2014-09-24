@@ -2,7 +2,7 @@
 // name: "Kisana"
 // author: "Yann Orlarey"
 //
-// Code generated with Faust 0.9.67 (http://faust.grame.fr)
+// Code generated with Faust 0.9.68 (http://faust.grame.fr)
 //-----------------------------------------------------
 /* link with  */
 #include <math.h>
@@ -12,13 +12,13 @@
  Copyright (C) 2013 GRAME, Romain Michon, CCRMA - Stanford University
  Copyright (C) 2003-2013 GRAME, Centre National de Creation Musicale
  ---------------------------------------------------------------------
-
+ 
  This is sample code. This file is provided as an example of minimal
  FAUST architecture file. Redistribution and use in source and binary
  forms, with or without modification, in part or in full are permitted.
  In particular you can create a derived work of this FAUST architecture
  and distribute that work under terms of your choice.
-
+ 
  This sample code is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -44,7 +44,7 @@
 
  ************************************************************************
  ************************************************************************/
-
+ 
 #ifndef __misc__
 #define __misc__
 
@@ -73,7 +73,7 @@
 
  ************************************************************************
  ************************************************************************/
-
+ 
 #ifndef __meta__
 #define __meta__
 
@@ -205,7 +205,7 @@ class UI
 
  ************************************************************************
  ************************************************************************/
-
+ 
 /******************************************************************************
 *******************************************************************************
 
@@ -287,7 +287,7 @@ namespace httpdfaust
 {
 
 template <typename C> class jsonui;
-
+ 
 class jsonfaustui : public UI, public Meta
 {
 	jsonui<FAUSTFLOAT>* fJSON;
@@ -358,12 +358,12 @@ class PathUI : public UI
 {
 
     protected:
-
+    
         std::vector<std::string> fControlsLevel;
-
+       
     public:
-
-        std::string buildPath(const std::string& label)
+    
+        std::string buildPath(const std::string& label) 
         {
             std::string res = "/";
             for (size_t i = 0; i < fControlsLevel.size(); i++) {
@@ -374,7 +374,7 @@ class PathUI : public UI
             replace(res.begin(), res.end(), ' ', '_');
             return res;
         }
-
+    
 };
 
 #endif
@@ -394,19 +394,19 @@ class JSONUI : public PathUI, public Meta
 {
 
     protected:
-
+    
         std::stringstream fJSON;
         std::stringstream fUI;
         std::stringstream fMeta;
         std::vector<std::pair <std::string, std::string> > fMetaAux;
         std::string fName;
-
+    
         char fCloseUIPar;
         char fCloseMetaPar;
         int fTab;
-
+    
         int fInputs, fOutputs;
-
+         
         void tab(int n, std::ostream& fout)
         {
             fout << '\n';
@@ -414,7 +414,7 @@ class JSONUI : public PathUI, public Meta
                 fout << '\t';
             }
         }
-
+    
         void addMeta(int tab_val, bool quote = true)
         {
             if (fMetaAux.size() > 0) {
@@ -429,7 +429,7 @@ class JSONUI : public PathUI, public Meta
                 fMetaAux.clear();
             }
         }
-
+      
      public:
 
         JSONUI(int inputs, int outputs):fTab(1)
@@ -437,12 +437,12 @@ class JSONUI : public PathUI, public Meta
             // Start Meta generation
             tab(fTab, fMeta); fMeta << "\"meta\": [";
             fCloseMetaPar = ' ';
-
+            
             // Start UI generation
             tab(fTab, fUI); fUI << "\"ui\": [";
             fCloseUIPar = ' ';
             fTab += 1;
-
+            
             fName = "";
             fInputs = inputs;
             fOutputs = outputs;
@@ -451,7 +451,7 @@ class JSONUI : public PathUI, public Meta
         virtual ~JSONUI() {}
 
         // -- widget's layouts
-
+    
         virtual void openGenericGroup(const char* label, const char* name)
         {
             fControlsLevel.push_back(label);
@@ -469,17 +469,17 @@ class JSONUI : public PathUI, public Meta
         {
             openGenericGroup(label, "tgroup");
         }
-
+    
         virtual void openHorizontalBox(const char* label)
         {
             openGenericGroup(label, "hgroup");
         }
-
+    
         virtual void openVerticalBox(const char* label)
         {
             openGenericGroup(label, "vgroup");
         }
-
+    
         virtual void closeBox()
         {
             fControlsLevel.pop_back();
@@ -489,9 +489,9 @@ class JSONUI : public PathUI, public Meta
             tab(fTab, fUI); fUI << "}";
             fCloseUIPar = ',';
         }
-
+    
         // -- active widgets
-
+    
         virtual void addGenericButton(const char* label, const char* name)
         {
             fUI << fCloseUIPar;
@@ -508,7 +508,7 @@ class JSONUI : public PathUI, public Meta
         {
             addGenericButton(label, "button");
         }
-
+    
         virtual void addCheckButton(const char* label, FAUSTFLOAT* zone)
         {
             addGenericButton(label, "checkbox");
@@ -529,25 +529,25 @@ class JSONUI : public PathUI, public Meta
             tab(fTab, fUI); fUI << "}";
             fCloseUIPar = ',';
         }
-
+    
         virtual void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
         {
             addGenericEntry(label, "vslider", init, min, max, step);
         }
-
+    
         virtual void addHorizontalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
         {
             addGenericEntry(label, "hslider", init, min, max, step);
         }
-
+    
         virtual void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
         {
             addGenericEntry(label, "nentry", init, min, max, step);
         }
 
         // -- passive widgets
-
-        virtual void addGenericBargraph(const char* label, const char* name, FAUSTFLOAT min, FAUSTFLOAT max)
+    
+        virtual void addGenericBargraph(const char* label, const char* name, FAUSTFLOAT min, FAUSTFLOAT max) 
         {
             fUI << fCloseUIPar;
             tab(fTab, fUI); fUI << "{";
@@ -561,11 +561,11 @@ class JSONUI : public PathUI, public Meta
             fCloseUIPar = ',';
         }
 
-        virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
+        virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max) 
         {
             addGenericBargraph(label, "hbargraph", min, max);
         }
-
+    
         virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
         {
             addGenericBargraph(label, "vbargraph", min, max);
@@ -577,7 +577,7 @@ class JSONUI : public PathUI, public Meta
         {
             fMetaAux.push_back(std::make_pair(key, val));
         }
-
+    
         // Meta interface
         virtual void declare(const char* key, const char* value)
         {
@@ -586,11 +586,11 @@ class JSONUI : public PathUI, public Meta
             tab(fTab, fMeta); fMeta << "{ " << "\"" << key << "\"" << ":" << "\"" << value << "\" }";
             fCloseMetaPar = ',';
         }
-
+    
         inline std::string flatten(const std::string& src)
         {
             std::stringstream dst;
-            for (int i = 0; i < src.size(); i++) {
+            for (size_t i = 0; i < src.size(); i++) {
                 switch (src[i]) {
                     case '\n':
                     case '\t':
@@ -606,7 +606,7 @@ class JSONUI : public PathUI, public Meta
             }
             return dst.str();
         }
-
+    
         std::string JSON(bool flat = false)
         {
             fTab = 0;
@@ -628,7 +628,7 @@ class JSONUI : public PathUI, public Meta
             tab(fTab, fJSON); fJSON << "}" << std::endl;
             return (flat) ? flatten(fJSON.str()) : fJSON.str();
         }
-
+    
 };
 
 #endif
@@ -650,16 +650,16 @@ class JSONUI : public PathUI, public Meta
 
 class MapUI : public PathUI
 {
-
+    
     protected:
-
+        
         std::map<std::string, FAUSTFLOAT*> fZoneMap;
-
+           
     public:
-
+        
         MapUI() {};
         virtual ~MapUI() {};
-
+        
         // -- widget's layouts
         void openTabBox(const char* label)
         {
@@ -677,13 +677,13 @@ class MapUI : public PathUI
         {
             fControlsLevel.pop_back();
         };
-
+        
         // -- active widgets
         void insertMap(std::string label, FAUSTFLOAT* zone)
         {
             fZoneMap[label] = zone;
         }
-
+        
         void addButton(const char* label, FAUSTFLOAT* zone)
         {
             insertMap(buildPath(label), zone);
@@ -704,7 +704,7 @@ class MapUI : public PathUI
         {
             insertMap(buildPath(label), zone);
         };
-
+        
         // -- passive widgets
         void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT fmin, FAUSTFLOAT fmax)
         {
@@ -714,29 +714,29 @@ class MapUI : public PathUI
         {
             insertMap(buildPath(label), zone);
         };
-
+        
         // -- metadata declarations
         void declare(FAUSTFLOAT* zone, const char* key, const char* val)
         {};
-
+        
         // set/get
         void setValue(const std::string& path, float value)
         {
             *fZoneMap[path] = value;
         }
-
+        
         float getValue(const std::string& path)
         {
             return *fZoneMap[path];
         }
-
-        // map access
+    
+        // map access 
         std::map<std::string, FAUSTFLOAT*>& getMap() { return fZoneMap; }
-
+        
         int getParamsCount() { return fZoneMap.size(); }
-
-        std::string getParamPath(int index)
-        {
+        
+        std::string getParamPath(int index) 
+        { 
             std::map<std::string, FAUSTFLOAT*>::iterator it = fZoneMap.begin();
             while (index-- > 0 && it++ != fZoneMap.end()) {}
             return (*it).first;
@@ -752,11 +752,11 @@ class MapUI : public PathUI
 
 #ifndef FAUSTFLOAT
 #define FAUSTFLOAT float
-#endif
+#endif  
 
 typedef long double quad;
 
-#ifndef FAUSTCLASS
+#ifndef FAUSTCLASS 
 #define FAUSTCLASS mydsp
 #endif
 
@@ -939,7 +939,7 @@ class mydsp : public dsp {
 	float 	fRec72[3];
 	FAUSTFLOAT 	fslider5;
   public:
-	static void metadata(Meta* m) 	{
+	static void metadata(Meta* m) 	{ 
 		m->declare("name", "Kisana");
 		m->declare("author", "Yann Orlarey");
 		m->declare("music.lib/name", "Music Library");
@@ -1507,36 +1507,37 @@ class mydsp : public dsp {
  and/or modify it under the terms of the GNU General Public License
  as published by the Free Software Foundation; either version 3 of
  the License, or (at your option) any later version.
-
+ 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
-
+ 
  You should have received a copy of the GNU General Public License
  along with this program; If not, see <http://www.gnu.org/licenses/>.
-
+ 
  EXCEPTION : As a special exception, you may create a larger work
  that contains this FAUST architecture section and distribute
  that work under terms of your choice, so long as this FAUST
  architecture section is not modified.
-
-
+ 
+ 
  ************************************************************************
  ************************************************************************/
 
 #ifndef __poly_dsp__
 #define __poly_dsp__
 
+#include <stdio.h>
 #include <string>
 #include <math.h>
 
 
 struct mydsp_voice : public MapUI {
-
+    
     mydsp fVoice;
     int fNote;
-
+    
     mydsp_voice(int sample_rate)
     {
         fVoice.init(sample_rate);
@@ -1548,19 +1549,19 @@ struct mydsp_voice : public MapUI {
 struct mydsp_poly
 {
     std::string fJSON;
-
+    
     mydsp_voice** fVoiceTable;
-
+    
     std::string fGateLabel;
     std::string fGainLabel;
     std::string fFreqLabel;
-
+    
     int fMaxPolyphony;
-
+    
     FAUSTFLOAT** fNoteOutputs;
     int fNumOutputs;
-
-    inline void mixVoice(int count, FAUSTFLOAT** outputBuffer, FAUSTFLOAT** mixBuffer)
+    
+    inline void mixVoice(int count, FAUSTFLOAT** outputBuffer, FAUSTFLOAT** mixBuffer) 
     {
         for (int i = 0; i < fNumOutputs; i++) {
             float* mixChannel = mixBuffer[i];
@@ -1570,19 +1571,19 @@ struct mydsp_poly
             }
         }
     }
-
-    inline float midiToFreq(int note)
+    
+    inline float midiToFreq(int note) 
     {
         return 440.0f * powf(2.0f, ((float(note))-69.0f)/12.0f);
     }
-
-    inline void clearOutput(int count, FAUSTFLOAT** mixBuffer)
+    
+    inline void clearOutput(int count, FAUSTFLOAT** mixBuffer) 
     {
         for (int i = 0; i < fNumOutputs; i++) {
             memset(mixBuffer[i], 0, count * sizeof(FAUSTFLOAT));
         }
     }
-
+    
     inline int getVoice(int note)
     {
         for (int i = 0; i < fMaxPolyphony; i++) {
@@ -1590,33 +1591,33 @@ struct mydsp_poly
         }
         return -1;
     }
-
+    
     mydsp_poly(int sample_rate, int buffer_size, int max_polyphony)
     {
         fMaxPolyphony = max_polyphony;
         fVoiceTable = new mydsp_voice*[max_polyphony];
-
-        // Init it with supplied sample_rate
+        
+        // Init it with supplied sample_rate 
         for (int i = 0; i < fMaxPolyphony; i++) {
             fVoiceTable[i] = new mydsp_voice(sample_rate);
         }
-
+        
         // Init audio output buffers
         fNumOutputs = fVoiceTable[0]->fVoice.getNumOutputs();
         fNoteOutputs = new FAUSTFLOAT*[fNumOutputs];
         for (int i = 0; i < fNumOutputs; i++) {
             fNoteOutputs[i] = new FAUSTFLOAT[buffer_size];
         }
-
+        
         // Creates JSON
         JSONUI builder(fVoiceTable[0]->fVoice.getNumInputs(), fVoiceTable[0]->fVoice.getNumOutputs());
         mydsp::metadata(&builder);
         fVoiceTable[0]->fVoice.buildUserInterface(&builder);
         fJSON = builder.JSON();
-
+        
         // Keep gain, freq and gate labels
         std::map<std::string, FAUSTFLOAT*>::iterator it;
-
+        
         for (it = fVoiceTable[0]->getMap().begin(); it != fVoiceTable[0]->getMap().end(); it++) {
             std::string label = (*it).first;
             if (label.find("gate") != std::string::npos) {
@@ -1628,42 +1629,42 @@ struct mydsp_poly
             }
         }
     }
-
+    
     virtual ~mydsp_poly()
     {
         for (int i = 0; i < fNumOutputs; i++) {
             delete[] fNoteOutputs[i];
         }
         delete[] fNoteOutputs;
-
+        
         for (int i = 0; i < fMaxPolyphony; i++) {
             delete fVoiceTable[i];
         }
         delete [] fVoiceTable;
     }
-
-    void compute(int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs)
+    
+    void compute(int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) 
     {
         // First clear the outputs
         clearOutput(count, outputs);
-
+          
         // Then mix all voices
         for (int i = 0; i < fMaxPolyphony; i++) {
             fVoiceTable[i]->fVoice.compute(count, inputs, fNoteOutputs);
             mixVoice(count, fNoteOutputs, outputs);
         }
     }
-
+    
     int getNumInputs()
     {
         return fVoiceTable[0]->fVoice.getNumInputs();
     }
-
+    
     int getNumOutputs()
     {
         return fVoiceTable[0]->fVoice.getNumOutputs();
     }
-
+    
     void keyOn(int channel, int pitch, int velocity)
     {
         int voice = getVoice(-1);  // Gets a free voice
@@ -1677,7 +1678,7 @@ struct mydsp_poly
             printf("No more free voice...\n");
         }
     }
-
+    
     void keyOff(int channel, int pitch)
     {
         int voice = getVoice(pitch);
@@ -1689,41 +1690,41 @@ struct mydsp_poly
             printf("Playing voice not found...\n");
         }
     }
-
+    
     void ctrlChange(int channel, int ctrl, int value)
     {}
-
+    
     void pitchWheel(int channel, int pitchWheel)
     {}
-
+    
     const char* getJSON()
     {
         return fJSON.c_str();
     }
-
+    
     void setValue(const char* path, float value)
     {
         for (int i = 0; i < fMaxPolyphony; i++) {
             fVoiceTable[i]->setValue(path, value);
         }
     }
-
+    
     float getValue(const char* path)
     {
         return fVoiceTable[0]->getValue(path);
     }
-
+    
 };
-
+   
 extern "C" {
-
+    
     // C like API
-    mydsp_poly* mydsp_poly_constructor(int sample_rate, int buffer_size, int max_polyphony)
+    mydsp_poly* mydsp_poly_constructor(int sample_rate, int buffer_size, int max_polyphony) 
     {
          return new mydsp_poly(sample_rate, buffer_size, max_polyphony);
     }
 
-    void mydsp_poly_destructor(mydsp_poly* n)
+    void mydsp_poly_destructor(mydsp_poly* n) 
     {
         delete n;
     }
@@ -1732,8 +1733,8 @@ extern "C" {
     {
         return n->getJSON();
     }
-
-    void mydsp_poly_compute(mydsp_poly* n, int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs)
+  
+    void mydsp_poly_compute(mydsp_poly* n, int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) 
     {
         n->compute(count, inputs, outputs);
     }
@@ -1757,17 +1758,17 @@ extern "C" {
     {
         n->keyOff(channel, pitch);
     }
-
+    
     void mydsp_poly_ctrlChange(mydsp_poly* n, int channel, int ctrl, int value)
     {
         n->ctrlChange(channel, ctrl, value);
     }
-
+    
     void mydsp_poly_pitchWheel(mydsp_poly* n, int channel, int pitchWheel)
     {
         n->pitchWheel(channel, pitchWheel);
     }
-
+    
     void mydsp_poly_setValue(mydsp_poly* n, const char* path, float value)
     {
         n->setValue(path, value);
@@ -1777,7 +1778,7 @@ extern "C" {
     {
         return n->getValue(path);
     }
-
+        
 }
 
 #endif
@@ -1931,6 +1932,11 @@ void stopAudio(){
 	delete [] bufferin;
 	delete [] *bufferout;
 	delete [] bufferout;
+}
+
+bool isRunning(){
+	if(on == 1) return true;
+	else return false;
 }
 
 void keyOn(int pitch, int velocity){

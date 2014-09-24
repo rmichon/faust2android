@@ -29,5 +29,6 @@ float getParam(const char*);
 void setParam(const char*, float);
 void setParamPoly(const char*, float);
 void stopAudio(void);
+bool isRunning(void);
 const char *getParamPath(int);
 

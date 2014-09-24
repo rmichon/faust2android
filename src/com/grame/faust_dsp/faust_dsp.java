@@ -57,6 +57,10 @@ public class faust_dsp {
     faust_dspJNI.stopAudio();
   }
 
+  public static boolean isRunning() {
+    return faust_dspJNI.isRunning();
+  }
+
   public static String getParamPath(int arg0) {
     return faust_dspJNI.getParamPath(arg0);
   }

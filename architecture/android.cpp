@@ -189,6 +189,11 @@ void stopAudio(){
 	delete [] bufferout;
 }
 
+bool isRunning(){
+	if(on == 1) return true;
+	else return false;
+}
+
 void keyOn(int pitch, int velocity){
 	DSPpoly->keyOn(0,pitch,velocity);
 }

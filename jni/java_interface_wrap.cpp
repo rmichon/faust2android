@@ -352,6 +352,18 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_stopAudio(JNIEnv
 }
 
 
+SWIGEXPORT jboolean JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_isRunning(JNIEnv *jenv, jclass jcls) {
+  jboolean jresult = 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (bool)isRunning();
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamPath(JNIEnv *jenv, jclass jcls, jint jarg1) {
   jstring jresult = 0 ;
   int arg1 ;

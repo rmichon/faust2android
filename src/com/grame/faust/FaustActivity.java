@@ -21,7 +21,8 @@ public class FaustActivity extends Activity {
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
 	
-	Thread displayThread, accelThread;
+	//Thread displayThread, accelThread;
+	Thread accelThread;
 	boolean on = true; // process on/off
 	
 	UI ui = new UI(); 
@@ -32,7 +33,7 @@ public class FaustActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        faust_dsp.initFaust();
+        if(!faust_dsp.isRunning()) faust_dsp.initFaust();
         
         final int numberOfParameters = faust_dsp.getParamsCount();
         
@@ -53,8 +54,9 @@ public class FaustActivity extends Activity {
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
         		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
         
-        faust_dsp.startAudio();
+        if(!faust_dsp.isRunning()) faust_dsp.startAudio();
         
+        /*
         final int displayThreadUpdateRate = 30;
         displayThread = new Thread() {
         	public void run() {
@@ -73,6 +75,7 @@ public class FaustActivity extends Activity {
         	}
         };
         displayThread.start();
+        */
 		
         // System.out.println("Voila: ");
 		accelThread = new Thread() {
@@ -187,14 +190,15 @@ public class FaustActivity extends Activity {
     public void onDestroy(){
     	super.onDestroy();
     	on = false;
-    	faust_dsp.stopAudio();
+    	// only stops audio when the user press the return button (and not when the screen is rotated)
+    	if(!isChangingConfigurations()) faust_dsp.stopAudio();
     	try {
-			displayThread.join();
+			//displayThread.join();
 			accelThread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-    	displayThread = null;
+    	//displayThread = null;
     	accelThread = null;
     }
 }

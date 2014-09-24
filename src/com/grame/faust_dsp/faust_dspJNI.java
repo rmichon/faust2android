@@ -31,5 +31,6 @@ public class faust_dspJNI {
   public final static native void setParam(String jarg1, float jarg2);
   public final static native void setParamPoly(String jarg1, float jarg2);
   public final static native void stopAudio();
+  public final static native boolean isRunning();
   public final static native String getParamPath(int jarg1);
 }
