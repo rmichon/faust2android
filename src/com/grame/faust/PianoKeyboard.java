@@ -77,6 +77,7 @@ class PianoKeyboard extends ViewGroup{
 				public boolean onTouch(final View view, final MotionEvent event){
 					int x = (int)event.getRawX();
 		            int y = (int)event.getRawY();
+		            /*
 		            if(ID>0 && inViewBounds(keys[ID-1], x, y)){
 		            		on = 0;
 		            		keys[ID-1].dispatchTouchEvent(event);
@@ -94,7 +95,8 @@ class PianoKeyboard extends ViewGroup{
 								mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
 							}
 		            }
-		            else{
+		            */
+		            //else{
 		            	if(ID<numberOfKeys){ 
 		            		keys[ID+1].setKeyUp();
 		            		if (mOnKeyboardChangeListener != null) {
@@ -107,12 +109,12 @@ class PianoKeyboard extends ViewGroup{
 								mOnKeyboardChangeListener.onKeyChanged(ID-1+baseNote,false);
 							}
 		            	}
-		            /*
-					if (mOnKeyboardChangeListener != null) {
-						mOnKeyboardChangeListener.onPressureChanged(event.getPressure());
-						if(event.getX() < 150 && event.getX() >= 0) mOnKeyboardChangeListener.onXChanged(event.getX());
-					}
-					*/
+		            
+					//if (mOnKeyboardChangeListener != null) {
+					//	mOnKeyboardChangeListener.onPressureChanged(event.getPressure());
+					//	if(event.getX() < 150 && event.getX() >= 0) mOnKeyboardChangeListener.onXChanged(event.getX());
+					//}
+					
 		            	if(event.getAction() == MotionEvent.ACTION_UP){
 		            		on = 0;
 		            		keys[ID].setKeyUp();
@@ -127,7 +129,7 @@ class PianoKeyboard extends ViewGroup{
 		            			mOnKeyboardChangeListener.onKeyChanged(ID+baseNote, true);
 		            		}
 		            	}
-		            }
+		            //}
 					return true;
 				}
 			});

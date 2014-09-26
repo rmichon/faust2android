@@ -30,6 +30,7 @@ ECLIPSE=0
 ECLIPSEC=0
 SWIG=0
 FAUST=0
+KEYBOARD=0
 
 #LOG="/dev/null"
 LOG="log"
@@ -49,6 +50,8 @@ for p in $@; do
 		FAUST=1
 	elif [ $p = "-eclipsec" ]; then
 		ECLIPSEC=1
+	elif [ $p = "-keyboard" ]; then
+		KEYBOARD=1
 	elif [ $p = "-debug" ]; then
 		LOG="/dev/stdout"
 	elif [ $p = "-h" ]; then
@@ -131,6 +134,12 @@ cd $TMPFILES
 
 #TODO: we should use a loop for that...
 
+MAINCLASSNAME="FaustActivity"
+if [ $KEYBOARD -eq 1 ]; then
+	MAINCLASSNAME="PianoActivity"
+	sed -i 's/com.grame.faust.FaustActivity/com.grame.faust.PianoActivity/g' AndroidManifest.xml
+fi
+
 sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/AccelUtil.java > src/com/grame/faust/AccelUtil_tmp.java 
 mv src/com/grame/faust/AccelUtil_tmp.java src/com/grame/faust/AccelUtil.java 
 sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/BarGraph.java > src/com/grame/faust/BarGraph_tmp.java 
@@ -201,12 +210,12 @@ android update project --target 1 --path . > $LOG
 
 ant release > $LOG
 
-jarsigner -storepass mephisto -sigalg MD5withRSA -digestalg SHA1 -keystore tools/faust2android.keystore bin/FaustActivity-release-unsigned.apk faust2an
+jarsigner -storepass mephisto -sigalg MD5withRSA -digestalg SHA1 -keystore tools/faust2android.keystore bin/$MAINCLASSNAME-release-unsigned.apk faust2an
 
 # Check the alignment of the compressed file
-zipalign -v 4 bin/FaustActivity-release-unsigned.apk bin/FaustActivity-release.apk > $LOG
+zipalign -v 4 bin/$MAINCLASSNAME-release-unsigned.apk bin/$MAINCLASSNAME-release.apk > $LOG
 
-cp -r bin/FaustActivity-release.apk ../$APPNAME.apk
+cp -r bin/$MAINCLASSNAME-release.apk ../$APPNAME.apk
 
 cd ..
 
