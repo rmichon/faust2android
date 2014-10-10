@@ -10,7 +10,6 @@ LOCAL_CPPFLAGS :=$(LOCAL_CFLAGS)
 ###
 
 LOCAL_SRC_FILES := faust_dsp.cpp \
-opensl_io.c \
 java_interface_wrap.cpp 
 
 LOCAL_LDLIBS := -llog -lOpenSLES

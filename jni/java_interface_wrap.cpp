@@ -218,17 +218,29 @@ static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionC
 extern "C" {
 #endif
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_initFaust(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_init(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2) {
+  int arg1 ;
+  int arg2 ;
+  
   (void)jenv;
   (void)jcls;
-  initFaust();
+  arg1 = (int)jarg1; 
+  arg2 = (int)jarg2; 
+  init(arg1,arg2);
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_initFaustPoly(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_initPoly(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jint jarg3) {
+  int arg1 ;
+  int arg2 ;
+  int arg3 ;
+  
   (void)jenv;
   (void)jcls;
-  initFaustPoly();
+  arg1 = (int)jarg1; 
+  arg2 = (int)jarg2; 
+  arg3 = (int)jarg3; 
+  initPoly(arg1,arg2,arg3);
 }
 
 
@@ -256,39 +268,52 @@ SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamsCount(J
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_startAudio(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_start(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  int result;
+  
   (void)jenv;
   (void)jcls;
-  startAudio();
+  result = (int)start();
+  jresult = (jint)result; 
+  return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_startAudioPoly(JNIEnv *jenv, jclass jcls) {
+SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_stop(JNIEnv *jenv, jclass jcls) {
   (void)jenv;
   (void)jcls;
-  startAudioPoly();
+  stop();
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_keyOn(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2) {
+SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_keyOn(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2) {
+  jint jresult = 0 ;
   int arg1 ;
   int arg2 ;
+  int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = (int)jarg1; 
   arg2 = (int)jarg2; 
-  keyOn(arg1,arg2);
+  result = (int)keyOn(arg1,arg2);
+  jresult = (jint)result; 
+  return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_keyOff(JNIEnv *jenv, jclass jcls, jint jarg1) {
+SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_keyOff(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  jint jresult = 0 ;
   int arg1 ;
+  int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = (int)jarg1; 
-  keyOff(arg1);
+  result = (int)keyOff(arg1);
+  jresult = (jint)result; 
+  return jresult;
 }
 
 
@@ -328,30 +353,6 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_setParam(JNIEnv 
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_setParamPoly(JNIEnv *jenv, jclass jcls, jstring jarg1, jfloat jarg2) {
-  char *arg1 = (char *) 0 ;
-  float arg2 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = 0;
-  if (jarg1) {
-    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
-    if (!arg1) return ;
-  }
-  arg2 = (float)jarg2; 
-  setParamPoly((char const *)arg1,arg2);
-  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
-}
-
-
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_stopAudio(JNIEnv *jenv, jclass jcls) {
-  (void)jenv;
-  (void)jcls;
-  stopAudio();
-}
-
-
 SWIGEXPORT jboolean JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_isRunning(JNIEnv *jenv, jclass jcls) {
   jboolean jresult = 0 ;
   bool result;
@@ -364,7 +365,7 @@ SWIGEXPORT jboolean JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_isRunning(JN
 }
 
 
-SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamPath(JNIEnv *jenv, jclass jcls, jint jarg1) {
+SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamAddress(JNIEnv *jenv, jclass jcls, jint jarg1) {
   jstring jresult = 0 ;
   int arg1 ;
   char *result = 0 ;
@@ -372,7 +373,7 @@ SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamPath(
   (void)jenv;
   (void)jcls;
   arg1 = (int)jarg1; 
-  result = (char *)getParamPath(arg1);
+  result = (char *)getParamAddress(arg1);
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }

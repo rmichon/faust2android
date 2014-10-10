@@ -9,12 +9,12 @@
 package com.grame.faust_dsp;
 
 public class faust_dsp {
-  public static void initFaust() {
-    faust_dspJNI.initFaust();
+  public static void init(int arg0, int arg1) {
+    faust_dspJNI.init(arg0, arg1);
   }
 
-  public static void initFaustPoly() {
-    faust_dspJNI.initFaustPoly();
+  public static void initPoly(int arg0, int arg1, int arg2) {
+    faust_dspJNI.initPoly(arg0, arg1, arg2);
   }
 
   public static String getJSON() {
@@ -25,20 +25,20 @@ public class faust_dsp {
     return faust_dspJNI.getParamsCount();
   }
 
-  public static void startAudio() {
-    faust_dspJNI.startAudio();
+  public static int start() {
+    return faust_dspJNI.start();
   }
 
-  public static void startAudioPoly() {
-    faust_dspJNI.startAudioPoly();
+  public static void stop() {
+    faust_dspJNI.stop();
   }
 
-  public static void keyOn(int arg0, int arg1) {
-    faust_dspJNI.keyOn(arg0, arg1);
+  public static int keyOn(int arg0, int arg1) {
+    return faust_dspJNI.keyOn(arg0, arg1);
   }
 
-  public static void keyOff(int arg0) {
-    faust_dspJNI.keyOff(arg0);
+  public static int keyOff(int arg0) {
+    return faust_dspJNI.keyOff(arg0);
   }
 
   public static float getParam(String arg0) {
@@ -49,20 +49,12 @@ public class faust_dsp {
     faust_dspJNI.setParam(arg0, arg1);
   }
 
-  public static void setParamPoly(String arg0, float arg1) {
-    faust_dspJNI.setParamPoly(arg0, arg1);
-  }
-
-  public static void stopAudio() {
-    faust_dspJNI.stopAudio();
-  }
-
   public static boolean isRunning() {
     return faust_dspJNI.isRunning();
   }
 
-  public static String getParamPath(int arg0) {
-    return faust_dspJNI.getParamPath(arg0);
+  public static String getParamAddress(int arg0) {
+    return faust_dspJNI.getParamAddress(arg0);
   }
 
 }

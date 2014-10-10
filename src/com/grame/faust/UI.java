@@ -97,7 +97,7 @@ public class UI{
 		
 		// the addresses of each param in the tree are retrieved from the native code
 		for(int i=0; i<numberOfParameters; i++){ 
-			parametersInfo.address[i] = faust_dsp.getParamPath(i);
+			parametersInfo.address[i] = faust_dsp.getParamAddress(i);
 		}
 		
 		// the saved parameters of each UI element are retrieved

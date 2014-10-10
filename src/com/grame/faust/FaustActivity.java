@@ -48,7 +48,7 @@ public class FaustActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        if(!faust_dsp.isRunning()) faust_dsp.initFaust();
+        if(!faust_dsp.isRunning()) faust_dsp.init(44100,512);
         
         final int numberOfParameters = faust_dsp.getParamsCount();
         
@@ -69,7 +69,7 @@ public class FaustActivity extends Activity {
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
         		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
         
-        if(!faust_dsp.isRunning()) faust_dsp.startAudio();
+        if(!faust_dsp.isRunning()) faust_dsp.start();
         
         /*
         final int displayThreadUpdateRate = 30;
@@ -206,7 +206,7 @@ public class FaustActivity extends Activity {
     	super.onDestroy();
     	on = false;
     	// only stops audio when the user press the return button (and not when the screen is rotated)
-    	if(!isChangingConfigurations()) faust_dsp.stopAudio();
+    	if(!isChangingConfigurations()) faust_dsp.stop();
     	try {
 			//displayThread.join();
 			accelThread.join();

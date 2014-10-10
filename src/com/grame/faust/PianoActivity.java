@@ -11,8 +11,8 @@ public class PianoActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.piano);
-        faust_dsp.initFaustPoly();
-        faust_dsp.startAudioPoly();
+        faust_dsp.initPoly(44100,512,6);
+        faust_dsp.start();
         
         /*
         for(int i=0; i<faust_dsp.getParamsCount(); i++){
@@ -20,7 +20,7 @@ public class PianoActivity extends Activity {
         }
         */
         
-        faust_dsp.setParamPoly("/0x00/Modulator/Frequency", 440.0f);
+        faust_dsp.setParam("/0x00/Modulator/Frequency", 440.0f);
         final PianoKeyboard keyboard = (PianoKeyboard) this.findViewById(R.id.PianoKeyboard);
         keyboard.setBaseNote(72);
         keyboard.setOnKeyboardChangeListener(new OnKeyboardChangeListener(){
@@ -61,6 +61,6 @@ public class PianoActivity extends Activity {
 	@Override
 	public void onDestroy(){
     	super.onDestroy();
-    	faust_dsp.stopAudio();
+    	faust_dsp.stop();
     }
 }
