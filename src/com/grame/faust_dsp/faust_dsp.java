@@ -17,20 +17,16 @@ public class faust_dsp {
     faust_dspJNI.initPoly(arg0, arg1, arg2);
   }
 
-  public static String getJSON() {
-    return faust_dspJNI.getJSON();
-  }
-
-  public static int getParamsCount() {
-    return faust_dspJNI.getParamsCount();
-  }
-
   public static int start() {
     return faust_dspJNI.start();
   }
 
   public static void stop() {
     faust_dspJNI.stop();
+  }
+
+  public static boolean isRunning() {
+    return faust_dspJNI.isRunning();
   }
 
   public static int keyOn(int arg0, int arg1) {
@@ -41,16 +37,20 @@ public class faust_dsp {
     return faust_dspJNI.keyOff(arg0);
   }
 
+  public static String getJSON() {
+    return faust_dspJNI.getJSON();
+  }
+
+  public static int getParamsCount() {
+    return faust_dspJNI.getParamsCount();
+  }
+
   public static float getParam(String arg0) {
     return faust_dspJNI.getParam(arg0);
   }
 
   public static void setParam(String arg0, float arg1) {
     faust_dspJNI.setParam(arg0, arg1);
-  }
-
-  public static boolean isRunning() {
-    return faust_dspJNI.isRunning();
   }
 
   public static String getParamAddress(int arg0) {

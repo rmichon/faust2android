@@ -17,16 +17,95 @@
  ************************************************************************
  ************************************************************************/
 
+/*
+ * init(samplingRate, bufferFrames)
+ * Initialize a monophonic Faust object. This function should be
+ * called before using start(). If this function was used to initialize
+ * the Faust process, keyOn() and keyOff() are not available.
+ */
 void init(int, int);
+
+/*
+ * initPoly(samplingRate, bufferFrames, pMax)
+ * Initialize a polyphonic Faust object. This function should be
+ * called before using start(). pMax is the maximum number of
+ * polyphonic voices. keyOn() and keyOff() can be used
+ * to trigger a new note.
+ */
 void initPoly(int, int, int);
-const char *getJSON(void);
-int getParamsCount(void);
+
+/*
+ * start()
+ * Open the audio engine and create a new thread for the Faust
+ * process computation.
+ * The number of input channels is limited to 1 and the number of
+ * output channel to 2 to meet the requirements of most Android
+ * devices. If the Faust object has more than one input or more
+ * than two outputs, these will be computed but also discarded.
+ * start() will return 1 if the audio engine was successfully launched
+ * and 0 otherwise.
+ */
 int start(void);
+
+/*
+ * stop()
+ * Stops the audio process, closes the audio engine and frees
+ * the memory.
+ */
 void stop(void);
-int keyOn(int, int);
-int keyOff(int);
-float getParam(const char*);
-void setParam(const char*, float);
+
+/*
+ * isRunning()
+ * returns true if the DSP frames are being computed and
+ * false if not.
+ */
 bool isRunning(void);
+
+/*
+ * keyOn(pitch, velocity)
+ * Instantiate a new polyphonic voice where velocity and pitch are
+ * MIDI numbers (0-127). keyOn can only be used if initPoly was used
+ * to initialize the system.
+ */
+int keyOn(int, int);
+
+/*
+ * keyOff(pitch)
+ * Deinstantiate a polyphonic voice where pitch is the MIDI number
+ * of the note (0-127). keyOff can only be used if initPoly was used
+ * to initialize the system.
+ */
+int keyOff(int);
+
+/*
+ * getJSON()
+ * Returns a string containing a JSON description of the
+ * UI of the Faust object.
+ */
+const char *getJSON(void);
+
+/*
+ * getParamsCount()
+ * Returns the number of parameters of the Faust object.
+ */
+int getParamsCount(void);
+
+/*
+ * getParam(address)
+ * Takes the address of a parameter and returns its current
+ * value.
+ */
+float getParam(const char*);
+
+/*
+ * setParam(address,value)
+ * Set the value of the parameter associated with address.
+ */
+void setParam(const char*, float);
+
+/*
+ * getParamAddress(id)
+ * Returns the address of a parameter in function of its "id".
+ */
 const char *getParamAddress(int);
 

@@ -244,30 +244,6 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_initPoly(JNIEnv 
 }
 
 
-SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getJSON(JNIEnv *jenv, jclass jcls) {
-  jstring jresult = 0 ;
-  char *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  result = (char *)getJSON();
-  if (result) jresult = jenv->NewStringUTF((const char *)result);
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamsCount(JNIEnv *jenv, jclass jcls) {
-  jint jresult = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  result = (int)getParamsCount();
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
 SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_start(JNIEnv *jenv, jclass jcls) {
   jint jresult = 0 ;
   int result;
@@ -284,6 +260,18 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_stop(JNIEnv *jen
   (void)jenv;
   (void)jcls;
   stop();
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_isRunning(JNIEnv *jenv, jclass jcls) {
+  jboolean jresult = 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (bool)isRunning();
+  jresult = (jboolean)result; 
+  return jresult;
 }
 
 
@@ -312,6 +300,30 @@ SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_keyOff(JNIEnv *j
   (void)jcls;
   arg1 = (int)jarg1; 
   result = (int)keyOff(arg1);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getJSON(JNIEnv *jenv, jclass jcls) {
+  jstring jresult = 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (char *)getJSON();
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_getParamsCount(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (int)getParamsCount();
   jresult = (jint)result; 
   return jresult;
 }
@@ -350,18 +362,6 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_setParam(JNIEnv 
   arg2 = (float)jarg2; 
   setParam((char const *)arg1,arg2);
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_isRunning(JNIEnv *jenv, jclass jcls) {
-  jboolean jresult = 0 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  result = (bool)isRunning();
-  jresult = (jboolean)result; 
-  return jresult;
 }
 
 
