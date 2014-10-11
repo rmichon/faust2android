@@ -36,7 +36,9 @@ public class PianoActivity extends Activity {
 				if(i){
 					faust_dsp.keyOn(note,127);
 				}
-				else faust_dsp.keyOff(note);
+				else{ 
+					faust_dsp.keyOff(note);
+				}
 			}
 			
 			@Override

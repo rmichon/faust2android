@@ -3,16 +3,6 @@ package com.grame.faust;
 /*
  * TODO
  * Locker to lock accelerometers.
- * Ecreter lors de la conversion en short.
- * D'abord int
- * Min 32767, max -32768
- * Puis short
- * 
- * En fait écretage en float à -1 et 1
- * 32767
- * 
- * architecture/faust/audio/audio.h
- * create and android-dsp 
  */
 
 import com.grame.faust_dsp.faust_dsp;
