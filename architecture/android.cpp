@@ -27,6 +27,7 @@
  * API" section.
  */
 
+#include <math.h>
 #include "faust/misc.h"
 #include "faust/gui/UI.h"
 #include "faust/audio/dsp.h"
