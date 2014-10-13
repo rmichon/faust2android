@@ -18,6 +18,7 @@ class PianoKeyboard extends ViewGroup{
 	
 	private int numberOfKeys = 16;
 	private int baseNote = 60;
+	private int polyMax = 6;
 	
 	private int numberOfWhiteKeys = 0;
 	private int[] keysType = {0,3,1,3,2,0,3,1,3,1,3,2};
@@ -25,8 +26,8 @@ class PianoKeyboard extends ViewGroup{
 	private int blackKeysWidth = 0;
 	private int blackKeysHeight = 0;
 	
-	private int lastKey;
-	private int currentKey;
+	private int lastKey[];
+	private int currentKey[];
 	
 	private OnKeyboardChangeListener mOnKeyboardChangeListener;
 	
@@ -76,72 +77,8 @@ class PianoKeyboard extends ViewGroup{
 			}
 		}
 		
-		/*
-		for(int i=0; i<numberOfKeys; i++){
-			final int ID = i;
-			
-			keys[i].setOnTouchListener(new OnTouchListener() {
-				int on = 0;
-				public boolean onTouch(final View view, final MotionEvent event){
-					int x = (int)event.getRawX();
-		            int y = (int)event.getRawY();
-		            BEGIN COMMENT
-		            if(ID>0 && inViewBounds(keys[ID-1], x, y)){
-		            		on = 0;
-		            		keys[ID-1].dispatchTouchEvent(event);
-		            		keys[ID].setKeyUp();
-							if (mOnKeyboardChangeListener != null) {
-								mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
-							}
-		            }
-		            else if(ID<numberOfKeys && inViewBounds(keys[ID+1], x, y)){
-		            		//System.out.println("Voila: ");
-		            		on = 0;
-		            		keys[ID+1].dispatchTouchEvent(event);
-		            		keys[ID].setKeyUp();
-							if (mOnKeyboardChangeListener != null) {
-								mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
-							}
-		            }
-		            END COMMENT
-		            //else{
-		            	if(ID<numberOfKeys){ 
-		            		keys[ID+1].setKeyUp();
-		            		if (mOnKeyboardChangeListener != null) {
-								mOnKeyboardChangeListener.onKeyChanged(ID+1+baseNote,false);
-							}
-		            	}
-		            	if(ID>0){
-		            		keys[ID-1].setKeyUp();
-		            		if (mOnKeyboardChangeListener != null) {
-								mOnKeyboardChangeListener.onKeyChanged(ID-1+baseNote,false);
-							}
-		            	}
-		            
-					//if (mOnKeyboardChangeListener != null) {
-					//	mOnKeyboardChangeListener.onPressureChanged(event.getPressure());
-					//	if(event.getX() < 150 && event.getX() >= 0) mOnKeyboardChangeListener.onXChanged(event.getX());
-					//}
-					
-		            	if(event.getAction() == MotionEvent.ACTION_UP){
-		            		on = 0;
-		            		keys[ID].setKeyUp();
-		            		if (mOnKeyboardChangeListener != null) {
-		            			mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
-		            		}
-		            	}
-		            	else if(on == 0){
-		            		on = 1;
-		            		keys[ID].setKeyDown();
-		            		if (mOnKeyboardChangeListener != null) {
-		            			mOnKeyboardChangeListener.onKeyChanged(ID+baseNote, true);
-		            		}
-		            	}
-		            //}
-					return true;
-				}
-			});
-		}*/
+		lastKey = new int[polyMax];
+		currentKey = new int[polyMax];
 	}
 	
     private boolean inViewBounds(View view, int x, int y){
@@ -195,92 +132,88 @@ class PianoKeyboard extends ViewGroup{
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		int cpointerIndex = event.getActionIndex();
-		int cpointerId = event.getPointerId(cpointerIndex);
-		
-		int mActivePointerId = event.getPointerId(0);
-		int pointerIndex = event.findPointerIndex(mActivePointerId);
-		//System.out.println("Voila: " + cpointerId + " " + mActivePointerId + " " + event.getX(pointerIndex));
-		
-		int indexWhiteKeys = 0;
-		for(int i=0; i<numberOfKeys; i++){
-			final int ID = i;
-			int whiteKeysOffset = whiteKeysWidth*indexWhiteKeys;
-			int whiteKeysOffsetNext = whiteKeysWidth*(indexWhiteKeys+1);
-			int blackKeysOffset = (int) (whiteKeysWidth*(indexWhiteKeys-1)+whiteKeysWidth*0.694444444f);
-			int blackKeysOffsetNext = (int) (whiteKeysOffset+whiteKeysWidth*0.694444444f);
-			
-			if (mOnKeyboardChangeListener != null) {
-				// white keys bottom
-				if(keysType[i%12] != 3 &&
-						event.getX(pointerIndex) >= whiteKeysOffset && 
-						event.getX(pointerIndex) < whiteKeysOffsetNext && 
-						MotionEvent.ACTION_UP != event.getActionMasked() &&
-						event.getY(pointerIndex) >= blackKeysHeight){		
-					keys[i].setKeyDown();
-					currentKey = i;
-				}
-				// white keys left top
-				else if(keysType[i%12] == 0 &&
-						event.getX(pointerIndex) >= whiteKeysOffset && 
-						event.getX(pointerIndex) < blackKeysOffsetNext && 
-						MotionEvent.ACTION_UP != event.getActionMasked() &&
-						event.getY(pointerIndex) < blackKeysHeight){		
-					keys[i].setKeyDown();
-					currentKey = i;
-				}
-				else if(keysType[i%12] == 1 &&
-						event.getX(pointerIndex) >= (whiteKeysOffset + blackKeysWidth/2) && 
-						event.getX(pointerIndex) < blackKeysOffsetNext && 
-						MotionEvent.ACTION_UP != event.getActionMasked() &&
-						event.getY(pointerIndex) < blackKeysHeight){		
-					keys[i].setKeyDown();
-					currentKey = i;
-				}
-				else if(keysType[i%12] == 2 &&
-						event.getX(pointerIndex) >= (whiteKeysOffset + blackKeysWidth/2) && 
-						event.getX(pointerIndex) < whiteKeysOffsetNext && 
-						MotionEvent.ACTION_UP != event.getActionMasked() &&
-						event.getY(pointerIndex) < blackKeysHeight){		
-					keys[i].setKeyDown();
-					currentKey = i;
-				}
-				// black keys
-				else if(keysType[i%12] == 3 && 
-						event.getX(pointerIndex) >= blackKeysOffset && 
-						event.getX(pointerIndex) < (blackKeysOffset+blackKeysWidth) &&
-						MotionEvent.ACTION_UP != event.getActionMasked() &&  
-						event.getY(pointerIndex) < blackKeysHeight){
-					keys[i].setKeyDown();
-					currentKey = i;
-				}
-				else{ 
-					keys[i].setKeyUp();
-				}
-			}		
-			if(keysType[i%12] != 3) indexWhiteKeys++;
-			
-			
-			//System.out.println("Voila: " + event.getY(pointerIndex));
+		if (mOnKeyboardChangeListener != null) {
+			//int cpointerIndex = event.getActionIndex();
+			//int cpointerId = event.getPointerId(cpointerIndex);
 			
 			/*
-			if(MotionEvent.ACTION_DOWN == event.getActionMasked()){ 
-			
-				System.out.println("Voila: " + event.getX(pointerIndex));
-			}
-			if(MotionEvent.ACTION_UP == event.getActionMasked()) System.out.println("Voili: ");
+			if(MotionEvent.ACTION_DOWN == event.getActionMasked() || MotionEvent.ACTION_POINTER_DOWN == event.getActionMasked()) 
+				System.out.println("Voila Down: " + event.getPointerId(cpointerIndex));
+			if(MotionEvent.ACTION_UP == event.getActionMasked() || MotionEvent.ACTION_POINTER_UP == event.getActionMasked()) 
+				System.out.println("Voila Up: " + event.getPointerId(cpointerIndex));
 			*/
-			
+
+			//for(int j=0; j<event.getPointerCount(); j++){
+			for(int j=0; j<1; j++){	
+				int mActivePointerId = event.getPointerId(j);
+				int pointerIndex = event.findPointerIndex(mActivePointerId);
+
+				int indexWhiteKeys = 0;
+				for(int i=0; i<numberOfKeys; i++){
+					int whiteKeysOffset = whiteKeysWidth*indexWhiteKeys;
+					int whiteKeysOffsetNext = whiteKeysWidth*(indexWhiteKeys+1);
+					int blackKeysOffset = (int) (whiteKeysWidth*(indexWhiteKeys-1)+whiteKeysWidth*0.694444444f);
+					int blackKeysOffsetNext = (int) (whiteKeysOffset+whiteKeysWidth*0.694444444f);
+
+					// white keys bottom
+					if(keysType[i%12] != 3 &&
+							event.getX(pointerIndex) >= whiteKeysOffset && 
+							event.getX(pointerIndex) < whiteKeysOffsetNext && 
+							//(MotionEvent.ACTION_UP != event.getActionMasked() || MotionEvent.ACTION_POINTER_UP != event.getActionMasked()) &&
+							event.getY(pointerIndex) >= blackKeysHeight){
+						currentKey[j] = i;
+					}
+					// white left keys top
+					else if(keysType[i%12] == 0 &&
+							event.getX(pointerIndex) >= whiteKeysOffset && 
+							event.getX(pointerIndex) < blackKeysOffsetNext && 
+							//MotionEvent.ACTION_UP != event.getActionMasked() &&
+							event.getY(pointerIndex) < blackKeysHeight){	
+						currentKey[j] = i;
+					}
+					// white middle keys top
+					else if(keysType[i%12] == 1 &&
+							event.getX(pointerIndex) >= (whiteKeysOffset + blackKeysWidth/2) && 
+							event.getX(pointerIndex) < blackKeysOffsetNext && 
+							//MotionEvent.ACTION_UP != event.getActionMasked() &&
+							event.getY(pointerIndex) < blackKeysHeight){
+						currentKey[j] = i;
+					}
+					// whit right keys top
+					else if(keysType[i%12] == 2 &&
+							event.getX(pointerIndex) >= (whiteKeysOffset + blackKeysWidth/2) && 
+							event.getX(pointerIndex) < whiteKeysOffsetNext && 
+							//MotionEvent.ACTION_UP != event.getActionMasked() &&
+							event.getY(pointerIndex) < blackKeysHeight){
+						currentKey[j] = i;
+					}
+					// black keys
+					else if(keysType[i%12] == 3 && 
+							event.getX(pointerIndex) >= blackKeysOffset && 
+							event.getX(pointerIndex) < (blackKeysOffset+blackKeysWidth) &&
+							//MotionEvent.ACTION_UP != event.getActionMasked() &&  
+							event.getY(pointerIndex) < blackKeysHeight){
+						currentKey[j] = i;
+					}	
+					if(keysType[i%12] != 3) indexWhiteKeys++;
+
+				}
+				
+				if(currentKey[j] != lastKey[j] || MotionEvent.ACTION_DOWN == event.getActionMasked()){// || MotionEvent.ACTION_POINTER_DOWN == event.getActionMasked()){
+					keys[lastKey[j]].setKeyUp();
+					mOnKeyboardChangeListener.onKeyChanged(lastKey[j]+baseNote, false);
+					keys[currentKey[j]].setKeyDown();
+					//System.out.println("Voila down: " + currentKey[j]);
+					mOnKeyboardChangeListener.onKeyChanged(currentKey[j]+baseNote, true);
+				}
+				else if(MotionEvent.ACTION_UP == event.getActionMasked()){// || (currentKey[j] != lastKey[j] && MotionEvent.ACTION_POINTER_UP == event.getActionMasked())){
+					keys[lastKey[j]].setKeyUp();
+					//System.out.println("Voila up: " + lastKey[j]);
+					mOnKeyboardChangeListener.onKeyChanged(lastKey[j]+baseNote, false);
+				}
+				lastKey[j] = currentKey[j];
+			}
 		}
-		// TODO not super optimal: should send note off events only when necessary...
-		if(currentKey != lastKey || MotionEvent.ACTION_DOWN == event.getActionMasked()){
-			mOnKeyboardChangeListener.onKeyChanged(lastKey+baseNote, false);
-			mOnKeyboardChangeListener.onKeyChanged(currentKey+baseNote, true);
-		}
-		else if(MotionEvent.ACTION_UP == event.getActionMasked()){
-			mOnKeyboardChangeListener.onKeyChanged(lastKey+baseNote, false);
-		}
-		lastKey = currentKey;
 		return true;
 	}
 	

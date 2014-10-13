@@ -34,10 +34,12 @@ public class PianoActivity extends Activity {
 				else faust_dsp.setParam("/0x00/gate", 0.0f);
 				*/
 				if(i){
-					faust_dsp.keyOn(note,127);
+					faust_dsp.keyOn(note,80);
+					System.out.println("Voila down: " + note);
 				}
 				else{ 
 					faust_dsp.keyOff(note);
+					System.out.println("Voila up: " + note);
 				}
 			}
 			
