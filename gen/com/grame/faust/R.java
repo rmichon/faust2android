@@ -149,27 +149,29 @@ containing a value of this type.
         public static final int ic_accelinverton=0x7f020003;
         public static final int ic_accelnormoff=0x7f020004;
         public static final int ic_accelnormon=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int ic_zoomin=0x7f020007;
-        public static final int ic_zoomout=0x7f020008;
-        public static final int piano_key_black=0x7f020009;
-        public static final int piano_key_black_down=0x7f02000a;
-        public static final int piano_key_center=0x7f02000b;
-        public static final int piano_key_center_down=0x7f02000c;
-        public static final int piano_key_left=0x7f02000d;
-        public static final int piano_key_left_down=0x7f02000e;
-        public static final int piano_key_right=0x7f02000f;
-        public static final int piano_key_right_down=0x7f020010;
-        public static final int scrubber_control_disabled_holo=0x7f020011;
-        public static final int scrubber_control_focused_holo=0x7f020012;
-        public static final int scrubber_control_normal_holo=0x7f020013;
-        public static final int scrubber_control_pressed_holo=0x7f020014;
-        public static final int seek_arc_control_selector=0x7f020015;
+        public static final int ic_keyboardicon=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int ic_zoomin=0x7f020008;
+        public static final int ic_zoomout=0x7f020009;
+        public static final int piano_key_black=0x7f02000a;
+        public static final int piano_key_black_down=0x7f02000b;
+        public static final int piano_key_center=0x7f02000c;
+        public static final int piano_key_center_down=0x7f02000d;
+        public static final int piano_key_left=0x7f02000e;
+        public static final int piano_key_left_down=0x7f02000f;
+        public static final int piano_key_right=0x7f020010;
+        public static final int piano_key_right_down=0x7f020011;
+        public static final int scrubber_control_disabled_holo=0x7f020012;
+        public static final int scrubber_control_focused_holo=0x7f020013;
+        public static final int scrubber_control_normal_holo=0x7f020014;
+        public static final int scrubber_control_pressed_holo=0x7f020015;
+        public static final int seek_arc_control_selector=0x7f020016;
     }
     public static final class id {
         public static final int PianoKeyboard=0x7f080002;
-        public static final int action_zoomin=0x7f080003;
-        public static final int action_zoomout=0x7f080004;
+        public static final int action_keyboard=0x7f080003;
+        public static final int action_zoomin=0x7f080004;
+        public static final int action_zoomout=0x7f080005;
         public static final int horizontalScroll=0x7f080000;
         public static final int the_layout=0x7f080001;
     }
@@ -182,6 +184,8 @@ containing a value of this type.
     }
     public static final class string {
         public static final int app_name=0x7f050000;
+        public static final int keyboard=0x7f050003;
+        public static final int keyboard_activity=0x7f050004;
         public static final int zoomin=0x7f050001;
         public static final int zoomout=0x7f050002;
     }

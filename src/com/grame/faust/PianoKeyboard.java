@@ -101,8 +101,8 @@ class PianoKeyboard extends ViewGroup{
 		int viewHeight = (int) (h - ypad);
 		
 		whiteKeysWidth = viewWidth/(numberOfWhiteKeys);
-		blackKeysWidth = (int) (whiteKeysWidth*0.62f);
-		blackKeysHeight = (int) (viewHeight*0.54f);
+		blackKeysWidth = (int) (whiteKeysWidth*0.595f);
+		blackKeysHeight = (int) (viewHeight*0.535f);
 		
 		int whiteKeysIndex = 0;
 		int blackKeysIndex = 1;
@@ -110,7 +110,7 @@ class PianoKeyboard extends ViewGroup{
 		for(int i=0; i<numberOfKeys; i++){
 			if(keysType[i%12] == 3){ 
 				keys[i].layout(0, 0, blackKeysWidth, blackKeysHeight);
-				keys[i].offsetLeftAndRight((int) (whiteKeysOffset+whiteKeysWidth*0.694444444f));
+				keys[i].offsetLeftAndRight((int) (whiteKeysOffset+whiteKeysWidth*0.71f));
 				blackKeysIndex++;
 			}
 			else{ 

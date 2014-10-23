@@ -23,6 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.grame.faust.PianoActivity"
+            android:label="@string/keyboard_activity"
+            android:parentActivityName="com.grame.faust.FaustActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.grame.faust.FaustActivity" />
+        </activity>
      </application>
 
 </manifest>

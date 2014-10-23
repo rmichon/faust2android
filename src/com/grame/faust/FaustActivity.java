@@ -9,6 +9,7 @@ import com.grame.faust_dsp.faust_dsp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -38,7 +39,8 @@ public class FaustActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        if(!faust_dsp.isRunning()) faust_dsp.init(44100,512);
+        if(!faust_dsp.isRunning()) faust_dsp.initPoly(44100,512,4);
+        //if(!faust_dsp.isRunning()) faust_dsp.init(44100,512);
         
         final int numberOfParameters = faust_dsp.getParamsCount();
         
@@ -157,6 +159,11 @@ public class FaustActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
+        	case R.id.action_keyboard:
+        		Intent pianoIntent = new Intent(this, PianoActivity.class);
+        		startActivity(pianoIntent);
+        		//System.out.println("Voila: ");
+        		return true;
             case R.id.action_zoomin:
             	parametersInfo.zoom++;
                 recreate();
@@ -196,7 +203,9 @@ public class FaustActivity extends Activity {
     	super.onDestroy();
     	on = false;
     	// only stops audio when the user press the return button (and not when the screen is rotated)
-    	if(!isChangingConfigurations()) faust_dsp.stop();
+    	if(!isChangingConfigurations()){ 
+    		faust_dsp.stop();
+    	}
     	try {
 			//displayThread.join();
 			accelThread.join();

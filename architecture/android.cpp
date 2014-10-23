@@ -659,9 +659,9 @@ void destroyThreadLock(void *lock) {
 using namespace std;
 
 OPENSL_STREAM *p; // the audio engine
-mydsp* DSP; // the monophonic Faust object
-mydsp_poly* DSPpoly; // the polyphonic Faust object
-MapUI* mapUI; // the UI description
+mydsp DSP; // the monophonic Faust object
+mydsp_poly *DSPpoly; // the polyphonic Faust object
+MapUI mapUI; // the UI description
 pthread_t audioThread; // native thread for audio
 
 // Global variables
@@ -680,14 +680,14 @@ void init(int samplingRate, int bufferFrames) {
 	bufferSize = bufferFrames;
 	vecSamps = bufferSize;
 	polyMax = 0;
-	DSP = new mydsp();
-	mapUI = new MapUI();
-	DSP->init(SR);
-	inChanNumb = DSP->getNumInputs();
-	outChanNumb = DSP->getNumOutputs();
+	//DSP = new mydsp();
+	//mapUI = new MapUI();
+	DSP.init(SR);
+	inChanNumb = DSP.getNumInputs();
+	outChanNumb = DSP.getNumOutputs();
 
 	// configuring the UI
-	DSP->buildUserInterface(mapUI);
+	DSP.buildUserInterface(&mapUI);
 
 	// allocating memory for output channel
 	bufferout = new float *[outChanNumb];
@@ -719,10 +719,12 @@ void initPoly(int samplingRate, int bufferFrames, int pMax) {
 	polyMax = pMax;
 	polyCoef = 1.0f / polyMax;
 	DSPpoly = new mydsp_poly(SR, bufferSize, polyMax);
-	mapUI = new MapUI();
+	//mapUI = new MapUI();
 	inChanNumb = DSPpoly->getNumInputs();
 	outChanNumb = DSPpoly->getNumOutputs();
 	int vecSamps = bufferSize;
+
+	DSP.buildUserInterface(&mapUI);
 
 	// allocating memory for output channel
 	bufferout = new float *[outChanNumb];
@@ -750,7 +752,7 @@ void *processDSP(void *threadID) {
 
 		// computing...
 		if (polyMax == 0)
-			DSP->compute(vecSamps, bufferin, bufferout);
+			DSP.compute(vecSamps, bufferin, bufferout);
 		else
 			DSPpoly->compute(vecSamps, bufferin, bufferout);
 
@@ -842,10 +844,10 @@ int keyOff(int pitch) {
  * UI of the Faust object.
  */
 const char *getJSON() {
-	mydsp myDSP;
-	JSONUI json(myDSP.getNumInputs(), myDSP.getNumOutputs());
+	//mydsp myDSP;
+	JSONUI json(DSP.getNumInputs(), DSP.getNumOutputs());
 	mydsp::metadata(&json);
-	myDSP.buildUserInterface(&json);
+	DSP.buildUserInterface(&json);
 
 	return strdup(json.JSON().c_str());
 }
@@ -855,7 +857,7 @@ const char *getJSON() {
  * Returns the number of parameters of the Faust object.
  */
 int getParamsCount() {
-	return mapUI->getParamsCount();
+	return mapUI.getParamsCount();
 }
 
 /*
@@ -864,7 +866,7 @@ int getParamsCount() {
  * value.
  */
 float getParam(const char* address) {
-	return mapUI->getValue(address);
+	return mapUI.getValue(address);
 }
 
 /*
@@ -873,7 +875,7 @@ float getParam(const char* address) {
  */
 void setParam(const char* address, float value) {
 	if (polyMax == 0)
-		mapUI->setValue(address, value);
+		mapUI.setValue(address, value);
 	else
 		DSPpoly->setValue(address, value);
 }
@@ -883,5 +885,6 @@ void setParam(const char* address, float value) {
  * Returns the address of a parameter in function of its "id".
  */
 const char *getParamAddress(int id) {
-	return strdup(mapUI->getParamPath(id).c_str());
+	return strdup(mapUI.getParamPath(id).c_str());
 }
+

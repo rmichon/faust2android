@@ -3,5 +3,7 @@
     <string name="app_name">1</string>
     <string name="zoomin">Zoom In</string>
     <string name="zoomout">Zoom Out</string>
+    <string name="keyboard">Keyboard Interface</string>
+    <string name="keyboard_activity">Keyboard Activity</string>
 
 </resources>

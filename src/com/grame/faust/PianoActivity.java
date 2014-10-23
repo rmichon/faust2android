@@ -11,8 +11,6 @@ public class PianoActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.piano);
-        faust_dsp.initPoly(44100,512,6);
-        faust_dsp.start();
         
         /*
         for(int i=0; i<faust_dsp.getParamsCount(); i++){
@@ -20,40 +18,27 @@ public class PianoActivity extends Activity {
         }
         */
         
-        faust_dsp.setParam("/0x00/Modulator/Frequency", 440.0f);
         final PianoKeyboard keyboard = (PianoKeyboard) this.findViewById(R.id.PianoKeyboard);
         keyboard.setBaseNote(72);
         keyboard.setOnKeyboardChangeListener(new OnKeyboardChangeListener(){
 			@Override
 			public void onKeyChanged(int note, boolean i) {
-				/*
-				if(i){
-					faust_dsp.setParam("/0x00/Carrier/Frequency", (float) mtof(note));
-					faust_dsp.setParam("/0x00/gate", 1.0f);
-				}
-				else faust_dsp.setParam("/0x00/gate", 0.0f);
-				*/
 				if(i){
 					faust_dsp.keyOn(note,80);
-					System.out.println("Voila down: " + note);
+					//System.out.println("Voila down: " + note);
 				}
 				else{ 
 					faust_dsp.keyOff(note);
-					System.out.println("Voila up: " + note);
+					//System.out.println("Voila up: " + note);
 				}
 			}
 			
 			@Override
 			public void onPressureChanged(float pressure) {
-				// /0x00/General_Parameters/Volume
-				//System.out.println("Voila: " + (1 - pressure*0.8)*-50);
-				//faust_dsp.setParam("/0x00/General_Parameters/Bending", pressure*0.8f*2-1);
-				//faust_dsp.setParam("/0x00/General_Parameters/Volume", (1 - pressure*0.8f)*-50);
 			}
 
 			@Override
-			public void onXChanged(float x) {
-				//faust_dsp.setParam("/0x00/General_Parameters/Bending", x/150);				
+			public void onXChanged(float x) {				
 			}	
         });
 	}
@@ -65,6 +50,5 @@ public class PianoActivity extends Activity {
 	@Override
 	public void onDestroy(){
     	super.onDestroy();
-    	faust_dsp.stop();
     }
 }
