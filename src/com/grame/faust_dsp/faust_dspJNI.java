@@ -20,12 +20,12 @@ public class faust_dspJNI {
   }
 
   public final static native void init(int jarg1, int jarg2);
-  public final static native void initPoly(int jarg1, int jarg2, int jarg3);
   public final static native int start();
   public final static native void stop();
   public final static native boolean isRunning();
   public final static native int keyOn(int jarg1, int jarg2);
   public final static native int keyOff(int jarg1);
+  public final static native int pitchBend(int jarg1, float jarg2);
   public final static native String getJSON();
   public final static native int getParamsCount();
   public final static native float getParam(String jarg1);

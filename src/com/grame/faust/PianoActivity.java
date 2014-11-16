@@ -4,6 +4,7 @@ import com.grame.faust.PianoKeyboard.OnKeyboardChangeListener;
 import com.grame.faust_dsp.faust_dsp;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
 public class PianoActivity extends Activity {
@@ -12,14 +13,8 @@ public class PianoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.piano);
         
-        /*
-        for(int i=0; i<faust_dsp.getParamsCount(); i++){
-        	System.out.println("Voila: " + faust_dsp.getParamPath(i));
-        }
-        */
-        
         final PianoKeyboard keyboard = (PianoKeyboard) this.findViewById(R.id.PianoKeyboard);
-        keyboard.setBaseNote(72);
+        keyboard.setBaseNote(70);
         keyboard.setOnKeyboardChangeListener(new OnKeyboardChangeListener(){
 			@Override
 			public void onKeyChanged(int note, boolean i) {
@@ -34,12 +29,18 @@ public class PianoActivity extends Activity {
 			}
 			
 			@Override
+			public void onPitchBend(int refPitch, float pitch) {
+				//System.out.println("Voila: " + pitch);
+				faust_dsp.pitchBend(refPitch, pitch);
+			}
+			
+			@Override
 			public void onPressureChanged(float pressure) {
 			}
 
 			@Override
 			public void onXChanged(float x) {				
-			}	
+			}
         });
 	}
 	

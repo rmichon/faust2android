@@ -39,8 +39,8 @@ public class FaustActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        if(!faust_dsp.isRunning()) faust_dsp.initPoly(44100,512,4);
-        //if(!faust_dsp.isRunning()) faust_dsp.init(44100,512);
+        
+        if(!faust_dsp.isRunning()) faust_dsp.init(44100,512);
         
         final int numberOfParameters = faust_dsp.getParamsCount();
         
@@ -160,9 +160,10 @@ public class FaustActivity extends Activity {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
         	case R.id.action_keyboard:
-        		Intent pianoIntent = new Intent(this, PianoActivity.class);
-        		startActivity(pianoIntent);
-        		//System.out.println("Voila: ");
+        		if(ui.hasKeyboard){
+        			Intent pianoIntent = new Intent(this, PianoActivity.class);
+        			startActivity(pianoIntent);
+        		}
         		return true;
             case R.id.action_zoomin:
             	parametersInfo.zoom++;

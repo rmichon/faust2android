@@ -52,6 +52,8 @@ public class UI{
 	int screenSizeX, screenSizeY;
 	// true if parameters were saved during a previous instance
 	boolean isSavedParameters;
+	// keyboard interface specified in the Faust code
+	boolean hasKeyboard;
 	
 	// public UI elements (accessible from outside the class)
 	HorizontalScrollView horizontalScroll;
@@ -143,6 +145,8 @@ public class UI{
 		screenSizeY = size.y;
 		parametersWindow.buildWindow(c);
 		JSONArray uiArray = getJSONui();
+		if(uiArray.toString().contains("\"style\":\"keyboard\"")) hasKeyboard = true;
+		else hasKeyboard = false;
 		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(screenSizeX*(1+parametersInfo.zoom*0.1f)));
 	}
 	
@@ -193,6 +197,7 @@ public class UI{
 		int localPadding = 10*screenSizeX/800;
 		int localScreenWidth = (currentViewWidth-localPadding*2)/groupDivisions;
 		int localBackgroundColor = currentGroupLevel*15;
+		
 		try {
 			for(int i=0; i<nItemsTopLevel; i++){
 				currentObject = uiArray.getJSONObject(i);
@@ -213,7 +218,12 @@ public class UI{
 					}
 				}
 				
-				if(currentObject.getString("type").equals("vgroup")){
+				if(hasKeyboard && (currentObject.getString("label").equals("freq") || 
+						currentObject.getString("label").equals("gain") || 
+						currentObject.getString("label").equals("gate"))){
+					// Skipping freq, gain and gate if a keyboard interface was specified
+				}
+				else if(currentObject.getString("type").equals("vgroup")){
 					currentArray = currentObject.getJSONArray("items");
 					vgroup(c,currentArray,currentGroup,currentObject.getString("label"),
 							currentGroupLevel,groupDivisions,currentViewWidth);

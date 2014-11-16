@@ -230,20 +230,6 @@ SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_init(JNIEnv *jen
 }
 
 
-SWIGEXPORT void JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_initPoly(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jint jarg3) {
-  int arg1 ;
-  int arg2 ;
-  int arg3 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (int)jarg1; 
-  arg2 = (int)jarg2; 
-  arg3 = (int)jarg3; 
-  initPoly(arg1,arg2,arg3);
-}
-
-
 SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_start(JNIEnv *jenv, jclass jcls) {
   jint jresult = 0 ;
   int result;
@@ -300,6 +286,22 @@ SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_keyOff(JNIEnv *j
   (void)jcls;
   arg1 = (int)jarg1; 
   result = (int)keyOff(arg1);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_grame_faust_1dsp_faust_1dspJNI_pitchBend(JNIEnv *jenv, jclass jcls, jint jarg1, jfloat jarg2) {
+  jint jresult = 0 ;
+  int arg1 ;
+  float arg2 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (int)jarg1; 
+  arg2 = (float)jarg2; 
+  result = (int)pitchBend(arg1,arg2);
   jresult = (jint)result; 
   return jresult;
 }

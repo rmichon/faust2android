@@ -4,13 +4,13 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@android:color/black">
 
     <com.grame.faust.PianoKeyboard
         android:id="@+id/PianoKeyboard"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
-        custom:test="3"/>
+        custom:keys="21"/>
     
 </LinearLayout>

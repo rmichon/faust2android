@@ -1,6 +1,6 @@
 <resources>
     <declare-styleable name="PianoKeyboard">
-        <attr name="test" format="float"/>
+        <attr name="keys" format="integer"/>
     </declare-styleable>
     
     <declare-styleable name="SeekArc">

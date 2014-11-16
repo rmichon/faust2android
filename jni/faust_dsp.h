@@ -26,15 +26,6 @@
 void init(int, int);
 
 /*
- * initPoly(samplingRate, bufferFrames, pMax)
- * Initialize a polyphonic Faust object. This function should be
- * called before using start(). pMax is the maximum number of
- * polyphonic voices. keyOn() and keyOff() can be used
- * to trigger a new note.
- */
-void initPoly(int, int, int);
-
-/*
  * start()
  * Open the audio engine and create a new thread for the Faust
  * process computation.
@@ -76,6 +67,13 @@ int keyOn(int, int);
  * to initialize the system.
  */
 int keyOff(int);
+
+/*
+ * pitchBend(refPitch, pitch)
+ * Bends the pitch of refPitch. Pitch is float and is expressed as a MIDI
+ * number
+ */
+int pitchBend(int, float);
 
 /*
  * getJSON()

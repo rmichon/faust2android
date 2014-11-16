@@ -26,7 +26,10 @@
         <activity
             android:name="com.grame.faust.PianoActivity"
             android:label="@string/keyboard_activity"
-            android:parentActivityName="com.grame.faust.FaustActivity" >
+            android:parentActivityName="com.grame.faust.FaustActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.grame.faust.FaustActivity" />

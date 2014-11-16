@@ -854,7 +854,8 @@ class mydsp : public dsp {
 		instanceInit(samplingFreq);
 	}
 	virtual void buildUserInterface(UI* interface) {
-		interface->openVerticalBox("0x00");
+		interface->declare(0, "style", "keyboard");
+		interface->openVerticalBox("FMsynth");
 		interface->openHorizontalBox("General Parameters");
 		interface->addHorizontalSlider("Balance", &fslider2, 0.5f, 0.0f, 1.0f, 0.1f);
 		interface->addHorizontalSlider("Bending", &fslider1, 0.0f, -1.0f, 1.0f, 0.01f);
@@ -987,9 +988,9 @@ struct mydsp_poly
         }
     }
     
-    inline float midiToFreq(int note) 
+    inline float midiToFreq(float note)
     {
-        return 440.0f * powf(2.0f, ((float(note))-69.0f)/12.0f);
+        return 440.0f * powf(2.0f, (note-69.0f)/12.0f);
     }
     
     inline void clearOutput(int count, FAUSTFLOAT** mixBuffer) 
@@ -1079,7 +1080,7 @@ struct mydsp_poly
     {
         return fVoiceTable[0]->fVoice.getNumOutputs();
     }
-    
+
     void keyOn(int channel, int pitch, int velocity)
     {
         int voice = getVoice(-1);  // Gets a free voice
@@ -1106,6 +1107,17 @@ struct mydsp_poly
         }
     }
     
+    void pitchBend(int refPitch, float pitch)
+    {
+    	int voice = getVoice(refPitch);
+        if (voice >= 0) {
+        	fVoiceTable[voice]->setValue(fFreqLabel, midiToFreq(pitch));
+        }
+        else {
+        	printf("Playing voice not found...\n");
+        }
+    }
+
     void ctrlChange(int channel, int ctrl, int value)
     {}
     
@@ -1811,6 +1823,8 @@ mydsp DSP; // the monophonic Faust object
 mydsp_poly *DSPpoly; // the polyphonic Faust object
 MapUI mapUI; // the UI description
 pthread_t audioThread; // native thread for audio
+JSONUI json(DSP.getNumInputs(), DSP.getNumOutputs());
+string jsonString;
 
 // Global variables
 int SR, bufferSize, vecSamps, polyMax, inChanNumb, outChanNumb, on;
@@ -1827,15 +1841,24 @@ void init(int samplingRate, int bufferFrames) {
 	SR = samplingRate;
 	bufferSize = bufferFrames;
 	vecSamps = bufferSize;
-	polyMax = 0;
-	//DSP = new mydsp();
-	//mapUI = new MapUI();
 	DSP.init(SR);
 	inChanNumb = DSP.getNumInputs();
 	outChanNumb = DSP.getNumOutputs();
 
 	// configuring the UI
 	DSP.buildUserInterface(&mapUI);
+	DSP.buildUserInterface(&json);
+
+	jsonString = json.JSON();
+
+	if(jsonString.find("keyboard") != std::string::npos){
+		polyMax = 4;
+		polyCoef = 1.0f / polyMax;
+		DSPpoly = new mydsp_poly(SR, bufferSize, polyMax);
+	}
+	else{
+		polyMax = 0;
+	}
 
 	// allocating memory for output channel
 	bufferout = new float *[outChanNumb];
@@ -1850,42 +1873,6 @@ void init(int samplingRate, int bufferFrames) {
 			bufferin[i] = new float[vecSamps];
 		}
 	}
-}
-
-/*
- * initPoly(samplingRate, bufferFrames, pMax)
- * Initialize a polyphonic Faust object. This function should be
- * called before using start(). pMax is the maximum number of
- * polyphonic voices. keyOn() and keyOff() can be used
- * to trigger a new note.
- */
-void initPoly(int samplingRate, int bufferFrames, int pMax) {
-	// configuring global variables
-	SR = samplingRate;
-	bufferSize = bufferFrames;
-	vecSamps = bufferSize;
-	polyMax = pMax;
-	polyCoef = 1.0f / polyMax;
-	DSPpoly = new mydsp_poly(SR, bufferSize, polyMax);
-	//mapUI = new MapUI();
-	inChanNumb = DSPpoly->getNumInputs();
-	outChanNumb = DSPpoly->getNumOutputs();
-	int vecSamps = bufferSize;
-
-	DSP.buildUserInterface(&mapUI);
-
-	// allocating memory for output channel
-	bufferout = new float *[outChanNumb];
-	for (int i = 0; i < outChanNumb; i++) {
-		bufferout[i] = new float[vecSamps];
-	}
-
-	// allocating memory for input channel
-	if (inChanNumb == 1) {
-		bufferin = new float *[1];
-		bufferin[0] = new float[vecSamps];
-	}
-	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s", mapUI->getParamPath(0));
 }
 
 /*
@@ -1987,17 +1974,25 @@ int keyOff(int pitch) {
 }
 
 /*
+ * pitchBend(refPitch, pitch)
+ * Bends the pitch of refPitch. Pitch is float and is expressed as a MIDI
+ * number
+ */
+int pitchBend(int refPitch, float pitch){
+	if(polyMax > 0){
+		DSPpoly->pitchBend(refPitch, pitch);
+	}
+	else
+		return 0;
+}
+
+/*
  * getJSON()
  * Returns a string containing a JSON description of the
  * UI of the Faust object.
  */
 const char *getJSON() {
-	//mydsp myDSP;
-	JSONUI json(DSP.getNumInputs(), DSP.getNumOutputs());
-	mydsp::metadata(&json);
-	DSP.buildUserInterface(&json);
-
-	return strdup(json.JSON().c_str());
+	return strdup(jsonString.c_str());
 }
 
 /*
@@ -2035,3 +2030,4 @@ void setParam(const char* address, float value) {
 const char *getParamAddress(int id) {
 	return strdup(mapUI.getParamPath(id).c_str());
 }
+

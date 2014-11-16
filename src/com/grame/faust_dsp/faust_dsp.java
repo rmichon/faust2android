@@ -13,10 +13,6 @@ public class faust_dsp {
     faust_dspJNI.init(arg0, arg1);
   }
 
-  public static void initPoly(int arg0, int arg1, int arg2) {
-    faust_dspJNI.initPoly(arg0, arg1, arg2);
-  }
-
   public static int start() {
     return faust_dspJNI.start();
   }
@@ -35,6 +31,10 @@ public class faust_dsp {
 
   public static int keyOff(int arg0) {
     return faust_dspJNI.keyOff(arg0);
+  }
+
+  public static int pitchBend(int arg0, float arg1) {
+    return faust_dspJNI.pitchBend(arg0, arg1);
   }
 
   public static String getJSON() {
