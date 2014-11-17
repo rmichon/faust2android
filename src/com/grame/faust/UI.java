@@ -204,17 +204,20 @@ public class UI{
 				String metaDataStyle = parseJSONMetaData(currentObject, "style");
 				
 				if(!isSavedParameters){
-					String metaDataAccelX = parseJSONMetaData(currentObject, "accx");
-					String metaDataAccelY = parseJSONMetaData(currentObject, "accy");
-					String metaDataAccelZ = parseJSONMetaData(currentObject, "accz");
-					if(!metaDataAccelX.equals("")){
-						parametersInfo.accelState[parameterNumber] = 1;
-					}
-					else if(!metaDataAccelY.equals("")){
-						parametersInfo.accelState[parameterNumber] = 2;
-					}
-					if(!metaDataAccelZ.equals("")){
-						parametersInfo.accelState[parameterNumber] = 3;
+					String metaDataAccel = parseJSONMetaData(currentObject, "acc");
+					if(!metaDataAccel.equals("")){
+						float[] accelParams = {0,0,0,0,0};
+						for(int j=0; j<4; j++){
+							accelParams[j] = Float.valueOf(metaDataAccel.substring(0, metaDataAccel.indexOf(" ")));
+							metaDataAccel = metaDataAccel.substring(metaDataAccel.indexOf(" ")+1);
+						}
+						accelParams[4] = Float.valueOf(metaDataAccel);
+						
+						parametersInfo.accelState[parameterNumber] = (int) (accelParams[0]+1);
+						parametersInfo.accelInverterState[parameterNumber] = (int) accelParams[1];
+						parametersInfo.accelMin[parameterNumber] = (int) accelParams[2];
+						parametersInfo.accelMax[parameterNumber] = (int) accelParams[3];
+						parametersInfo.accelCenter[parameterNumber] = (int) accelParams[4];
 					}
 				}
 				

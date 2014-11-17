@@ -2,7 +2,20 @@ package com.grame.faust;
 
 /*
  * TODO
- * Locker to lock accelerometers.
+ * - Locker to lock accelerometers.
+ * - Vertical sliders are fucked up with accelerometers.
+ * - Bargraphs are disabled and need more work
+ * - Interface elements could be normalized using android standards
+ * (that would take forever and the difference would be hard to notice)
+ * - The accelerometers window should be finished: weird stuff with up and down
+ * - Settings menu should be added
+ * - Multitouch zoom
+ * - Try complex examples for debuging
+ * - The compilation script should be tested on OSX
+ * - OSC should be enabled
+ * - If keyboard mode is enabled, elements that removed from the interface should be scaled
+ * - Write a proper documentation
+ * - Make the native API OSX compatible.
  */
 
 import com.grame.faust_dsp.faust_dsp;
