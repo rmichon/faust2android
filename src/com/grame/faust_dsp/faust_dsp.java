@@ -53,6 +53,14 @@ public class faust_dsp {
     faust_dspJNI.setParam(arg0, arg1);
   }
 
+  public static void setVoiceParam(String arg0, int arg1, float arg2) {
+    faust_dspJNI.setVoiceParam(arg0, arg1, arg2);
+  }
+
+  public static void setVoiceGain(int arg0, float arg1) {
+    faust_dspJNI.setVoiceGain(arg0, arg1);
+  }
+
   public static String getParamAddress(int arg0) {
     return faust_dspJNI.getParamAddress(arg0);
   }

@@ -40,7 +40,7 @@ class Knob{
 	 * backgroundColor: grey level of the background of the view (0-255)
 	 */
 	public Knob(Context c, String addr, int currentParameterID,
-			int width, int backgroundColor, int padding){
+			int width, int backgroundColor, int padding, boolean visibility){
 		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		size = new Point();
@@ -80,11 +80,13 @@ class Knob{
 		textValue = new TextView(c);
 		textValue.setGravity(Gravity.CENTER);
 		
-		knobLayout.addView(textValue);
-		knobLayout.addView(knob);
-		localVerticalGroup.addView(knobLayout);
-		localVerticalGroup.addView(textLabel);
-		frame.addView(localVerticalGroup);
+		if(visibility){
+			knobLayout.addView(textValue);
+			knobLayout.addView(knob);
+			localVerticalGroup.addView(knobLayout);
+			localVerticalGroup.addView(textLabel);
+			frame.addView(localVerticalGroup);
+		}
 	}
 	
 	/*
@@ -142,7 +144,7 @@ class Knob{
 	public void linkTo(final ParametersInfo parametersInfo, final ConfigWindow parametersWindow, final HorizontalScrollView horizontalScroll){
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
-				parametersWindow.showWindow(parametersInfo, id);
+				if(!parametersInfo.locked) parametersWindow.showWindow(parametersInfo, id);
 				return true;
 			}
 		});

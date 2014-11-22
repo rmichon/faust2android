@@ -4,48 +4,55 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnTouchListener;
 
+/*
+ * This class implements a polyphonic continuous piano keyboard.
+ */
 class PianoKeyboard extends ViewGroup{
-	PianoKey[] keys;
+	private PianoKey[] keys;
 	
+	// Config variables
 	private int numberOfKeys = 16;
-	private int baseNote = 60;
-	private int polyMax = 6;
+	private int baseNote = 72; // base MIDI note
 	
+	// local variables
 	private int numberOfWhiteKeys = 0;
 	private int[] keysType = {0,3,1,3,2,0,3,1,3,1,3,2};
 	private int whiteKeysWidth = 0;
 	private int blackKeysWidth = 0;
 	private int blackKeysHeight = 0;
 	
-	private int lastKey[];
-	private int currentKey[];
-	
+	// listener interface
 	private OnKeyboardChangeListener mOnKeyboardChangeListener;
-	
 	public interface OnKeyboardChangeListener {
-		void onKeyChanged(int note, boolean statu);
-		void onPressureChanged(float pressure);
-		void onXChanged(float x);
+		/* when a key is pressed or released with:
+		 * note: MIDI note number
+		 * velocity: MIDI velocity
+		 * statu: true for down, false for up
+		 */
+		void onKeyChanged(int note, int velocity, boolean statu);
+		/*
+		 * when the finger position on the Y axis changed where:
+		 * note: the MIDI pitch affected by this change
+		 * y: the normalized Y position (0-1)
+		 */
+		void onYChanged(int refPitch, float y);
+		/*
+		 * replace refPitch by pitch (float, MIDI number)
+		 */
 		void onPitchBend(int refPitch, float pitch);
-		//void onStartTrackingTouch(PianoKeyboard keyboard);
-		//void onStopTrackingTouch(PianoKeyboard keyboard);
 	}
 	
+	// set the the pitch of the lowest key as a MIDI number,
+	// can be used for transposition, etc.
 	public void setBaseNote(int n){
 		baseNote = n;
-	}
-	
-	public PianoKeyboard(Context context){
-		super(context);
 	}
 	
 	public PianoKeyboard(Context context, AttributeSet attrs){
@@ -54,9 +61,10 @@ class PianoKeyboard extends ViewGroup{
 				attrs,
 				R.styleable.PianoKeyboard,
 				0, 0);
-	
 		try {
-			numberOfKeys = a.getInt(R.styleable.PianoKeyboard_keys, 0);
+			// if parameters are declared from XML 
+			numberOfKeys = a.getInt(R.styleable.PianoKeyboard_keys, numberOfKeys);
+			baseNote = a.getInt(R.styleable.PianoKeyboard_basenote, baseNote);
 		} finally {
 			a.recycle();
 		}
@@ -77,18 +85,8 @@ class PianoKeyboard extends ViewGroup{
 			}
 		}
 		
-		lastKey = new int[polyMax];
-		currentKey = new int[polyMax];
+		setBackgroundColor(Color.BLACK);
 	}
-	
-    private boolean inViewBounds(View view, int x, int y){
-    	Rect outRect = new Rect();
-        int[] location = new int[2];
-        view.getDrawingRect(outRect);
-        view.getLocationOnScreen(location);
-        outRect.offset(location[0], location[1]);
-        return outRect.contains(x, y);
-    }
 	
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -131,96 +129,12 @@ class PianoKeyboard extends ViewGroup{
     }
 	
 	/*
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		if (mOnKeyboardChangeListener != null) {
-			//int cpointerIndex = event.getActionIndex();
-			//int cpointerId = event.getPointerId(cpointerIndex);
-			
-			//if(MotionEvent.ACTION_DOWN == event.getActionMasked() || MotionEvent.ACTION_POINTER_DOWN == event.getActionMasked()) 
-			//	System.out.println("Voila Down: " + event.getPointerId(cpointerIndex));
-			//if(MotionEvent.ACTION_UP == event.getActionMasked() || MotionEvent.ACTION_POINTER_UP == event.getActionMasked()) 
-			//	System.out.println("Voila Up: " + event.getPointerId(cpointerIndex));
-
-			//for(int j=0; j<event.getPointerCount(); j++){
-			for(int j=0; j<1; j++){	
-				int mActivePointerId = event.getPointerId(j);
-				int pointerIndex = event.findPointerIndex(mActivePointerId);
-
-				int indexWhiteKeys = 0;
-				for(int i=0; i<numberOfKeys; i++){
-					int whiteKeysOffset = whiteKeysWidth*indexWhiteKeys;
-					int whiteKeysOffsetNext = whiteKeysWidth*(indexWhiteKeys+1);
-					int blackKeysOffset = (int) (whiteKeysWidth*(indexWhiteKeys-1)+whiteKeysWidth*0.694444444f);
-					int blackKeysOffsetNext = (int) (whiteKeysOffset+whiteKeysWidth*0.694444444f);
-
-					// white keys bottom
-					if(keysType[i%12] != 3 &&
-							event.getX(pointerIndex) >= whiteKeysOffset && 
-							event.getX(pointerIndex) < whiteKeysOffsetNext && 
-							//(MotionEvent.ACTION_UP != event.getActionMasked() || MotionEvent.ACTION_POINTER_UP != event.getActionMasked()) &&
-							event.getY(pointerIndex) >= blackKeysHeight){
-						currentKey[j] = i;
-					}
-					// white left keys top
-					else if(keysType[i%12] == 0 &&
-							event.getX(pointerIndex) >= whiteKeysOffset && 
-							event.getX(pointerIndex) < blackKeysOffsetNext && 
-							//MotionEvent.ACTION_UP != event.getActionMasked() &&
-							event.getY(pointerIndex) < blackKeysHeight){	
-						currentKey[j] = i;
-					}
-					// white middle keys top
-					else if(keysType[i%12] == 1 &&
-							event.getX(pointerIndex) >= (whiteKeysOffset + blackKeysWidth/2) && 
-							event.getX(pointerIndex) < blackKeysOffsetNext && 
-							//MotionEvent.ACTION_UP != event.getActionMasked() &&
-							event.getY(pointerIndex) < blackKeysHeight){
-						currentKey[j] = i;
-					}
-					// whit right keys top
-					else if(keysType[i%12] == 2 &&
-							event.getX(pointerIndex) >= (whiteKeysOffset + blackKeysWidth/2) && 
-							event.getX(pointerIndex) < whiteKeysOffsetNext && 
-							//MotionEvent.ACTION_UP != event.getActionMasked() &&
-							event.getY(pointerIndex) < blackKeysHeight){
-						currentKey[j] = i;
-					}
-					// black keys
-					else if(keysType[i%12] == 3 && 
-							event.getX(pointerIndex) >= blackKeysOffset && 
-							event.getX(pointerIndex) < (blackKeysOffset+blackKeysWidth) &&
-							//MotionEvent.ACTION_UP != event.getActionMasked() &&  
-							event.getY(pointerIndex) < blackKeysHeight){
-						currentKey[j] = i;
-					}	
-					if(keysType[i%12] != 3) indexWhiteKeys++;
-
-				}
-				
-				if(currentKey[j] != lastKey[j] || MotionEvent.ACTION_DOWN == event.getActionMasked()){// || MotionEvent.ACTION_POINTER_DOWN == event.getActionMasked()){
-					keys[lastKey[j]].setKeyUp();
-					mOnKeyboardChangeListener.onKeyChanged(lastKey[j]+baseNote, false);
-					keys[currentKey[j]].setKeyDown();
-					//System.out.println("Voila down: " + currentKey[j]);
-					mOnKeyboardChangeListener.onKeyChanged(currentKey[j]+baseNote, true);
-				}
-				else if(MotionEvent.ACTION_UP == event.getActionMasked()){// || (currentKey[j] != lastKey[j] && MotionEvent.ACTION_POINTER_UP == event.getActionMasked())){
-					keys[lastKey[j]].setKeyUp();
-					//System.out.println("Voila up: " + lastKey[j]);
-					mOnKeyboardChangeListener.onKeyChanged(lastKey[j]+baseNote, false);
-				}
-				lastKey[j] = currentKey[j];
-			}
-		}
-		return true;
-	}
-	*/
-	
+	 * Subclass implementing a single key and its listener
+	 */
 	class PianoKey extends ViewGroup{
-		PianoKeyElement keyUp, keyDown;
-		private int ID = 0;
-		private int keyType = 0;
+		private PianoKeyElement keyUp, keyDown;
+		private int ID = 0; // key ID on the keyboard
+		private int keyType = 0; // key type (white left, center, right or black)
 		
 		public PianoKey(Context context, int type, int id){
 			super(context);
@@ -257,30 +171,38 @@ class PianoKeyboard extends ViewGroup{
 		
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (mOnKeyboardChangeListener != null) {
-				//mOnKeyboardChangeListener.onPressureChanged(event.getPressure());
-				//if(event.getX() < 150 && event.getX() >= 0) mOnKeyboardChangeListener.onXChanged(event.getX());
-				if(keyType != 3){
-					if(event.getX() > whiteKeysWidth || event.getX() < 0) 
-						mOnKeyboardChangeListener.onPitchBend(ID+baseNote, (ID+baseNote) + (event.getX()/whiteKeysWidth));
-					else mOnKeyboardChangeListener.onPitchBend(ID+baseNote, ID+baseNote);
-				}
-				if(keyType == 3){
-					if(event.getX() > blackKeysWidth || event.getX() < 0) 
-						mOnKeyboardChangeListener.onPitchBend(ID+baseNote, (ID+baseNote) + (event.getX()/blackKeysWidth));
-					else mOnKeyboardChangeListener.onPitchBend(ID+baseNote, ID+baseNote);
-				}
-			}
+			int pitch = ID+baseNote;
+			float gain = 0;
 			if (event.getAction() == MotionEvent.ACTION_DOWN){
 				setKeyDown();
 				if (mOnKeyboardChangeListener != null) {
-					mOnKeyboardChangeListener.onKeyChanged(ID+baseNote, true);
+					mOnKeyboardChangeListener.onKeyChanged(pitch, (int) gain*127, true);
 				}
 			}
 			else if(event.getAction() == MotionEvent.ACTION_UP){
 				setKeyUp();
 				if (mOnKeyboardChangeListener != null) {
-					mOnKeyboardChangeListener.onKeyChanged(ID+baseNote,false);
+					mOnKeyboardChangeListener.onKeyChanged(pitch, 0, false);
+				}
+			}
+			if (mOnKeyboardChangeListener != null) {
+				if(keyType != 3){
+					if(event.getX() > whiteKeysWidth || event.getX() < 0) 
+						mOnKeyboardChangeListener.onPitchBend(pitch, pitch + (event.getX()/whiteKeysWidth));
+					else mOnKeyboardChangeListener.onPitchBend(pitch, pitch);
+				}
+				if(keyType == 3){
+					if(event.getX() > blackKeysWidth || event.getX() < 0) 
+						mOnKeyboardChangeListener.onPitchBend(pitch, pitch + (event.getX()/blackKeysWidth));
+					else mOnKeyboardChangeListener.onPitchBend(pitch, pitch);
+				}
+				if(event.getY() < blackKeysHeight){
+					gain = event.getY()/blackKeysHeight;
+					mOnKeyboardChangeListener.onYChanged(pitch, gain);
+				}
+				else{ 
+					gain = 1;
+					mOnKeyboardChangeListener.onYChanged(pitch,gain);
 				}
 			}
 			return true;
@@ -291,32 +213,35 @@ class PianoKeyboard extends ViewGroup{
 	    }
 	}
 	
+	/*
+	 * Single piano key element, for example black key down or up
+	 */
 	class PianoKeyElement extends View{
-		private Drawable keyUp;
+		private Drawable keyElement;
 	
 		public PianoKeyElement(Context context, int type, int mode){
 			super(context);
 			
 			Resources res = context.getResources();
 			if(type == 0){
-				if(mode == 1) keyUp = res.getDrawable(R.drawable.piano_key_left_down);
-				else keyUp = res.getDrawable(R.drawable.piano_key_left);
+				if(mode == 1) keyElement = res.getDrawable(R.drawable.piano_key_left_down);
+				else keyElement = res.getDrawable(R.drawable.piano_key_left);
 			}
 			else if(type == 1){
-				if(mode == 1) keyUp = res.getDrawable(R.drawable.piano_key_center_down);
-				else keyUp = res.getDrawable(R.drawable.piano_key_center);
+				if(mode == 1) keyElement = res.getDrawable(R.drawable.piano_key_center_down);
+				else keyElement = res.getDrawable(R.drawable.piano_key_center);
 			}
 			else if(type == 2){
-				if(mode == 1) keyUp = res.getDrawable(R.drawable.piano_key_right_down);
-				else keyUp = res.getDrawable(R.drawable.piano_key_right);
+				if(mode == 1) keyElement = res.getDrawable(R.drawable.piano_key_right_down);
+				else keyElement = res.getDrawable(R.drawable.piano_key_right);
 			}
 			else if(type == 3){
-				if(mode == 1) keyUp = res.getDrawable(R.drawable.piano_key_black_down);
-				else keyUp = res.getDrawable(R.drawable.piano_key_black);
+				if(mode == 1) keyElement = res.getDrawable(R.drawable.piano_key_black_down);
+				else keyElement = res.getDrawable(R.drawable.piano_key_black);
 			}
 			else{
-				if(mode == 1) keyUp = res.getDrawable(R.drawable.piano_key_center_down);
-				else keyUp = res.getDrawable(R.drawable.piano_key_center);
+				if(mode == 1) keyElement = res.getDrawable(R.drawable.piano_key_center_down);
+				else keyElement = res.getDrawable(R.drawable.piano_key_center);
 			}
 		}
 	
@@ -324,7 +249,10 @@ class PianoKeyboard extends ViewGroup{
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 			super.onSizeChanged(w, h, oldw, oldh);
 			
-			setPadding(3,0,3,3);
+			// commented to remove the black border around keys: kind of look
+			// better like that but can be reactivated at any time... Plus 
+			// this remove any potential dead zone.
+			//setPadding(3,0,3,3);
 			
 			float xpad = (float) (getPaddingLeft() + getPaddingRight());
 			float ypad = (float) (getPaddingTop() + getPaddingBottom());
@@ -332,12 +260,12 @@ class PianoKeyboard extends ViewGroup{
 			int ww =  (int) (w - xpad);
 			int hh = (int) (h - ypad);
 
-			keyUp.setBounds(0, 0, ww, hh);
+			keyElement.setBounds(0, 0, ww, hh);
 		}
 	
 		protected void onDraw(Canvas canvas) {
 			super.onDraw(canvas);
-			keyUp.draw(canvas);
+			keyElement.draw(canvas);
 		}
 	}
 }

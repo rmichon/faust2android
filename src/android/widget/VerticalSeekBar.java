@@ -35,6 +35,12 @@ public class VerticalSeekBar extends SeekBar {
 
         super.onDraw(c);
     }
+    
+    /*
+    public void setProgress(int progress){
+    	super.setProgress(progress+5000);
+    }
+    */
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {

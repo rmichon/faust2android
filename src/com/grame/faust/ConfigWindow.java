@@ -2,7 +2,6 @@ package com.grame.faust;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -10,13 +9,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.ToggleButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 /*
@@ -26,9 +22,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class ConfigWindow{
 	PopupWindow mainWindow;
-	LinearLayout mainWindowLayout, minSliderLayout, maxSliderLayout, centerSliderLayout;
+	LinearLayout mainWindowLayout, minSliderLayout, maxSliderLayout, centerSliderLayout, windowLayout, titleLayout;
 	SelectBar axisSelection, axisOrientation;
-	TextView closeButton,minSliderValue, maxSliderValue, centerSliderValue;
+	TextView closeButton,minSliderValue, maxSliderValue, centerSliderValue, windowLabel;
 	SeekBar minSlider, maxSlider, centerSlider;
 	Point size;
 	
@@ -57,9 +53,9 @@ public class ConfigWindow{
 		maxSlider = new SeekBar(c);
 		centerSlider = new SeekBar(c);
 		
-		LinearLayout windowLayout = new LinearLayout(c);
-		LinearLayout titleLayout = new LinearLayout(c);
-		TextView windowLabel = new TextView(c);
+		windowLayout = new LinearLayout(c);
+		titleLayout = new LinearLayout(c);
+		windowLabel = new TextView(c);
 		TextView axisLabel = new TextView(c);
 		TextView orientationLabel = new TextView(c);
 		
@@ -143,13 +139,12 @@ public class ConfigWindow{
 		mainWindow.showAtLocation(mainWindowLayout, Gravity.CENTER,0,0);
 		mainWindow.update(0, 0, size.x*700/800, ViewGroup.LayoutParams.WRAP_CONTENT);
 		
-		closeButton.setOnClickListener(new OnClickListener(){
+		titleLayout.setOnClickListener(new OnClickListener(){
 			public void onClick(View v){
 				mainWindow.dismiss();
 			}
 		});
 		
-		// TODO: dirty listener for axis selection: could be improved
 		for(int i=0; i<axisSelection.length; i++){
 			final int index = i;
 			axisSelection.parameterLabel[i].setOnClickListener(new OnClickListener(){
@@ -160,7 +155,6 @@ public class ConfigWindow{
 			});
 		}
 		
-		// TODO: dirty listener for axis selection: could be improved
 		for(int i=0; i<axisOrientation.length; i++){
 			final int index = i;
 			axisOrientation.imgs[i].setOnClickListener(new OnClickListener(){

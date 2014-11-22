@@ -37,7 +37,7 @@ class HorizontalSlider {
 	 * padding: padding of the view in pxs
 	 */
 	public HorizontalSlider(Context c, String addr, int currentParameterID, 
-			int width, int backgroundColor, int padding) {
+			int width, int backgroundColor, int padding, boolean visibility) {
 		id = currentParameterID;
 		address = addr;
 		
@@ -46,8 +46,7 @@ class HorizontalSlider {
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		
 		frame = new LinearLayout(c);
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				width, ViewGroup.LayoutParams.WRAP_CONTENT));
+		setWidth(width);
 		frame.setOrientation(LinearLayout.VERTICAL);
 		frame.setBackgroundColor(Color.rgb(backgroundColor, 
 				backgroundColor, backgroundColor));
@@ -68,11 +67,13 @@ class HorizontalSlider {
 		
 		textValue = new TextView(c);
 		
-		sliderLayout.addView(textValue);
-		sliderLayout.addView(slider);
-		localVerticalGroup.addView(textLabel);
-		localVerticalGroup.addView(sliderLayout);
-		frame.addView(localVerticalGroup);
+		if(visibility){
+			sliderLayout.addView(textValue);
+			sliderLayout.addView(slider);
+			localVerticalGroup.addView(textLabel);
+			localVerticalGroup.addView(sliderLayout);
+			frame.addView(localVerticalGroup);
+		}
 	}
 	
 	/*
@@ -95,6 +96,11 @@ class HorizontalSlider {
 		decimalsDisplay = "%."+decimals+"f";
 	}
 	
+	public void setWidth(int width){
+		frame.setLayoutParams(new ViewGroup.LayoutParams(
+				width, ViewGroup.LayoutParams.WRAP_CONTENT));
+	}
+	
 	/*
 	 * Set the value displayed next to the slider
 	 */
@@ -105,9 +111,11 @@ class HorizontalSlider {
 	/*
 	 * Set the slider's value
 	 */
+	// TODO: this screwed but was fixed to work with the multi interface 
+	// but there might still be weird things going on...
 	public void setValue(float theValue){
-		if(theValue<=0 && min<0) slider.setProgress(Math.round((theValue-min)*(1/step)));
-		else slider.setProgress(Math.round((theValue+min)*(1/step)));
+		if(theValue<=0 && min<0) slider.setProgress(Math.round(theValue*(1/step)+min));
+		else slider.setProgress(Math.round(theValue*(1/step)-min));
 		setDisplayedValue(theValue);
 	}
 	
@@ -131,7 +139,7 @@ class HorizontalSlider {
 	public void linkTo(final ParametersInfo parametersInfo, final ConfigWindow parametersWindow, final HorizontalScrollView horizontalScroll){
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
-				parametersWindow.showWindow(parametersInfo, id);
+				if(!parametersInfo.locked) parametersWindow.showWindow(parametersInfo, id);
 				return true;
 			}
 		});

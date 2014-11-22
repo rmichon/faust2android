@@ -102,6 +102,18 @@ float getParam(const char*);
 void setParam(const char*, float);
 
 /*
+ * setParam(address,voice,value)
+ * Set the value of the parameter associated with address and voice.
+ */
+void setVoiceParam(const char*, int, float);
+
+/*
+ * setVoiceGain(pitch,gain)
+ * Set the gain of a voice where gain is between 0 and 1.
+ */
+void setVoiceGain(int, float);
+
+/*
  * getParamAddress(id)
  * Returns the address of a parameter in function of its "id".
  */

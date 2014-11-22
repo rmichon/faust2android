@@ -22,7 +22,9 @@ import android.widget.VerticalSeekBar;
 
 /*
  * TODO: with accelerometers, when using setNormalizedValue the handle of the 
- * slider doesn't move.
+ * slider doesn't move. I think the only way to solve this problem might be
+ * to have our own implementation of vertical slider which obviously would be
+ * a lot of work...
  */
 
 /*
@@ -46,7 +48,7 @@ class VerticalSlider {
 	 * backgroundColor: grey level of the background of the view (0-255)
 	 */
 	public VerticalSlider(Context c, String addr, int currentParameterID,
-			int width, int backgroundColor){
+			int width, int backgroundColor, boolean visibility){
 		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		size = new Point();
@@ -83,12 +85,13 @@ class VerticalSlider {
 		
 		textValue = new TextView(c);
 		textValue.setGravity(Gravity.CENTER);
-		
-		sliderLayout.addView(textValue);
-		sliderLayout.addView(slider);
-		localVerticalGroup.addView(textLabel);
-		localVerticalGroup.addView(sliderLayout);
-		frame.addView(localVerticalGroup);
+		if(visibility){
+			sliderLayout.addView(textValue);
+			sliderLayout.addView(slider);
+			localVerticalGroup.addView(textLabel);
+			localVerticalGroup.addView(sliderLayout);
+			frame.addView(localVerticalGroup);
+		}
 	}
 	
 	/*
@@ -121,9 +124,11 @@ class VerticalSlider {
 	/*
 	 * Set the slider's value
 	 */
+	// TODO: this screwed but was fixed to work with the multi interface 
+	// but there might still be weird things going on...
 	public void setValue(float theValue){
-		if(theValue<=0 && min<0) slider.setProgress(Math.round((theValue-min)*(1/step)));
-		else slider.setProgress(Math.round((theValue+min)*(1/step)));
+		if(theValue<=0 && min<0) slider.setProgress(Math.round(theValue*(1/step)+min));
+		else slider.setProgress(Math.round(theValue*(1/step)-min));
 		setDisplayedValue(theValue);
 	}
 	
@@ -147,7 +152,7 @@ class VerticalSlider {
 	public void linkTo(final ParametersInfo parametersInfo, final ConfigWindow parametersWindow, final HorizontalScrollView horizontalScroll){
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
-				parametersWindow.showWindow(parametersInfo, id);
+				if(!parametersInfo.locked) parametersWindow.showWindow(parametersInfo, id);
 				return true;
 			}
 		});

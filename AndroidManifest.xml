@@ -4,8 +4,8 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="17"
-        android:targetSdkVersion="20" />
+        android:minSdkVersion="16"
+        android:targetSdkVersion="21" />
     
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
@@ -26,6 +26,28 @@
         <activity
             android:name="com.grame.faust.PianoActivity"
             android:label="@string/keyboard_activity"
+            android:parentActivityName="com.grame.faust.FaustActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.grame.faust.FaustActivity" />
+        </activity>
+        <activity
+            android:name="com.grame.faust.MultiActivity"
+            android:label="@string/multi_activity"
+            android:parentActivityName="com.grame.faust.FaustActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.grame.faust.FaustActivity" />
+        </activity>
+        <activity
+            android:name="com.grame.faust.MultiKeyboardActivity"
+            android:label="@string/multi_keyboard_activity"
             android:parentActivityName="com.grame.faust.FaustActivity"
             android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden"

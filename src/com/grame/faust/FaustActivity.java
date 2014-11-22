@@ -2,20 +2,36 @@ package com.grame.faust;
 
 /*
  * TODO
- * - Locker to lock accelerometers.
+ * - The knob class could be greatly improved
+ * - Drop down menu for actions for small screens 
  * - Vertical sliders are fucked up with accelerometers.
  * - Bargraphs are disabled and need more work
  * - Interface elements could be normalized using android standards
  * (that would take forever and the difference would be hard to notice)
  * - The accelerometers window should be finished: weird stuff with up and down
- * - Settings menu should be added
+ * 		- Fancy slider to control min, max and center
+ * - Settings menu should be added actually not sure about that...
  * - Multitouch zoom
  * - Try complex examples for debuging
  * - The compilation script should be tested on OSX
  * - OSC should be enabled
  * - If keyboard mode is enabled, elements that removed from the interface should be scaled
  * - Write a proper documentation
- * - Make the native API OSX compatible.
+ * - Make the native API OSX compatible
+ * - Ideally, the C++ API should be able to return min, max, etc... it would be very convenient
+ * when an app uses several activities.
+ * - Xruns sometimes, not sure why...
+ * - Polymax should be defined by "keyboard" in the Faust code...
+ * - It seems that when polyphonic, voices are always computed which is highly ineficient... 
+ * - Multi Params
+ * 		- Cosmetic: Big dots when the parameter is being touched.
+ * 		- Accelerometer should be enabled in function of what was
+ * 		configured in the main interface.
+ * - Piano Keyboard
+ * 		- Add a dot that would follow the finger when going
+ * 		outside of a key.
+ * 		- The way the position of the keys on the keyboard is set
+ * 		is kind of flumsy: this could be improved.
  */
 
 import com.grame.faust_dsp.faust_dsp;
@@ -24,6 +40,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -39,6 +56,8 @@ public class FaustActivity extends Activity {
 	int accelUpdateRate = 30; //in ms
 	private SensorManager mSensorManager;
 	float[] rawAccel = new float[3];
+	int numberOfParameters;
+	boolean activityJustCreated;
 	
 	//Thread displayThread, accelThread;
 	Thread accelThread;
@@ -53,9 +72,11 @@ public class FaustActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        activityJustCreated = true; // used to load the saved parameters only once
+        
         if(!faust_dsp.isRunning()) faust_dsp.init(44100,512);
         
-        final int numberOfParameters = faust_dsp.getParamsCount();
+        numberOfParameters = faust_dsp.getParamsCount();
         
         parametersInfo.init(numberOfParameters);
         SharedPreferences settings = getSharedPreferences("savedParameters", 0);
@@ -165,6 +186,17 @@ public class FaustActivity extends Activity {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity_actions, menu);
+        MenuItem lockItem = menu.getItem(3); // retrieving the registered ID doesn't seem to work -> hardcoded here
+        MenuItem keybItem = menu.getItem(0);
+        if(!parametersInfo.locked){
+    		lockItem.setIcon(R.drawable.ic_lockiconopen);
+    	}
+    	else{
+    		lockItem.setIcon(R.drawable.ic_lockiconclose);
+    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+    	}
+        // display the keyboard icon if the Faust code enables keyboard interfaces
+        if(!ui.hasKeyboard && !ui.hasMulti) keybItem.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
     
@@ -173,9 +205,21 @@ public class FaustActivity extends Activity {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
         	case R.id.action_keyboard:
-        		if(ui.hasKeyboard){
+        		if(ui.hasKeyboard && !ui.hasMulti){
         			Intent pianoIntent = new Intent(this, PianoActivity.class);
         			startActivity(pianoIntent);
+        		}
+        		else if(ui.hasMulti && !ui.hasKeyboard){
+        			SharedPreferences settings = getSharedPreferences("savedParameters", 0);
+        		    parametersInfo.saveParemeters(settings);
+        			Intent multiIntent = new Intent(this, MultiActivity.class);
+        			startActivity(multiIntent);
+        		}
+        		else if(ui.hasMulti && ui.hasKeyboard){
+        			SharedPreferences settings = getSharedPreferences("savedParameters", 0);
+        		    parametersInfo.saveParemeters(settings);
+        			Intent multiIntent = new Intent(this, MultiKeyboardActivity.class);
+        			startActivity(multiIntent);
         		}
         		return true;
             case R.id.action_zoomin:
@@ -188,6 +232,17 @@ public class FaustActivity extends Activity {
             		recreate();
             	}
                 return true;
+            case R.id.action_lock:
+            	if(parametersInfo.locked){
+            		item.setIcon(R.drawable.ic_lockiconopen);
+            		parametersInfo.locked = false;
+            		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+            	}
+            	else{
+            		item.setIcon(R.drawable.ic_lockiconclose);
+            		parametersInfo.locked = true;
+            		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+            	}
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -196,11 +251,13 @@ public class FaustActivity extends Activity {
     @Override
    	protected void onPause() {
    		mSensorManager.unregisterListener(mSensorListener);
+   		activityJustCreated = false;
    		super.onPause();
    	}
     
     protected void onResume() {
 		super.onResume();
+		if(!activityJustCreated) ui.updateUIstate();
 	    mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
 	    		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
 	    on = true; // TODO: why?

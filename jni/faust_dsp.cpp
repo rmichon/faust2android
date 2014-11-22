@@ -395,6 +395,8 @@ class PathUI : public UI
 #include <iostream>
 #include <sstream>
 
+#include <assert.h>
+
 /*******************************************************************************
  * JSONUI : Faust User Interface
  * This class produce a complete JSON decription of the DSP instance.
@@ -432,18 +434,18 @@ class JSONUI : public PathUI, public Meta
                 std::string sep = "";
                 for (size_t i = 0; i < fMetaAux.size(); i++) {
                     fUI << sep;
-                    tab(tab_val + 1, fUI); fUI << "{ " << "\"" << fMetaAux[i].first << "\": \"" << fMetaAux[i].second << "\"}";
+                    tab(tab_val + 1, fUI); fUI << "{ \"" << fMetaAux[i].first << "\": \"" << fMetaAux[i].second << "\" }";
                     sep = ",";
                 }
                 tab(tab_val, fUI); fUI << ((quote) ? "],": "]");
                 fMetaAux.clear();
             }
         }
-      
-     public:
-
-        JSONUI(int inputs, int outputs):fTab(1)
+        
+        void init(const std::string& name, int inputs, int outputs)
         {
+            fTab = 1;
+            
             // Start Meta generation
             tab(fTab, fMeta); fMeta << "\"meta\": [";
             fCloseMetaPar = ' ';
@@ -453,11 +455,23 @@ class JSONUI : public PathUI, public Meta
             fCloseUIPar = ' ';
             fTab += 1;
             
-            fName = "";
+            fName = name;
             fInputs = inputs;
             fOutputs = outputs;
         }
+      
+     public:
+     
+        JSONUI(const std::string& name, int inputs, int outputs)
+        {
+            init(name, inputs, outputs);
+        }
 
+        JSONUI(int inputs, int outputs)
+        {
+            init("", inputs, outputs);
+        }
+ 
         virtual ~JSONUI() {}
 
         // -- widget's layouts
@@ -469,7 +483,8 @@ class JSONUI : public PathUI, public Meta
             tab(fTab, fUI); fUI << "{";
             fTab += 1;
             tab(fTab, fUI); fUI << "\"type\": \"" << name << "\",";
-            tab(fTab, fUI); fUI << "\"label\":" << "\"" << label << "\",";
+            tab(fTab, fUI); fUI << "\"label\": \"" << label << "\",";
+            addMeta(fTab + 1);
             tab(fTab, fUI); fUI << "\"items\": [";
             fCloseUIPar = ' ';
             fTab += 1;
@@ -507,8 +522,8 @@ class JSONUI : public PathUI, public Meta
             fUI << fCloseUIPar;
             tab(fTab, fUI); fUI << "{";
             tab(fTab + 1, fUI); fUI << "\"type\": \"" << name << "\",";
-            tab(fTab + 1, fUI); fUI << "\"label\": " << "\"" << label << "\"" << ",";
-            tab(fTab + 1, fUI); fUI << "\"address\": " << "\"" << buildPath(label) << "\"" << ((fMetaAux.size() > 0) ? "," : "");
+            tab(fTab + 1, fUI); fUI << "\"label\": \"" << label << "\"" << ",";
+            tab(fTab + 1, fUI); fUI << "\"address\": \"" << buildPath(label) << "\"" << ((fMetaAux.size() > 0) ? "," : "");
             addMeta(fTab + 1, false);
             tab(fTab, fUI); fUI << "}";
             fCloseUIPar = ',';
@@ -529,8 +544,8 @@ class JSONUI : public PathUI, public Meta
             fUI << fCloseUIPar;
             tab(fTab, fUI); fUI << "{";
             tab(fTab + 1, fUI); fUI << "\"type\": \"" << name << "\",";
-            tab(fTab + 1, fUI); fUI << "\"label\": " << "\"" << label << "\"" << ",";
-            tab(fTab + 1, fUI); fUI << "\"address\": " << "\"" << buildPath(label) << "\"" << ",";
+            tab(fTab + 1, fUI); fUI << "\"label\": \"" << label << "\"" << ",";
+            tab(fTab + 1, fUI); fUI << "\"address\": \"" << buildPath(label) << "\"" << ",";
             addMeta(fTab + 1);
             tab(fTab + 1, fUI); fUI << "\"init\": \"" << init << "\",";
             tab(fTab + 1, fUI); fUI << "\"min\": \"" << min << "\",";
@@ -562,8 +577,8 @@ class JSONUI : public PathUI, public Meta
             fUI << fCloseUIPar;
             tab(fTab, fUI); fUI << "{";
             tab(fTab + 1, fUI); fUI << "\"type\": \"" << name << "\",";
-            tab(fTab + 1, fUI); fUI << "\"label\": " << "\"" << label << "\"" << ",";
-            tab(fTab + 1, fUI); fUI << "\"address\": " << "\"" << buildPath(label) << "\"" << ",";
+            tab(fTab + 1, fUI); fUI << "\"label\": \"" << label << "\"" << ",";
+            tab(fTab + 1, fUI); fUI << "\"address\": \"" << buildPath(label) << "\"" << ",";
             addMeta(fTab + 1);
             tab(fTab + 1, fUI); fUI << "\"min\": \"" << min << "\",";
             tab(fTab + 1, fUI); fUI << "\"max\": \"" << max << "\"";
@@ -592,8 +607,8 @@ class JSONUI : public PathUI, public Meta
         virtual void declare(const char* key, const char* value)
         {
             fMeta << fCloseMetaPar;
-            if (strcmp(key, "name") == 0) fName = value;
-            tab(fTab, fMeta); fMeta << "{ " << "\"" << key << "\"" << ":" << "\"" << value << "\" }";
+            if ((strcmp(key, "name") == 0) && (fName == "")) fName = value;
+            tab(fTab, fMeta); fMeta << "{ " << "\"" << key << "\"" << ": " << "\"" << value << "\" }";
             fCloseMetaPar = ',';
         }
     
@@ -623,8 +638,6 @@ class JSONUI : public PathUI, public Meta
             fJSON << "{";
             fTab += 1;
             tab(fTab, fJSON); fJSON << "\"name\": \"" << fName << "\",";
-            tab(fTab, fJSON); fJSON << "\"address\": \"\",";
-            tab(fTab, fJSON); fJSON << "\"port\": \"0\",";
             if (fInputs > 0) { tab(fTab, fJSON); fJSON << "\"inputs\": \"" << fInputs << "\","; }
             if (fOutputs > 0) { tab(fTab, fJSON); fJSON << "\"outputs\": \"" << fOutputs << "\","; }
             tab(fTab, fMeta); fMeta << "],";
@@ -796,17 +809,19 @@ class mydsp : public dsp {
 
 	static float 	ftbl0[65536];
 	FAUSTFLOAT 	fslider0;
+	float 	fRec3[2];
+	float 	fConst0;
 	float 	fRec2[2];
 	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT 	fentry0;
-	float 	fConst0;
-	float 	fRec3[2];
-	FAUSTFLOAT 	fentry1;
-	float 	fRec1[2];
-	FAUSTFLOAT 	fbutton0;
 	float 	fRec4[2];
 	FAUSTFLOAT 	fslider2;
+	float 	fRec5[2];
+	float 	fRec1[2];
 	FAUSTFLOAT 	fslider3;
+	float 	fRec6[2];
+	FAUSTFLOAT 	fbutton0;
+	float 	fRec7[2];
+	FAUSTFLOAT 	fslider4;
   public:
 	static void metadata(Meta* m) 	{ 
 		m->declare("music.lib/name", "Music Library");
@@ -836,34 +851,36 @@ class mydsp : public dsp {
 	}
 	virtual void instanceInit(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
-		fslider0 = 4.4e+02f;
-		for (int i=0; i<2; i++) fRec2[i] = 0;
-		fslider1 = 0.0f;
-		fentry0 = 777.0f;
-		fConst0 = (1.0f / float(min(192000, max(1, fSamplingFreq))));
+		fslider0 = 777.0f;
 		for (int i=0; i<2; i++) fRec3[i] = 0;
-		fentry1 = 1e+02f;
-		for (int i=0; i<2; i++) fRec1[i] = 0;
-		fbutton0 = 0.0;
+		fConst0 = (1.0f / float(min(192000, max(1, fSamplingFreq))));
+		for (int i=0; i<2; i++) fRec2[i] = 0;
+		fslider1 = 1e+03f;
 		for (int i=0; i<2; i++) fRec4[i] = 0;
-		fslider2 = 0.5f;
+		fslider2 = 4.4e+02f;
+		for (int i=0; i<2; i++) fRec5[i] = 0;
+		for (int i=0; i<2; i++) fRec1[i] = 0;
 		fslider3 = 1.0f;
+		for (int i=0; i<2; i++) fRec6[i] = 0;
+		fbutton0 = 0.0;
+		for (int i=0; i<2; i++) fRec7[i] = 0;
+		fslider4 = 0.5f;
 	}
 	virtual void init(int samplingFreq) {
 		classInit(samplingFreq);
 		instanceInit(samplingFreq);
 	}
 	virtual void buildUserInterface(UI* interface) {
-		interface->declare(0, "style", "keyboard");
 		interface->openVerticalBox("FMsynth");
 		interface->openHorizontalBox("General Parameters");
-		interface->addHorizontalSlider("Balance", &fslider2, 0.5f, 0.0f, 1.0f, 0.1f);
-		interface->addHorizontalSlider("Bending", &fslider1, 0.0f, -1.0f, 1.0f, 0.01f);
-		interface->addHorizontalSlider("freq", &fslider0, 4.4e+02f, 2e+01f, 8e+03f, 1.0f);
+		interface->addHorizontalSlider("Balance", &fslider4, 0.5f, 0.0f, 1.0f, 0.1f);
+		interface->addHorizontalSlider("freq", &fslider2, 4.4e+02f, 2e+01f, 8e+03f, 1.0f);
 		interface->closeBox();
 		interface->openHorizontalBox("Modulator");
-		interface->addNumEntry("Frequency", &fentry0, 777.0f, 2e+01f, 1.5e+04f, 1.0f);
-		interface->addNumEntry("Modulation Index", &fentry1, 1e+02f, 0.0f, 1e+03f, 0.1f);
+		interface->declare(&fslider0, "multi", "0");
+		interface->addHorizontalSlider("Frequency", &fslider0, 777.0f, 2e+01f, 1.5e+04f, 1.0f);
+		interface->declare(&fslider1, "multi", "1");
+		interface->addHorizontalSlider("Modulation Index", &fslider1, 1e+03f, 0.0f, 1e+04f, 1.0f);
 		interface->closeBox();
 		interface->addHorizontalSlider("gain", &fslider3, 1.0f, 0.0f, 1.0f, 0.01f);
 		interface->addButton("gate", &fbutton0);
@@ -871,31 +888,35 @@ class mydsp : public dsp {
 	}
 	virtual void compute (int count, FAUSTFLOAT** input, FAUSTFLOAT** output) {
 		float 	fSlow0 = (0.0010000000000000009f * float(fslider0));
-		float 	fSlow1 = (1 + (0.1f * float(fslider1)));
-		float 	fSlow2 = (fConst0 * float(fentry0));
-		float 	fSlow3 = float(fentry1);
+		float 	fSlow1 = (0.0010000000000000009f * float(fslider1));
+		float 	fSlow2 = (0.0010000000000000009f * float(fslider2));
+		float 	fSlow3 = (0.0010000000000000009f * float(fslider3));
 		float 	fSlow4 = (0.0010000000000000009f * float(fbutton0));
-		float 	fSlow5 = float(fslider2);
-		float 	fSlow6 = float(fslider3);
-		float 	fSlow7 = (fSlow6 * fSlow5);
-		float 	fSlow8 = (fSlow6 * (1 - fSlow5));
+		float 	fSlow5 = float(fslider4);
+		float 	fSlow6 = (1 - fSlow5);
 		FAUSTFLOAT* output0 = output[0];
 		FAUSTFLOAT* output1 = output[1];
 		for (int i=0; i<count; i++) {
-			fRec2[0] = ((0.999f * fRec2[1]) + fSlow0);
-			float fTemp0 = (fRec3[1] + fSlow2);
-			fRec3[0] = (fTemp0 - floorf(fTemp0));
-			float fTemp1 = (fRec1[1] + (fConst0 * ((fSlow3 * ftbl0[int((65536.0f * fRec3[0]))]) + (fSlow1 * fRec2[0]))));
+			fRec3[0] = ((0.999f * fRec3[1]) + fSlow0);
+			float fTemp0 = (fRec2[1] + (fConst0 * fRec3[0]));
+			fRec2[0] = (fTemp0 - floorf(fTemp0));
+			fRec4[0] = ((0.999f * fRec4[1]) + fSlow1);
+			fRec5[0] = ((0.999f * fRec5[1]) + fSlow2);
+			float fTemp1 = (fRec1[1] + (fConst0 * (fRec5[0] + (fRec4[0] * ftbl0[int((65536.0f * fRec2[0]))]))));
 			fRec1[0] = (fTemp1 - floorf(fTemp1));
-			fRec4[0] = ((0.999f * fRec4[1]) + fSlow4);
-			float fTemp2 = (fRec4[0] * ftbl0[int((65536.0f * fRec1[0]))]);
-			output0[i] = (FAUSTFLOAT)(fSlow7 * fTemp2);
-			output1[i] = (FAUSTFLOAT)(fSlow8 * fTemp2);
+			fRec6[0] = ((0.999f * fRec6[1]) + fSlow3);
+			fRec7[0] = ((0.999f * fRec7[1]) + fSlow4);
+			float fTemp2 = ((fRec7[0] * fRec6[0]) * ftbl0[int((65536.0f * fRec1[0]))]);
+			output0[i] = (FAUSTFLOAT)(fSlow5 * fTemp2);
+			output1[i] = (FAUSTFLOAT)(fSlow6 * fTemp2);
 			// post processing
-			fRec4[1] = fRec4[0];
+			fRec7[1] = fRec7[0];
+			fRec6[1] = fRec6[0];
 			fRec1[1] = fRec1[0];
-			fRec3[1] = fRec3[0];
+			fRec5[1] = fRec5[0];
+			fRec4[1] = fRec4[0];
 			fRec2[1] = fRec2[0];
+			fRec3[1] = fRec3[0];
 		}
 	}
 };
@@ -988,7 +1009,7 @@ struct mydsp_poly
         }
     }
     
-    inline float midiToFreq(float note)
+    inline float midiToFreq(float note) 
     {
         return 440.0f * powf(2.0f, (note-69.0f)/12.0f);
     }
@@ -1080,7 +1101,7 @@ struct mydsp_poly
     {
         return fVoiceTable[0]->fVoice.getNumOutputs();
     }
-
+    
     void keyOn(int channel, int pitch, int velocity)
     {
         int voice = getVoice(-1);  // Gets a free voice
@@ -1117,7 +1138,7 @@ struct mydsp_poly
         	printf("Playing voice not found...\n");
         }
     }
-
+    
     void ctrlChange(int channel, int ctrl, int value)
     {}
     
@@ -1134,6 +1155,14 @@ struct mydsp_poly
         for (int i = 0; i < fMaxPolyphony; i++) {
             fVoiceTable[i]->setValue(path, value);
         }
+    }
+    
+    void setValue(const char* path, int pitch, float value)
+    {
+    	int voice = getVoice(pitch);
+    	if (voice >= 0) {
+    		fVoiceTable[voice]->setValue(path, value);
+    	}
     }
     
     float getValue(const char* path)
@@ -2009,7 +2038,10 @@ int getParamsCount() {
  * value.
  */
 float getParam(const char* address) {
-	return mapUI.getValue(address);
+	if (polyMax == 0)
+		return mapUI.getValue(address);
+	else
+		return DSPpoly->getValue(address);
 }
 
 /*
@@ -2021,6 +2053,23 @@ void setParam(const char* address, float value) {
 		mapUI.setValue(address, value);
 	else
 		DSPpoly->setValue(address, value);
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s",address);
+}
+
+/*
+ * setParam(address,value)
+ * Set the value of the parameter associated with address and voice.
+ */
+void setVoiceParam(const char* address, int pitch, float value) {
+	DSPpoly->setValue(address, pitch, value);
+}
+
+/*
+ * setVoiceGain(pitch,gain)
+ * Set the gain of a voice where gain is between 0 and 1.
+ */
+void setVoiceGain(int pitch, float gain){
+	setVoiceParam(DSPpoly->fGainLabel.c_str(),pitch,gain);
 }
 
 /*
@@ -2030,4 +2079,3 @@ void setParam(const char* address, float value) {
 const char *getParamAddress(int id) {
 	return strdup(mapUI.getParamPath(id).c_str());
 }
-

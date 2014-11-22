@@ -849,7 +849,10 @@ int getParamsCount() {
  * value.
  */
 float getParam(const char* address) {
-	return mapUI.getValue(address);
+	if (polyMax == 0)
+		return mapUI.getValue(address);
+	else
+		return DSPpoly->getValue(address);
 }
 
 /*
@@ -861,6 +864,23 @@ void setParam(const char* address, float value) {
 		mapUI.setValue(address, value);
 	else
 		DSPpoly->setValue(address, value);
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s",address);
+}
+
+/*
+ * setParam(address,value)
+ * Set the value of the parameter associated with address and voice.
+ */
+void setVoiceParam(const char* address, int pitch, float value) {
+	DSPpoly->setValue(address, pitch, value);
+}
+
+/*
+ * setVoiceGain(pitch,gain)
+ * Set the gain of a voice where gain is between 0 and 1.
+ */
+void setVoiceGain(int pitch, float gain){
+	setVoiceParam(DSPpoly->fGainLabel.c_str(),pitch,gain);
 }
 
 /*

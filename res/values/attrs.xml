@@ -1,6 +1,7 @@
 <resources>
     <declare-styleable name="PianoKeyboard">
         <attr name="keys" format="integer"/>
+        <attr name="basenote" format="integer"/>
     </declare-styleable>
     
     <declare-styleable name="SeekArc">

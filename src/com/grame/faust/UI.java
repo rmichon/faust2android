@@ -54,6 +54,8 @@ public class UI{
 	boolean isSavedParameters;
 	// keyboard interface specified in the Faust code
 	boolean hasKeyboard;
+	// MultiParam interface specified in the Faust code
+	boolean hasMulti;
 	
 	// public UI elements (accessible from outside the class)
 	HorizontalScrollView horizontalScroll;
@@ -145,8 +147,25 @@ public class UI{
 		screenSizeY = size.y;
 		parametersWindow.buildWindow(c);
 		JSONArray uiArray = getJSONui();
-		if(uiArray.toString().contains("\"style\":\"keyboard\"")) hasKeyboard = true;
-		else hasKeyboard = false;
+		
+		// TODO Dirty way to detect keyboard: could be improved
+		if(uiArray.toString().contains("\"style\":\"keyboard\"")){ 
+			hasKeyboard = true;
+			hasMulti = false;
+		}
+		else if(uiArray.toString().contains("\"style\":\"multi\"")){
+			hasMulti = true;
+			hasKeyboard = false;
+		}
+		else if(uiArray.toString().contains("\"style\":\"multikeyboard\"")){
+			hasMulti = true;
+			hasKeyboard = true;
+		}
+		else{ 
+			hasMulti = false;
+			hasKeyboard = false;
+		}
+		
 		parseJSON(c,uiArray,mainGroup,groupLevel,0,Math.round(screenSizeX*(1+parametersInfo.zoom*0.1f)));
 	}
 	
@@ -200,8 +219,10 @@ public class UI{
 		
 		try {
 			for(int i=0; i<nItemsTopLevel; i++){
+				boolean paramVisible = true; 
 				currentObject = uiArray.getJSONObject(i);
 				String metaDataStyle = parseJSONMetaData(currentObject, "style");
+				String metaDataMulti = parseJSONMetaData(currentObject, "multi");
 				
 				if(!isSavedParameters){
 					String metaDataAccel = parseJSONMetaData(currentObject, "acc");
@@ -221,12 +242,14 @@ public class UI{
 					}
 				}
 				
+				// Skipping freq, gain and gate if a keyboard interface was specified
 				if(hasKeyboard && (currentObject.getString("label").equals("freq") || 
 						currentObject.getString("label").equals("gain") || 
 						currentObject.getString("label").equals("gate"))){
-					// Skipping freq, gain and gate if a keyboard interface was specified
+					paramVisible = false;
 				}
-				else if(currentObject.getString("type").equals("vgroup")){
+				
+				if(currentObject.getString("type").equals("vgroup")){
 					currentArray = currentObject.getJSONArray("items");
 					vgroup(c,currentArray,currentGroup,currentObject.getString("label"),
 							currentGroupLevel,groupDivisions,currentViewWidth);
@@ -237,6 +260,17 @@ public class UI{
 							currentGroupLevel,groupDivisions,currentViewWidth);
 				}
 				else if(currentObject.getString("type").equals("vslider")){
+					if(!isSavedParameters){
+						if(isNumeric(metaDataMulti)){
+							parametersInfo.order[parameterNumber] = Integer.valueOf(metaDataMulti);
+							parametersInfo.nMultiParams++;
+						}
+						else parametersInfo.order[parameterNumber] = -1;
+						parametersInfo.label[parameterNumber] = currentObject.getString("label"); 
+						parametersInfo.min[parameterNumber] = Float.parseFloat(currentObject.getString("min"));
+						parametersInfo.max[parameterNumber] = Float.parseFloat(currentObject.getString("max"));
+						parametersInfo.step[parameterNumber] = Float.parseFloat(currentObject.getString("step"));
+					}
 					if(metaDataStyle.equals("knob")){
 						knob(c, currentGroup, currentObject.getString("address"),
 								currentObject.getString("label"), 
@@ -244,7 +278,7 @@ public class UI{
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								localScreenWidth,localBackgroundColor,localPadding);
+								localScreenWidth,localBackgroundColor,localPadding,paramVisible);
 					}
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
@@ -263,11 +297,22 @@ public class UI{
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								localScreenWidth,localBackgroundColor);	
+								localScreenWidth,localBackgroundColor,paramVisible);	
 					}
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("hslider")){
+					if(!isSavedParameters){
+						if(isNumeric(metaDataMulti)){ 
+							parametersInfo.order[parameterNumber] = Integer.valueOf(metaDataMulti);
+							parametersInfo.nMultiParams++;
+						}
+						else parametersInfo.order[parameterNumber] = -1;
+						parametersInfo.label[parameterNumber] = currentObject.getString("label"); 
+						parametersInfo.min[parameterNumber] = Float.parseFloat(currentObject.getString("min"));
+						parametersInfo.max[parameterNumber] = Float.parseFloat(currentObject.getString("max"));
+						parametersInfo.step[parameterNumber] = Float.parseFloat(currentObject.getString("step"));
+					}
 					if(metaDataStyle.equals("knob")){
 						knob(c, currentGroup, currentObject.getString("address"),
 								currentObject.getString("label"), 
@@ -275,7 +320,7 @@ public class UI{
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								localScreenWidth,localBackgroundColor,localPadding);
+								localScreenWidth,localBackgroundColor,localPadding,paramVisible);
 					}
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
@@ -294,11 +339,22 @@ public class UI{
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								localScreenWidth,localBackgroundColor,localPadding);	
+								localScreenWidth,localBackgroundColor,localPadding,paramVisible);	
 					}
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("nentry")){
+					if(!isSavedParameters){
+						if(isNumeric(metaDataMulti)){ 
+							parametersInfo.order[parameterNumber] = Integer.valueOf(metaDataMulti);
+							parametersInfo.nMultiParams++;
+						}
+						else parametersInfo.order[parameterNumber] = -1;
+						parametersInfo.label[parameterNumber] = currentObject.getString("label"); 
+						parametersInfo.min[parameterNumber] = Float.parseFloat(currentObject.getString("min"));
+						parametersInfo.max[parameterNumber] = Float.parseFloat(currentObject.getString("max"));
+						parametersInfo.step[parameterNumber] = Float.parseFloat(currentObject.getString("step"));
+					}
 					if(metaDataStyle.equals("knob")){
 						knob(c, currentGroup, currentObject.getString("address"),
 								currentObject.getString("label"), 
@@ -306,7 +362,7 @@ public class UI{
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								localScreenWidth,localBackgroundColor,localPadding);
+								localScreenWidth,localBackgroundColor,localPadding,paramVisible);
 					}
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
@@ -325,20 +381,20 @@ public class UI{
 								Float.parseFloat(currentObject.getString("min")), 
 								Float.parseFloat(currentObject.getString("max")), 
 								Float.parseFloat(currentObject.getString("step")), 
-								localScreenWidth,localBackgroundColor);	
+								localScreenWidth,localBackgroundColor,paramVisible);	
 						}
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("button")){
 					button(c,currentGroup,currentObject.getString("address"),
 							currentObject.getString("label"), 
-							localScreenWidth,localBackgroundColor);	
+							localScreenWidth,localBackgroundColor,paramVisible);	
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("checkbox")){
 					checkbox(c,currentGroup,currentObject.getString("address"),
 							currentObject.getString("label"), 
-							localScreenWidth,localBackgroundColor);	
+							localScreenWidth,localBackgroundColor,paramVisible);	
 					parameterNumber++;
 				}
 				else if(currentObject.getString("type").equals("hbargraph")){
@@ -355,7 +411,33 @@ public class UI{
 		}
 	}
 	
-	// TODO finish
+	public void updateUIstate(){
+		for(int i=0; i<8; i++){
+			parametersCounters[i] = 0;
+		}
+		for(int i=0; i<parameterNumber; i++){
+			if(parametersInfo.parameterType[i] == 0){
+				//System.out.println("Voila: " + hsliders[parametersCounters[0]].address);
+				//System.out.println("Voila: " + faust_dsp.getParam(hsliders[parametersCounters[0]].address));
+				hsliders[parametersCounters[0]].setValue(faust_dsp.getParam(hsliders[parametersCounters[0]].address));
+				parametersCounters[0]++;
+			}
+			else if(parametersInfo.parameterType[i] == 1){
+				vsliders[parametersCounters[1]].setValue(faust_dsp.getParam(vsliders[parametersCounters[1]].address));
+				parametersCounters[1]++;
+			}
+			else if(parametersInfo.parameterType[i] == 2){
+				knobs[parametersCounters[2]].setValue(faust_dsp.getParam(vsliders[parametersCounters[2]].address));
+				parametersCounters[2]++;
+			}
+			else if(parametersInfo.parameterType[i] == 3){
+				nentries[parametersCounters[3]].setValue(faust_dsp.getParam(vsliders[parametersCounters[3]].address));
+				parametersCounters[3]++;
+			}
+		}
+		// Other parameters are ignored because they are not continuous
+	}
+	
 	public void hbargraph(Context c, LinearLayout currentGroup, final String address, final String label, 
 			final float min, final float max, int currentGroupLevel,
 			int nItemsUpperLevel, int upperViewWidth){
@@ -454,10 +536,10 @@ public class UI{
 	 */
 	public void hslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor, 
-			int localPadding){
+			int localPadding, boolean visibility){
 		// the slider
 		hsliders[parametersCounters[0]] = new HorizontalSlider(c,address,parameterNumber,
-				localScreenWidth, localBackgroundColor, localPadding);
+				localScreenWidth, localBackgroundColor, localPadding, visibility);
 		
 		hsliders[parametersCounters[0]].setParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
@@ -488,10 +570,11 @@ public class UI{
 	 *  localBackgroundColor: the background color of the view
 	 */
 	public void vslider(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
-			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor){
+			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor,
+			boolean visibility){
 		// the slider
 		vsliders[parametersCounters[1]] = new VerticalSlider(c,address,parameterNumber,
-				localScreenWidth, localBackgroundColor);
+				localScreenWidth, localBackgroundColor, visibility);
 
 		vsliders[parametersCounters[1]].setParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
@@ -524,9 +607,9 @@ public class UI{
 	 */
 	public void knob(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
 			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor,
-			int localPadding){
+			int localPadding, boolean visibility){
 		knobs[parametersCounters[2]] = new Knob(c,address,parameterNumber,
-				localScreenWidth, localBackgroundColor, localPadding);
+				localScreenWidth, localBackgroundColor, localPadding, visibility);
 		knobs[parametersCounters[2]].setParams(label, min, max, step);
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
@@ -556,9 +639,10 @@ public class UI{
 	 *  localBackgroundColor: the background color of the view
 	 */
 	public void nentry(Context c, LinearLayout currentGroup, final String address, final String label, float init, 
-			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor){
+			final float min, final float max, final float step, int localScreenWidth, int localBackgroundColor,
+			boolean visibility){
 		nentries[parametersCounters[3]] = new Nentry(c,address,parameterNumber,
-				localScreenWidth, localBackgroundColor);
+				localScreenWidth, localBackgroundColor, visibility);
 		nentries[parametersCounters[3]].setParams(label, min, max, step);
 		
 		if(isSavedParameters) init = parametersInfo.values[parameterNumber];
@@ -585,12 +669,12 @@ public class UI{
 	 *  localBackgroundColor: the background color of the view
 	 */
 	public void button(Context c, LinearLayout currentGroup, final String address, final String label, 
-			int localScreenWidth, int localBackgroundColor){
+			int localScreenWidth, int localBackgroundColor, boolean visibility){
 		buttons[parametersCounters[6]] = new PushButton(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor, label);
 		
 	    buttons[parametersCounters[6]].linkTo(parametersInfo);
-	    buttons[parametersCounters[6]].addTo(currentGroup);
+	    if(visibility) buttons[parametersCounters[6]].addTo(currentGroup);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 6;
 	    parametersInfo.localId[parameterNumber] = parametersCounters[6];
@@ -608,7 +692,7 @@ public class UI{
 	 *  localBackgroundColor: the background color of the view
 	 */
 	public void checkbox(Context c, LinearLayout currentGroup, final String address, final String label, 
-			int localScreenWidth, int localBackgroundColor){
+			int localScreenWidth, int localBackgroundColor, boolean visibility){
 		checkboxes[parametersCounters[7]] = new Checkbox(c,address,parameterNumber,
 				localScreenWidth, localBackgroundColor, label);
 		
@@ -619,7 +703,7 @@ public class UI{
 		checkboxes[parametersCounters[7]].setStatus(init);
 		faust_dsp.setParam(address, init);
 	    checkboxes[parametersCounters[7]].linkTo(parametersInfo);
-	    checkboxes[parametersCounters[7]].addTo(currentGroup);
+	    if(visibility) checkboxes[parametersCounters[7]].addTo(currentGroup);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 7;
 	    parametersInfo.localId[parameterNumber] = parametersCounters[7];
@@ -750,5 +834,21 @@ public class UI{
 			}
 		}
 		return count;
+	}
+	
+	/*
+	 * Check if a string is numeric
+	 */
+	private static boolean isNumeric(String str)  
+	{  
+	  try  
+	  {  
+	    double d = Double.parseDouble(str);  
+	  }  
+	  catch(NumberFormatException nfe)  
+	  {  
+	    return false;  
+	  }  
+	  return true;  
 	}
 }

@@ -59,7 +59,6 @@ public class SelectBar{
 			parameterLabel[i] = new TextView(mainContext);
 			frame.setBackgroundColor(Color.rgb(69,160,197));
 			frame.setPadding(1, 1, 1, 1);
-			// TODO not sure if this exactly is the right color... 
 			parameterLabel[i].setBackgroundColor(Color.rgb(70,70,70));
 			parameterLabel[i].setPadding(20, 10, 20, 10); // TODO: adjust in function of screen size
 			parameterLabel[i].setText(items[i]);

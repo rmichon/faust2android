@@ -4,48 +4,37 @@ import com.grame.faust.PianoKeyboard.OnKeyboardChangeListener;
 import com.grame.faust_dsp.faust_dsp;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
+/*
+ * This activity implements a full screen keyboard that can control
+ * the pitch and the velocity of a Faust synthesizer.
+ */
 public class PianoActivity extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.piano);
         
+        // no need for a dynamic interface: the keyboard is instantiated from the XML layout 
         final PianoKeyboard keyboard = (PianoKeyboard) this.findViewById(R.id.PianoKeyboard);
-        keyboard.setBaseNote(70);
         keyboard.setOnKeyboardChangeListener(new OnKeyboardChangeListener(){
 			@Override
-			public void onKeyChanged(int note, boolean i) {
-				if(i){
-					faust_dsp.keyOn(note,80);
-					//System.out.println("Voila down: " + note);
-				}
-				else{ 
-					faust_dsp.keyOff(note);
-					//System.out.println("Voila up: " + note);
-				}
+			public void onKeyChanged(int note, int velocity, boolean i) {
+				if(i) faust_dsp.keyOn(note,velocity);
+				else faust_dsp.keyOff(note);
 			}
 			
 			@Override
 			public void onPitchBend(int refPitch, float pitch) {
-				//System.out.println("Voila: " + pitch);
 				faust_dsp.pitchBend(refPitch, pitch);
-			}
-			
-			@Override
-			public void onPressureChanged(float pressure) {
 			}
 
 			@Override
-			public void onXChanged(float x) {				
+			public void onYChanged(int pitch, float y) {
+				faust_dsp.setVoiceGain(pitch,y);
 			}
         });
-	}
-	
-	double mtof(int midiNote){
-		return (440.0/32.0)*Math.pow(2.0, (midiNote-9.0)/12.0);
 	}
 	
 	@Override

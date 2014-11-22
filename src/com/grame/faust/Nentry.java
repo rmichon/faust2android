@@ -32,7 +32,7 @@ class Nentry{
 	 * padding: padding of the view in pxs
 	 */
 	public Nentry(Context c, String addr, int currentParameterID, 
-			int width, int backgroundColor) {
+			int width, int backgroundColor, boolean visibility) {
 		id = currentParameterID;
 		address = addr;
 		
@@ -59,9 +59,11 @@ class Nentry{
 		textLabel = new TextView(c);
 		textLabel.setGravity(Gravity.CENTER);
 		
-		localVerticalGroup.addView(nentry);
-		localVerticalGroup.addView(textLabel);
-		frame.addView(localVerticalGroup);
+		if(visibility){
+			localVerticalGroup.addView(nentry);
+			localVerticalGroup.addView(textLabel);
+			frame.addView(localVerticalGroup);
+		}
 	}
 	
 	/*
@@ -105,7 +107,7 @@ class Nentry{
 	public void linkTo(final ParametersInfo parametersInfo, final ConfigWindow parametersWindow){
 		localVerticalGroup.setOnLongClickListener(new OnLongClickListener(){
 			public boolean onLongClick (View v){
-				parametersWindow.showWindow(parametersInfo, id);
+				if(!parametersInfo.locked) parametersWindow.showWindow(parametersInfo, id);
 				return true;
 			}
 		});
