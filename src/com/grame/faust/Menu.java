@@ -3,7 +3,7 @@ package com.grame.faust;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -105,7 +105,7 @@ class Menu{
 		menu.setOnItemSelectedListener(new OnItemSelectedListener(){
         	public void onItemSelected(AdapterView parent, View view, int pos, long id) {
         		parametersInfo.values[ID] = pos;
-        		faust_dsp.setParam(address, values[pos]);
+        		dsp_faust.setParam(address, values[pos]);
         	} 
         	public void onNothingSelected(AdapterView parent) {	 		
         	}

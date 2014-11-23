@@ -7,6 +7,13 @@
 #                                                                   #
 #####################################################################
 
+# change in function of of your system
+TARGET=android-20
+
+# change if you want to get the log of what's happening
+LOG="/dev/null"
+#LOG="log"
+
 # exit if a command fails
 set -e
 
@@ -31,9 +38,6 @@ ECLIPSEC=0
 SWIG=0
 FAUST=0
 KEYBOARD=0
-
-#LOG="/dev/null"
-LOG="log"
 
 # PHASE 2 : dispatch command arguments
 for p in $@; do
@@ -72,7 +76,7 @@ done
 # only carry out the faust compilation 
 if [ $FAUST -eq 1 ]; then
 	for f in $FILES; do
-		faust -i -a android.cpp "$f" -o "jni/faust_dsp.cpp"
+		faust -i -a android.cpp "$f" -o "jni/dsp_faust.cpp"
 	done
 	exit 1
 fi
@@ -80,9 +84,9 @@ fi
 # only compile the native part of the app (in the case where the script is used to compile an eclipse project)
 if [ $ECLIPSEC -eq 1 ]; then
 	if [ $SWIG -eq 1 ]; then
-		rm -rf src/com/grame/faust_dsp
-		mkdir -p src/com/grame/faust_dsp
-		swig -java -package com.grame.faust_dsp -includeall -verbose -outdir src/com/grame/faust_dsp -c++ -I/usr/local/include -I/System/Library/Frameworks/JavaVM.framework/Headers -I./jni -o jni/java_interface_wrap.cpp faust_dsp_interface.i
+		rm -rf src/com/grame/dsp_faust
+		mkdir -p src/com/grame/dsp_faust
+		swig -java -package com.grame.dsp_faust -includeall -verbose -outdir src/com/grame/dsp_faust -c++ -I/usr/local/include -I/System/Library/Frameworks/JavaVM.framework/Headers -I./jni -o jni/java_interface_wrap.cpp dsp_faust_interface.i
 	fi
 	$NDKBUILD > $LOG
 	exit 1
@@ -94,7 +98,7 @@ cp -r /usr/local/lib/faust/android/*  $TMPFILES
 
 # Faust compilation (for now only one file should be specified)
 for f in $FILES; do
-	faust -xml -i -a android.cpp "$f" -o "$TMPFILES/jni/faust_dsp.cpp"
+	faust -xml -i -a android.cpp "$f" -o "$TMPFILES/jni/dsp_faust.cpp"
 done
 
 APPNAME=$(basename "$f")
@@ -132,67 +136,19 @@ cd $TMPFILES
 # CUSTOMIZING THE APP'S MAIN PACKAGE IN FUNCTION OF THE DSP FILE NAME
 #************************************************************************
 
-#TODO: we should use a loop for that...
-
-MAINCLASSNAME="FaustActivity"
-if [ $KEYBOARD -eq 1 ]; then
-	MAINCLASSNAME="PianoActivity"
-	sed -i 's/com.grame.faust.FaustActivity/com.grame.faust.PianoActivity/g' AndroidManifest.xml
-fi
-
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/AccelUtil.java > src/com/grame/faust/AccelUtil_tmp.java 
-mv src/com/grame/faust/AccelUtil_tmp.java src/com/grame/faust/AccelUtil.java 
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/BarGraph.java > src/com/grame/faust/BarGraph_tmp.java 
-mv src/com/grame/faust/BarGraph_tmp.java src/com/grame/faust/BarGraph.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/Checkbox.java > src/com/grame/faust/Checkbox_tmp.java 
-mv src/com/grame/faust/Checkbox_tmp.java src/com/grame/faust/Checkbox.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/ConfigWindow.java > src/com/grame/faust/ConfigWindow_tmp.java 
-mv src/com/grame/faust/ConfigWindow_tmp.java src/com/grame/faust/ConfigWindow.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/FaustActivity.java > src/com/grame/faust/FaustActivity_tmp.java 
-mv src/com/grame/faust/FaustActivity_tmp.java src/com/grame/faust/FaustActivity.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/HorizontalSlider.java > src/com/grame/faust/HorizontalSlider_tmp.java 
-mv src/com/grame/faust/HorizontalSlider_tmp.java src/com/grame/faust/HorizontalSlider.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/Knob.java > src/com/grame/faust/Knob_tmp.java 
-mv src/com/grame/faust/Knob_tmp.java src/com/grame/faust/Knob.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/Menu.java > src/com/grame/faust/Menu_tmp.java 
-mv src/com/grame/faust/Menu_tmp.java src/com/grame/faust/Menu.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/Nentry.java > src/com/grame/faust/Nentry_tmp.java 
-mv src/com/grame/faust/Nentry_tmp.java src/com/grame/faust/Nentry.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/ParametersInfo.java > src/com/grame/faust/ParametersInfo_tmp.java 
-mv src/com/grame/faust/ParametersInfo_tmp.java src/com/grame/faust/ParametersInfo.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/PianoActivity.java > src/com/grame/faust/PianoActivity_tmp.java 
-mv src/com/grame/faust/PianoActivity_tmp.java src/com/grame/faust/PianoActivity.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/PianoKeyboard.java > src/com/grame/faust/PianoKeyboard_tmp.java 
-mv src/com/grame/faust/PianoKeyboard_tmp.java src/com/grame/faust/PianoKeyboard.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/PushButton.java > src/com/grame/faust/PushButton_tmp.java 
-mv src/com/grame/faust/PushButton_tmp.java src/com/grame/faust/PushButton.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/Radio.java > src/com/grame/faust/Radio_tmp.java 
-mv src/com/grame/faust/Radio_tmp.java src/com/grame/faust/Radio.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/SelectBar.java > src/com/grame/faust/SelectBar_tmp.java 
-mv src/com/grame/faust/SelectBar_tmp.java src/com/grame/faust/SelectBar.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/UI.java > src/com/grame/faust/UI_tmp.java 
-mv src/com/grame/faust/UI_tmp.java src/com/grame/faust/UI.java
-sed "1s/.*/package\ com.grame.$APPNAME;/" src/com/grame/faust/VerticalSlider.java > src/com/grame/faust/VerticalSlider_tmp.java 
-mv src/com/grame/faust/VerticalSlider_tmp.java src/com/grame/faust/VerticalSlider.java
-
-sed "3s/.*/import\ com.grame.$APPNAME.PianoKeyboard.OnKeyboardChangeListener;/" src/com/grame/faust/PianoActivity.java > src/com/grame/faust/PianoActivity_tmp.java
-mv src/com/grame/faust/PianoActivity_tmp.java src/com/grame/faust/PianoActivity.java
-
-sed -i 's/faust/'$APPNAME'/g' src/com/triggertrap/seekarc/SeekArc.java
+sed -r -i 's,com.grame.faust,com.grame.'$APPNAME',g' src/com/grame/faust/*
+sed -r -i 's,com.grame.faust,com.grame.'$APPNAME',g' src/com/triggertrap/seekarc/*
+sed -r -i 's,com.grame.faust,com.grame.'$APPNAME',g' AndroidManifest.xml
+sed -r -i 's,com.grame.faust,com.grame.'$APPNAME',g' res/layout/*
+sed -r -i 's,1,'$APPNAME',g' res/values/strings.xml
 
 mv src/com/grame/faust src/com/grame/$APPNAME
-
-sed -i 's/faust/'$APPNAME'/g' AndroidManifest.xml
-sed -i 's/faust/'$APPNAME'/g' res/layout/piano.xml
-
-# Update the app name in the manifest
-mv res/values/strings.xml res/values/stringsN.xml 
-sed 's#\(<string name=\"app_name\">\)[0-9]*\(</string>\)#\1'$APPNAME'\2#g' res/values/stringsN.xml > res/values/strings.xml
-rm res/values/stringsN.xml
 
 # *************
 # COMPILATION
 # *************
+
+MAINCLASSNAME="FaustActivity"
 
 if [ $SWIG -eq 1 ]; then
 	rm -rf src/com/grame/faust_dsp
@@ -202,11 +158,11 @@ fi
 
 $NDKBUILD > $LOG
 
-#android update project --target $(android list targets | grep android-19 | sed -e 's/id:\ \(.*\)or\ "android-19"/\1/') --path . > $LOG
+# android list targets # gives the target list
 
 # We use target ID 1 here which should be the latest version of the API on every system but this might
 # have to be verified
-android update project --target 1 --path . > $LOG
+android update project --target $TARGET --path . > $LOG
 
 ant release > $LOG
 

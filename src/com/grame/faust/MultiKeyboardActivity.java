@@ -2,7 +2,7 @@ package com.grame.faust;
 
 import com.grame.faust.MultiParams.OnMultiParamsChangeListener;
 import com.grame.faust.PianoKeyboard.OnKeyboardChangeListener;
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -22,22 +22,22 @@ public class MultiKeyboardActivity extends Activity {
         keyboard.setOnKeyboardChangeListener(new OnKeyboardChangeListener(){
 			@Override
 			public void onKeyChanged(int note, int velocity, boolean i) {
-				if(i) faust_dsp.keyOn(note,velocity);
-				else faust_dsp.keyOff(note);
+				if(i) dsp_faust.keyOn(note,velocity);
+				else dsp_faust.keyOff(note);
 			}
 			
 			@Override
 			public void onPitchBend(int refPitch, float pitch) {
-				faust_dsp.pitchBend(refPitch, pitch);
+				dsp_faust.pitchBend(refPitch, pitch);
 			}
 
 			@Override
 			public void onYChanged(int pitch, float y) {
-				faust_dsp.setVoiceGain(pitch,y);
+				dsp_faust.setVoiceGain(pitch,y);
 			}
         });
         
-        int numberOfParameters = faust_dsp.getParamsCount();
+        int numberOfParameters = dsp_faust.getParamsCount();
         parametersInfo = new ParametersInfo();
         parametersInfo.init(numberOfParameters);
         SharedPreferences settings = getSharedPreferences("savedParameters", 0);
@@ -55,11 +55,11 @@ public class MultiKeyboardActivity extends Activity {
 		for(int i=0; i<nParams; i++){
 			int currentIndex = parametersInfo.order[i];
 			if(currentIndex != -1){	
-				addresses[currentIndex] = faust_dsp.getParamAddress(i);
+				addresses[currentIndex] = dsp_faust.getParamAddress(i);
 				labels[currentIndex] = parametersInfo.label[i];
 				min[currentIndex] = parametersInfo.min[i];
 				max[currentIndex] = parametersInfo.max[i];
-				values[currentIndex] = faust_dsp.getParam(addresses[currentIndex]);
+				values[currentIndex] = dsp_faust.getParam(addresses[currentIndex]);
 			}
 		}
 		mp.setParams(labels, min, max, values);
@@ -67,7 +67,7 @@ public class MultiKeyboardActivity extends Activity {
 		mp.setOnMultiParamsChangeListener(new OnMultiParamsChangeListener(){
 			@Override
 			public void onParamChange(int paramID, float value) {
-				faust_dsp.setParam(addresses[paramID], value);
+				dsp_faust.setParam(addresses[paramID], value);
 			}	
 		});
 	}

@@ -34,7 +34,7 @@ package com.grame.faust;
  * 		is kind of flumsy: this could be improved.
  */
 
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.app.Activity;
 import android.content.Context;
@@ -74,9 +74,9 @@ public class FaustActivity extends Activity {
         
         activityJustCreated = true; // used to load the saved parameters only once
         
-        if(!faust_dsp.isRunning()) faust_dsp.init(44100,512);
+        if(!dsp_faust.isRunning()) dsp_faust.init(44100,512);
         
-        numberOfParameters = faust_dsp.getParamsCount();
+        numberOfParameters = dsp_faust.getParamsCount();
         
         parametersInfo.init(numberOfParameters);
         SharedPreferences settings = getSharedPreferences("savedParameters", 0);
@@ -95,7 +95,7 @@ public class FaustActivity extends Activity {
         mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(
         		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
         
-        if(!faust_dsp.isRunning()) faust_dsp.start();
+        if(!dsp_faust.isRunning()) dsp_faust.start();
         
         /*
         final int displayThreadUpdateRate = 30;
@@ -275,7 +275,7 @@ public class FaustActivity extends Activity {
     	on = false;
     	// only stops audio when the user press the return button (and not when the screen is rotated)
     	if(!isChangingConfigurations()){ 
-    		faust_dsp.stop();
+    		dsp_faust.stop();
     	}
     	try {
 			//displayThread.join();

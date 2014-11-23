@@ -650,7 +650,7 @@ void destroyThreadLock(void *lock) {
 //**************************************************************
 
 #include <android/log.h>
-#include "faust_dsp.h"
+#include "dsp_faust.h"
 #include <stdio.h>
 #include <string.h>
 

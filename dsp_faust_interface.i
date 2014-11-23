@@ -17,16 +17,16 @@
  ************************************************************************
  ************************************************************************/
 
-%module faust_dsp
+%module dsp_faust
 %{
-#include "faust_dsp.h"
+#include "dsp_faust.h"
 %}
 
 // Enable the JNI class to load the required native library.
 %pragma(java) jniclasscode=%{
   static {
     try {
-        java.lang.System.loadLibrary("faust_dsp");
+        java.lang.System.loadLibrary("dsp_faust");
     } catch (UnsatisfiedLinkError e) {
         java.lang.System.err.println("native code library failed to load.\n" + e);
         java.lang.System.exit(1);
@@ -34,4 +34,4 @@
   }
 %}
 
-%include "faust_dsp.h"
+%include "dsp_faust.h"

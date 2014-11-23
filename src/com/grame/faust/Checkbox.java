@@ -1,6 +1,6 @@
 package com.grame.faust;
 
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -72,7 +72,7 @@ class Checkbox{
         	public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
         		if (isChecked) parametersInfo.values[id] = 1.f;
         		else parametersInfo.values[id] = 0.f;
-        		faust_dsp.setParam(address, parametersInfo.values[id]);
+        		dsp_faust.setParam(address, parametersInfo.values[id]);
         	}
         });
 	}

@@ -6,63 +6,63 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.grame.faust_dsp;
+package com.grame.dsp_faust;
 
-public class faust_dsp {
+public class dsp_faust {
   public static void init(int arg0, int arg1) {
-    faust_dspJNI.init(arg0, arg1);
+    dsp_faustJNI.init(arg0, arg1);
   }
 
   public static int start() {
-    return faust_dspJNI.start();
+    return dsp_faustJNI.start();
   }
 
   public static void stop() {
-    faust_dspJNI.stop();
+    dsp_faustJNI.stop();
   }
 
   public static boolean isRunning() {
-    return faust_dspJNI.isRunning();
+    return dsp_faustJNI.isRunning();
   }
 
   public static int keyOn(int arg0, int arg1) {
-    return faust_dspJNI.keyOn(arg0, arg1);
+    return dsp_faustJNI.keyOn(arg0, arg1);
   }
 
   public static int keyOff(int arg0) {
-    return faust_dspJNI.keyOff(arg0);
+    return dsp_faustJNI.keyOff(arg0);
   }
 
   public static int pitchBend(int arg0, float arg1) {
-    return faust_dspJNI.pitchBend(arg0, arg1);
+    return dsp_faustJNI.pitchBend(arg0, arg1);
   }
 
   public static String getJSON() {
-    return faust_dspJNI.getJSON();
+    return dsp_faustJNI.getJSON();
   }
 
   public static int getParamsCount() {
-    return faust_dspJNI.getParamsCount();
+    return dsp_faustJNI.getParamsCount();
   }
 
   public static float getParam(String arg0) {
-    return faust_dspJNI.getParam(arg0);
+    return dsp_faustJNI.getParam(arg0);
   }
 
   public static void setParam(String arg0, float arg1) {
-    faust_dspJNI.setParam(arg0, arg1);
+    dsp_faustJNI.setParam(arg0, arg1);
   }
 
   public static void setVoiceParam(String arg0, int arg1, float arg2) {
-    faust_dspJNI.setVoiceParam(arg0, arg1, arg2);
+    dsp_faustJNI.setVoiceParam(arg0, arg1, arg2);
   }
 
   public static void setVoiceGain(int arg0, float arg1) {
-    faust_dspJNI.setVoiceGain(arg0, arg1);
+    dsp_faustJNI.setVoiceGain(arg0, arg1);
   }
 
   public static String getParamAddress(int arg0) {
-    return faust_dspJNI.getParamAddress(arg0);
+    return dsp_faustJNI.getParamAddress(arg0);
   }
 
 }

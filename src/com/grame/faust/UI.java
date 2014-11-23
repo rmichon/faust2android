@@ -15,7 +15,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 /*
  * REMARKS:
@@ -79,10 +79,10 @@ public class UI{
 		parametersWindow = new ConfigWindow();
 		
 		// get the JSON description from the native code
-		JSONparameters = faust_dsp.getJSON();
+		JSONparameters = dsp_faust.getJSON();
 		
 		// get the total number of parameters
-		int numberOfParameters = faust_dsp.getParamsCount();
+		int numberOfParameters = dsp_faust.getParamsCount();
 		
 		// get the number of each UI elements
 		int numberOfVsliders = countStringOccurrences(JSONparameters,"vslider");
@@ -101,7 +101,7 @@ public class UI{
 		
 		// the addresses of each param in the tree are retrieved from the native code
 		for(int i=0; i<numberOfParameters; i++){ 
-			parametersInfo.address[i] = faust_dsp.getParamAddress(i);
+			parametersInfo.address[i] = dsp_faust.getParamAddress(i);
 		}
 		
 		// the saved parameters of each UI element are retrieved
@@ -418,20 +418,20 @@ public class UI{
 		for(int i=0; i<parameterNumber; i++){
 			if(parametersInfo.parameterType[i] == 0){
 				//System.out.println("Voila: " + hsliders[parametersCounters[0]].address);
-				//System.out.println("Voila: " + faust_dsp.getParam(hsliders[parametersCounters[0]].address));
-				hsliders[parametersCounters[0]].setValue(faust_dsp.getParam(hsliders[parametersCounters[0]].address));
+				//System.out.println("Voila: " + dsp_faust.getParam(hsliders[parametersCounters[0]].address));
+				hsliders[parametersCounters[0]].setValue(dsp_faust.getParam(hsliders[parametersCounters[0]].address));
 				parametersCounters[0]++;
 			}
 			else if(parametersInfo.parameterType[i] == 1){
-				vsliders[parametersCounters[1]].setValue(faust_dsp.getParam(vsliders[parametersCounters[1]].address));
+				vsliders[parametersCounters[1]].setValue(dsp_faust.getParam(vsliders[parametersCounters[1]].address));
 				parametersCounters[1]++;
 			}
 			else if(parametersInfo.parameterType[i] == 2){
-				knobs[parametersCounters[2]].setValue(faust_dsp.getParam(vsliders[parametersCounters[2]].address));
+				knobs[parametersCounters[2]].setValue(dsp_faust.getParam(knobs[parametersCounters[2]].address));
 				parametersCounters[2]++;
 			}
 			else if(parametersInfo.parameterType[i] == 3){
-				nentries[parametersCounters[3]].setValue(faust_dsp.getParam(vsliders[parametersCounters[3]].address));
+				nentries[parametersCounters[3]].setValue(dsp_faust.getParam(nentries[parametersCounters[3]].address));
 				parametersCounters[3]++;
 			}
 		}
@@ -476,7 +476,7 @@ public class UI{
 		else parametersInfo.values[parameterNumber] = init;
 		
 		menus[parametersCounters[4]].setSelection(init);
-		//faust_dsp.setParam(address, init);
+		//dsp_faust.setParam(address, init);
 	    menus[parametersCounters[4]].linkTo(parametersInfo);
 	    menus[parametersCounters[4]].addTo(currentGroup);
 	    
@@ -510,7 +510,7 @@ public class UI{
 				localScreenWidth, localBackgroundColor, parsedParameters, orientation, init);
 		radios[parametersCounters[5]].setLabel(label);
 		
-		//faust_dsp.setParam(address, init);
+		//dsp_faust.setParam(address, init);
 	    radios[parametersCounters[5]].linkTo(parametersInfo);
 	    radios[parametersCounters[5]].addTo(currentGroup);
 	    
@@ -546,7 +546,7 @@ public class UI{
 		else parametersInfo.values[parameterNumber] = init;
 		
 		hsliders[parametersCounters[0]].setValue(init);
-		faust_dsp.setParam(address, init);
+		dsp_faust.setParam(address, init);
 	    hsliders[parametersCounters[0]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
 	    hsliders[parametersCounters[0]].addTo(currentGroup);
 	    
@@ -581,7 +581,7 @@ public class UI{
 		else parametersInfo.values[parameterNumber] = init;
 		
 		vsliders[parametersCounters[1]].setValue(init);
-		faust_dsp.setParam(address, init);
+		dsp_faust.setParam(address, init);
 	    vsliders[parametersCounters[1]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
 	    vsliders[parametersCounters[1]].addTo(currentGroup);
 	    
@@ -615,7 +615,7 @@ public class UI{
 		else parametersInfo.values[parameterNumber] = init;
 		
 		knobs[parametersCounters[2]].setValue(init);
-		faust_dsp.setParam(address, init);
+		dsp_faust.setParam(address, init);
 	    knobs[parametersCounters[2]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
 	    knobs[parametersCounters[2]].addTo(currentGroup);
 	    
@@ -649,7 +649,7 @@ public class UI{
 		else parametersInfo.values[parameterNumber] = init;
 		
 		nentries[parametersCounters[3]].setValue(init);
-		faust_dsp.setParam(address, init);
+		dsp_faust.setParam(address, init);
 	    nentries[parametersCounters[3]].linkTo(parametersInfo, parametersWindow);
 	    nentries[parametersCounters[3]].addTo(currentGroup);
 	    
@@ -701,7 +701,7 @@ public class UI{
 		else parametersInfo.values[parameterNumber] = init;
 		
 		checkboxes[parametersCounters[7]].setStatus(init);
-		faust_dsp.setParam(address, init);
+		dsp_faust.setParam(address, init);
 	    checkboxes[parametersCounters[7]].linkTo(parametersInfo);
 	    if(visibility) checkboxes[parametersCounters[7]].addTo(currentGroup);
 	    

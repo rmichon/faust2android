@@ -1,6 +1,6 @@
 package com.grame.faust;
 
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 import com.triggertrap.seekarc.SeekArc;
 import com.triggertrap.seekarc.SeekArc.OnSeekArcChangeListener;
 
@@ -158,7 +158,7 @@ class Knob{
 			}
 			public void onProgressChanged(SeekArc seekArc, int progress, boolean fromUser) {
 				parametersInfo.values[id] = (float) progress*0.01f*(max-min) + min;
-				faust_dsp.setParam(address, parametersInfo.values[id]);
+				dsp_faust.setParam(address, parametersInfo.values[id]);
 				setDisplayedValue(parametersInfo.values[id]);
 	          }
 	    });

@@ -1,6 +1,6 @@
 package com.grame.faust;
 
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -74,7 +74,7 @@ class Radio{
 			button.setId(i);
 			if(init == i){ 
 				button.setChecked(true);
-				faust_dsp.setParam(address, values[i]);
+				dsp_faust.setParam(address, values[i]);
 			}
 			radio.addView(button);
 		}
@@ -97,7 +97,7 @@ class Radio{
 	    {
 	        public void onCheckedChanged(RadioGroup group, int checkedId) {
 	        	parametersInfo.values[ID] = (float) checkedId;
-				faust_dsp.setParam(address, values[checkedId]);
+				dsp_faust.setParam(address, values[checkedId]);
 	        }
 	    });
 	}

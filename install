@@ -7,7 +7,7 @@ cp architecture/android.cpp /usr/local/lib/faust
 cp faust2android /usr/local/bin
 cp AndroidManifest.xml /usr/local/lib/faust/android
 #cp -r bin /usr/local/lib/faust/android
-cp faust_dsp_interface.i /usr/local/lib/faust/android
+cp dsp_faust_interface.i /usr/local/lib/faust/android
 #cp -r gen /usr/local/lib/faust/android
 cp -r jni /usr/local/lib/faust/android
 #cp -r libs /usr/local/lib/faust/android

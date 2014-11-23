@@ -1,6 +1,6 @@
 package com.grame.faust;
 
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -126,7 +126,7 @@ class Nentry{
 		       if(isNumeric(value)){
 		    	   if(numValue >= min && numValue <= max){ 
 		    		   parametersInfo.values[id] = numValue;
-		    		   faust_dsp.setParam(address, parametersInfo.values[id]);
+		    		   dsp_faust.setParam(address, parametersInfo.values[id]);
 		    	   }
 		    	   else if(numValue < min) setValue(min);
 		    	   else if(numValue > max) setValue(max);

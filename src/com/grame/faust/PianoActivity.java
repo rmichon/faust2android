@@ -1,7 +1,7 @@
 package com.grame.faust;
 
 import com.grame.faust.PianoKeyboard.OnKeyboardChangeListener;
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -21,18 +21,18 @@ public class PianoActivity extends Activity {
         keyboard.setOnKeyboardChangeListener(new OnKeyboardChangeListener(){
 			@Override
 			public void onKeyChanged(int note, int velocity, boolean i) {
-				if(i) faust_dsp.keyOn(note,velocity);
-				else faust_dsp.keyOff(note);
+				if(i) dsp_faust.keyOn(note,velocity);
+				else dsp_faust.keyOff(note);
 			}
 			
 			@Override
 			public void onPitchBend(int refPitch, float pitch) {
-				faust_dsp.pitchBend(refPitch, pitch);
+				dsp_faust.pitchBend(refPitch, pitch);
 			}
 
 			@Override
 			public void onYChanged(int pitch, float y) {
-				faust_dsp.setVoiceGain(pitch,y);
+				dsp_faust.setVoiceGain(pitch,y);
 			}
         });
 	}

@@ -1,7 +1,7 @@
 package com.grame.faust;
 
 import com.grame.faust.MultiParams.OnMultiParamsChangeListener;
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -17,7 +17,7 @@ public class MultiActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.multi);
         
-        int numberOfParameters = faust_dsp.getParamsCount();
+        int numberOfParameters = dsp_faust.getParamsCount();
         parametersInfo = new ParametersInfo();
         parametersInfo.init(numberOfParameters);
         SharedPreferences settings = getSharedPreferences("savedParameters", 0);
@@ -35,11 +35,11 @@ public class MultiActivity extends Activity {
 		for(int i=0; i<nParams; i++){
 			int currentIndex = parametersInfo.order[i];
 			if(currentIndex != -1){	
-				addresses[currentIndex] = faust_dsp.getParamAddress(i);
+				addresses[currentIndex] = dsp_faust.getParamAddress(i);
 				labels[currentIndex] = parametersInfo.label[i];
 				min[currentIndex] = parametersInfo.min[i];
 				max[currentIndex] = parametersInfo.max[i];
-				values[currentIndex] = faust_dsp.getParam(addresses[currentIndex]);
+				values[currentIndex] = dsp_faust.getParam(addresses[currentIndex]);
 			}
 		}
 		mp.setParams(labels, min, max, values);
@@ -47,7 +47,7 @@ public class MultiActivity extends Activity {
 		mp.setOnMultiParamsChangeListener(new OnMultiParamsChangeListener(){
 			@Override
 			public void onParamChange(int paramID, float value) {
-				faust_dsp.setParam(addresses[paramID], value);
+				dsp_faust.setParam(addresses[paramID], value);
 			}	
 		});
 	}

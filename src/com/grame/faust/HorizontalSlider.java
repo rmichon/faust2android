@@ -1,6 +1,6 @@
 package com.grame.faust;
 
-import com.grame.faust_dsp.faust_dsp;
+import com.grame.dsp_faust.dsp_faust;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -153,7 +153,7 @@ class HorizontalSlider {
 			}
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				parametersInfo.values[id] = (float) progress*step + min;
-				faust_dsp.setParam(address, parametersInfo.values[id]);
+				dsp_faust.setParam(address, parametersInfo.values[id]);
 				setDisplayedValue(parametersInfo.values[id]);
 	          }
 	    });
