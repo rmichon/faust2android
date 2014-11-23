@@ -136,11 +136,22 @@ cd $TMPFILES
 # CUSTOMIZING THE APP'S MAIN PACKAGE IN FUNCTION OF THE DSP FILE NAME
 #************************************************************************
 
-sed -r -i 's,com.grame.faust,com.grame.'$APPNAME',g' src/com/grame/faust/*
-sed -r -i 's,com.grame.faust,com.grame.'$APPNAME',g' src/com/triggertrap/seekarc/*
-sed -r -i 's,com.grame.faust,com.grame.'$APPNAME',g' AndroidManifest.xml
-sed -r -i 's,com.grame.faust,com.grame.'$APPNAME',g' res/layout/*
-sed -r -i 's,1,'$APPNAME',g' res/values/strings.xml
+PLATFORM=$(uname)
+
+if [ $PLATFORM = "Darwin" ]; then
+	sed -i '' 's,com.grame.faust,com.grame.'$APPNAME',g' src/com/grame/faust/*
+	sed -i '' 's,com.grame.faust,com.grame.'$APPNAME',g' src/com/triggertrap/seekarc/*
+	sed -i '' 's,com.grame.faust,com.grame.'$APPNAME',g' AndroidManifest.xml
+	sed -i '' 's,com.grame.faust,com.grame.'$APPNAME',g' res/layout/*
+	sed -i '' 's,1,'$APPNAME',g' res/values/strings.xml
+else
+	sed -i 's,com.grame.faust,com.grame.'$APPNAME',g' src/com/grame/faust/*
+	sed -i 's,com.grame.faust,com.grame.'$APPNAME',g' src/com/triggertrap/seekarc/*
+	sed -i 's,com.grame.faust,com.grame.'$APPNAME',g' AndroidManifest.xml
+	sed -i 's,com.grame.faust,com.grame.'$APPNAME',g' res/layout/*
+	sed -i 's,1,'$APPNAME',g' res/values/strings.xml
+fi
+	
 
 mv src/com/grame/faust src/com/grame/$APPNAME
 
