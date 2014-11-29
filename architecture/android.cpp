@@ -179,9 +179,16 @@ void stop() {
 	on = 0;
 	pthread_join(audioThread, 0);
 	android_CloseAudioDevice(p);
-	delete[] bufferin;
-	delete[] *bufferout;
+	for (int i = 0; i < outChanNumb; i++) {
+		delete[] bufferout[i];
+	}
 	delete[] bufferout;
+	if (inChanNumb >= 1) {
+		for (int i = 0; i < inChanNumb; i++) {
+			delete[] bufferin[i];
+		}
+		delete[] bufferin;
+	}
 }
 
 /*
