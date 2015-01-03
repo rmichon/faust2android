@@ -11,7 +11,6 @@ cp local.properties /usr/local/lib/faust/android
 cp settings.gradle /usr/local/lib/faust/android
 
 cp -r app /usr/local/lib/faust/android
-rm -r /usr/local/lib/faust/android/app/build
 cp -r gradle /usr/local/lib/faust/android
 
 cp architecture/android.cpp /usr/local/lib/faust
