@@ -3,18 +3,17 @@
 rm -r /usr/local/lib/faust/android
 mkdir /usr/local/lib/faust/android
 
-cp architecture/android.cpp /usr/local/lib/faust
-cp faust2android /usr/local/bin
-cp AndroidManifest.xml /usr/local/lib/faust/android
-#cp -r bin /usr/local/lib/faust/android
+cp build.gradle /usr/local/lib/faust/android
 cp dsp_faust_interface.i /usr/local/lib/faust/android
-#cp -r gen /usr/local/lib/faust/android
-cp -r jni /usr/local/lib/faust/android
-#cp -r libs /usr/local/lib/faust/android
-#cp -r obj /usr/local/lib/faust/android
-#cp proguar-project.txt /usr/local/lib/faust/android
-cp project.properties /usr/local/lib/faust/android
-cp -r res /usr/local/lib/faust/android
-cp -r src /usr/local/lib/faust/android
-cp -r tools /usr/local/lib/faust/android
+cp Faust.iml /usr/local/lib/faust/android
+cp gradlew /usr/local/lib/faust/android
+cp local.properties /usr/local/lib/faust/android
+cp settings.gradle /usr/local/lib/faust/android
 
+cp -r app /usr/local/lib/faust/android
+rm -r /usr/local/lib/faust/android/app/build
+cp -r gradle /usr/local/lib/faust/android
+
+cp architecture/android.cpp /usr/local/lib/faust
+
+cp faust2android /usr/local/bin
