@@ -114,7 +114,7 @@ if [ $SWIG -eq 1 ]; then
 fi
 
 cd $TMPFILES
-./gradlew assembleRelease
+./gradlew assembleRelease > $LOG
 cd ..
 
 cp -r $TMPFILES/app/build/outputs/apk/app-release.apk $APPNAME.apk
