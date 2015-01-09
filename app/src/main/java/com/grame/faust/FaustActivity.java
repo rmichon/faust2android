@@ -233,6 +233,10 @@ public class FaustActivity extends Activity {
             		recreate();
             	}
                 return true;
+            case R.id.action_reset:
+                parametersInfo.saved = 0;
+                recreate();
+                return true;
             case R.id.action_lock:
             	if(parametersInfo.locked){
             		item.setIcon(R.drawable.ic_lockiconopen);

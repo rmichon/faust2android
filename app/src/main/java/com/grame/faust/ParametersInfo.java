@@ -66,7 +66,7 @@ class ParametersInfo{
 	
 	public void saveParemeters(SharedPreferences settings){
 		SharedPreferences.Editor editor = settings.edit();
-		editor.putInt("wasSaved",1);
+		editor.putInt("wasSaved",saved);
 		editor.putInt("zoom", zoom);
 		editor.putBoolean("locked", locked);
 		editor.putInt("nMultiParams", nMultiParams);
