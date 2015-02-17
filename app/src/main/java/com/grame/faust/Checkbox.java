@@ -9,12 +9,14 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 class Checkbox{
 	int id = 0;
 	String address = "";
 	LinearLayout frame, localVerticalGroup;
 	CheckBox checkbox;
+    TextView textLabel;
 	
 	/*
 	 * The constructor.
@@ -31,7 +33,15 @@ class Checkbox{
 		
 		checkbox = new CheckBox(c);
 		checkbox.setGravity(Gravity.CENTER);
-		checkbox.setText(label);
+		//checkbox.setText(label);
+        checkbox.setButtonDrawable(null);
+        checkbox.setBackgroundResource(R.drawable.checkbox);
+        checkbox.setLayoutParams(new ViewGroup.LayoutParams(
+                height, height));
+
+        textLabel = new TextView(c);
+        textLabel.setGravity(Gravity.CENTER);
+        textLabel.setText(label);
 		
 		frame = new LinearLayout(c);
 		frame.setLayoutParams(new ViewGroup.LayoutParams(
@@ -46,14 +56,16 @@ class Checkbox{
 		localVerticalGroup.setGravity(Gravity.CENTER);
 		localVerticalGroup.setBackgroundColor(Color.rgb(backgroundColor+15, 
 				backgroundColor+15, backgroundColor+15));
+        localVerticalGroup.setPadding(0,10,0,10);
 		
 		localVerticalGroup.addView(checkbox);
+        localVerticalGroup.addView(textLabel);
 	    frame.addView(localVerticalGroup);
 	}
 	
 	public void setStatus(float value){
 		if(value == 0.0f) checkbox.setChecked(false);
-		else if(value == 1.0f) checkbox.setChecked(true);
+		else if(value != 0.0f) checkbox.setChecked(true);
 	}
 	
 	/*

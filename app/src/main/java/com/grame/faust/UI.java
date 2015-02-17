@@ -16,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.grame.dsp_faust.dsp_faust;
+import com.illposed.osc.OSCListener;
+import com.illposed.osc.OSCMessage;
 
 /*
  * REMARKS:
@@ -222,6 +224,7 @@ public class UI{
 				boolean paramVisible = true; 
 				currentObject = uiArray.getJSONObject(i);
 				String metaDataStyle = parseJSONMetaData(currentObject, "style");
+                String metaDataHidden = parseJSONMetaData(currentObject, "hidden");
 				String metaDataMulti = parseJSONMetaData(currentObject, "multi");
 				
 				if(!isSavedParameters){
@@ -248,8 +251,12 @@ public class UI{
 						currentObject.getString("label").equals("gate"))){
 					paramVisible = false;
 				}
-				
-				if(currentObject.getString("type").equals("vgroup")){
+
+                if(metaDataHidden.equals("1")){
+                    paramVisible = false;
+                }
+
+                if(currentObject.getString("type").equals("vgroup")){
 					currentArray = currentObject.getJSONArray("items");
 					vgroup(c,currentArray,currentGroup,currentObject.getString("label"),
 							currentGroupLevel,groupDivisions,currentViewWidth);
@@ -283,12 +290,12 @@ public class UI{
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								localScreenWidth,localBackgroundColor,metaDataStyle);
+								localScreenWidth,localBackgroundColor,metaDataStyle,paramVisible);
 					}
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								localScreenWidth,localBackgroundColor,metaDataStyle,0);
+								localScreenWidth,localBackgroundColor,metaDataStyle,0,paramVisible);
 					}
 					else{
 						vslider(c,currentGroup,currentObject.getString("address"),
@@ -325,12 +332,12 @@ public class UI{
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								localScreenWidth,localBackgroundColor,metaDataStyle);
+								localScreenWidth,localBackgroundColor,metaDataStyle,paramVisible);
 					}
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								localScreenWidth,localBackgroundColor,metaDataStyle,1);
+								localScreenWidth,localBackgroundColor,metaDataStyle,1,paramVisible);
 					}
 					else{
 						hslider(c, currentGroup, currentObject.getString("address"),
@@ -367,12 +374,12 @@ public class UI{
 					else if(metaDataStyle.contains("menu")){
 						dropDownMenu(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								localScreenWidth,localBackgroundColor,metaDataStyle);
+								localScreenWidth,localBackgroundColor,metaDataStyle,paramVisible);
 					}
 					else if(metaDataStyle.contains("radio")){
 						radio(c,currentGroup,currentObject.getString("address"),
 								currentObject.getString("label"),
-								localScreenWidth,localBackgroundColor,metaDataStyle,0);
+								localScreenWidth,localBackgroundColor,metaDataStyle,0,paramVisible);
 					}
 					else{
 						nentry(c,currentGroup,currentObject.getString("address"),
@@ -464,11 +471,11 @@ public class UI{
 	 */
 	//TODO: init?
 	public void dropDownMenu(Context c, LinearLayout currentGroup, final String address, final String label,
-			int localScreenWidth, int localBackgroundColor, String parameters){
+			int localScreenWidth, int localBackgroundColor, String parameters, boolean visibility){
 		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, 
 				parameters.indexOf("}"));
 		menus[parametersCounters[4]] = new Menu(c,address,parameterNumber,
-				localScreenWidth, localBackgroundColor, parsedParameters);	
+				localScreenWidth, localBackgroundColor, parsedParameters, visibility);
 		menus[parametersCounters[4]].setLabel(label);
 		
 		int init = 0;
@@ -500,14 +507,14 @@ public class UI{
 	 */
 	//TODO: init?
 	public void radio(Context c, LinearLayout currentGroup, final String address, final String label,
-			int localScreenWidth, int localBackgroundColor, String parameters, int orientation){
+			int localScreenWidth, int localBackgroundColor, String parameters, int orientation, boolean visibility){
 		String parsedParameters = parameters.substring(parameters.indexOf("{") + 1, parameters.indexOf("}"));
 		int init = 0;
 		if(isSavedParameters) init = (int) parametersInfo.values[parameterNumber];
 		else parametersInfo.values[parameterNumber] = init;
 		
 		radios[parametersCounters[5]] = new Radio(c,address,parameterNumber,
-				localScreenWidth, localBackgroundColor, parsedParameters, orientation, init);
+				localScreenWidth, localBackgroundColor, parsedParameters, orientation, init, visibility);
 		radios[parametersCounters[5]].setLabel(label);
 		
 		//dsp_faust.setParam(address, init);
@@ -549,6 +556,23 @@ public class UI{
 		dsp_faust.setParam(address, init);
 	    hsliders[parametersCounters[0]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
 	    hsliders[parametersCounters[0]].addTo(currentGroup);
+
+        // OSC listener
+        final int parameterId = parametersCounters[0];
+        final FaustActivity faustActivity = (FaustActivity) c;
+        OSCListener listener = new OSCListener() {
+            public void acceptMessage(java.util.Date time, final OSCMessage message) {
+                faustActivity.runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                hsliders[parameterId].setValue((float) message.getArguments().get(0));
+                            }
+                        }
+                );
+            }
+        };
+        Osc.addListener(address,listener);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 0;
 	    parametersInfo.localId[parameterNumber] = parametersCounters[0];
@@ -584,6 +608,23 @@ public class UI{
 		dsp_faust.setParam(address, init);
 	    vsliders[parametersCounters[1]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
 	    vsliders[parametersCounters[1]].addTo(currentGroup);
+
+        // OSC listener
+        final int parameterId = parametersCounters[1];
+        final FaustActivity faustActivity = (FaustActivity) c;
+        OSCListener listener = new OSCListener() {
+            public void acceptMessage(java.util.Date time, final OSCMessage message) {
+                faustActivity.runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                vsliders[parameterId].setValue((float) message.getArguments().get(0));
+                            }
+                        }
+                );
+            }
+        };
+        Osc.addListener(address,listener);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 1;
 	    parametersInfo.localId[parameterNumber] = parametersCounters[1];
@@ -618,6 +659,23 @@ public class UI{
 		dsp_faust.setParam(address, init);
 	    knobs[parametersCounters[2]].linkTo(parametersInfo, parametersWindow, horizontalScroll);
 	    knobs[parametersCounters[2]].addTo(currentGroup);
+
+        // OSC listener
+        final int parameterId = parametersCounters[2];
+        final FaustActivity faustActivity = (FaustActivity) c;
+        OSCListener listener = new OSCListener() {
+            public void acceptMessage(java.util.Date time, final OSCMessage message) {
+                faustActivity.runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                knobs[parameterId].setValue((float) message.getArguments().get(0));
+                            }
+                        }
+                );
+            }
+        };
+        Osc.addListener(address,listener);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 2;
 	    parametersInfo.localId[parameterNumber] = parametersCounters[2];
@@ -652,6 +710,23 @@ public class UI{
 		dsp_faust.setParam(address, init);
 	    nentries[parametersCounters[3]].linkTo(parametersInfo, parametersWindow);
 	    nentries[parametersCounters[3]].addTo(currentGroup);
+
+        // OSC listener
+        final int parameterId = parametersCounters[3];
+        final FaustActivity faustActivity = (FaustActivity) c;
+        OSCListener listener = new OSCListener() {
+            public void acceptMessage(java.util.Date time, final OSCMessage message) {
+                faustActivity.runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                nentries[parameterId].setValue((float) message.getArguments().get(0));
+                            }
+                        }
+                );
+            }
+        };
+        Osc.addListener(address,listener);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 3;
 	    parametersInfo.localId[parameterNumber] = parametersCounters[3];
@@ -693,7 +768,7 @@ public class UI{
 	 */
 	public void checkbox(Context c, LinearLayout currentGroup, final String address, final String label, 
 			int localScreenWidth, int localBackgroundColor, boolean visibility){
-        int height = Math.round(screenSizeY*0.5f);
+        int height = Math.round(screenSizeY*0.1f);
 		checkboxes[parametersCounters[7]] = new Checkbox(c,address,parameterNumber,
 				localScreenWidth, height, localBackgroundColor, label);
 		
@@ -705,6 +780,23 @@ public class UI{
 		dsp_faust.setParam(address, init);
 	    checkboxes[parametersCounters[7]].linkTo(parametersInfo);
 	    if(visibility) checkboxes[parametersCounters[7]].addTo(currentGroup);
+
+        // OSC listener
+        final int parameterId = parametersCounters[7];
+        final FaustActivity faustActivity = (FaustActivity) c;
+        OSCListener listener = new OSCListener() {
+            public void acceptMessage(java.util.Date time, final OSCMessage message) {
+                faustActivity.runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                checkboxes[parameterId].setStatus((float) message.getArguments().get(0));
+                            }
+                        }
+                );
+            }
+        };
+        Osc.addListener(address,listener);
 	    
 	    parametersInfo.parameterType[parameterNumber] = 7;
 	    parametersInfo.localId[parameterNumber] = parametersCounters[7];

@@ -36,6 +36,10 @@ package com.grame.faust;
  */
 
 import com.grame.dsp_faust.dsp_faust;
+import com.illposed.osc.OSCListener;
+import com.illposed.osc.OSCMessage;
+import com.illposed.osc.OSCPort;
+import com.illposed.osc.OSCPortIn;
 
 import android.app.Activity;
 import android.content.Context;
@@ -52,6 +56,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+
+import java.net.SocketException;
 
 public class FaustActivity extends Activity {
 	int accelUpdateRate = 30; //in ms
@@ -76,19 +82,22 @@ public class FaustActivity extends Activity {
         activityJustCreated = true; // used to load the saved parameters only once
         
         if(!dsp_faust.isRunning()) dsp_faust.init(44100,512);
+        Osc.init(5511);
         
         numberOfParameters = dsp_faust.getParamsCount();
         
         parametersInfo.init(numberOfParameters);
         SharedPreferences settings = getSharedPreferences("savedParameters", 0);
-        
+
         LinearLayout mainGroup = (LinearLayout) findViewById(R.id.the_layout);
         HorizontalScrollView horizontalScroll = (HorizontalScrollView) findViewById(R.id.horizontalScroll);
         ui.horizontalScroll = horizontalScroll;
         
         ui.initUI(parametersInfo,settings);	
         ui.buildUI(this, mainGroup);
-        
+
+        Osc.startListening();
+
         /*
          * ACCELEROMETERS
          */
@@ -97,7 +106,7 @@ public class FaustActivity extends Activity {
         		Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
         
         if(!dsp_faust.isRunning()) dsp_faust.start();
-        
+
         /*
         final int displayThreadUpdateRate = 30;
         displayThread = new Thread() {
@@ -155,8 +164,7 @@ public class FaustActivity extends Activity {
 		        	        		else if(parametersInfo.parameterType[index] == 2) 
 		        	        			ui.knobs[parametersInfo.localId[index]].setNormizedValue(finalParamValue);
 		        	        		else if(parametersInfo.parameterType[index] == 3) 
-		        	        			ui.nentries[parametersInfo.localId[index]].setNormizedValue(finalParamValue);
-		        	        	}
+		        	        			ui.nentries[parametersInfo.localId[index]].setNormizedValue(finalParamValue);  	}
 							});
 						}
 					}
@@ -165,6 +173,7 @@ public class FaustActivity extends Activity {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+                    //System.out.println("Here");
 				}		
 			}
 		};

@@ -34,7 +34,7 @@ class Menu{
 	 * backgroundColor: grey level of the background of the view (0-255)
 	 */
 	public Menu(Context c, String addr, int currentParameterID,
-			int width, int backgroundColor, String parsedParameters){
+			int width, int backgroundColor, String parsedParameters, boolean visibility){
 		ID = currentParameterID;
 		address = addr;
 		
@@ -83,10 +83,12 @@ class Menu{
         dataAdapter.setDropDownViewResource
         (android.R.layout.simple_spinner_dropdown_item);
         menu.setAdapter(dataAdapter);
-        
-        localVerticalGroup.addView(textLabel);
-		localVerticalGroup.addView(menu);
-		frame.addView(localVerticalGroup);
+
+        if(visibility) {
+            localVerticalGroup.addView(textLabel);
+            localVerticalGroup.addView(menu);
+            frame.addView(localVerticalGroup);
+        }
 	}
 	
 	public void setLabel(String label){

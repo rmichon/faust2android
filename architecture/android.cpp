@@ -35,6 +35,7 @@
 #include "faust/gui/jsonfaustui.h"
 #include "faust/gui/JSONUI.h"
 #include "faust/gui/MapUI.h"
+#include "faust/gui/OSCUI.h"
 
 //**************************************************************
 // DSP class
@@ -78,7 +79,8 @@ JSONUI json(DSP.getNumInputs(), DSP.getNumOutputs());
 string jsonString;
 
 // Global variables
-int SR, bufferSize, vecSamps, polyMax, inChanNumb, outChanNumb, on;
+int SR, bufferSize, vecSamps, polyMax, inChanNumb, outChanNumb;
+bool on;
 float **bufferout, **bufferin, polyCoef;
 
 /*
@@ -115,17 +117,21 @@ void init(int samplingRate, int bufferFrames) {
 		polyMax = 0;
 	}
 
-	// allocating memory for output channel
+	// Allocating memory for output channels. Only the first two channels
+	// are played. Additional output channels are ignored.
 	bufferout = new float *[outChanNumb];
 	for (int i = 0; i < outChanNumb; i++) {
 		bufferout[i] = new float[vecSamps];
 	}
 
-	// allocating memory for input channel
+	// Allocating memory for input channel. We assume no more than
+	// one physical input channel. Additional input channels will 
+	// share the content of input channel 0.
 	if (inChanNumb >= 1) {
 		bufferin = new float *[inChanNumb];
-		for (int i = 0; i < inChanNumb; i++) {
-			bufferin[i] = new float[vecSamps];
+		bufferin[0] = new float[vecSamps];
+		for (int i = 1; i < inChanNumb; i++) {
+			bufferin[i] = bufferin[0];
 		}
 	}
 }
@@ -159,7 +165,7 @@ void *processDSP(void *threadID) {
  * DSP tasks will be computed.
  */
 int start() {
-	on = 1;
+	on = true;
 	p = android_OpenAudioDevice(SR, min(1, inChanNumb),
 			min(2, outChanNumb), bufferSize);
 	pthread_create(&audioThread, NULL, processDSP, NULL);
@@ -175,7 +181,7 @@ int start() {
  * the native thread on Android.
  */
 void stop() {
-	on = 0;
+	on = false;
 	pthread_join(audioThread, 0);
 	android_CloseAudioDevice(p);
 	for (int i = 0; i < outChanNumb; i++) {
@@ -197,10 +203,7 @@ void stop() {
  * false if not.
  */
 bool isRunning() {
-	if (on == 1)
-		return true;
-	else
-		return false;
+	return on;
 }
 
 /*
@@ -247,7 +250,7 @@ int keyOff(int pitch) {
  */
 int pitchBend(int refPitch, float pitch){
 	if(polyMax > 0){
-		DSPpoly->pitchBend(refPitch, pitch);
+		DSPpoly->pitchBend(0,refPitch, pitch);
 		return 1;
 	}
 	else
@@ -331,5 +334,5 @@ int setVoiceGain(int pitch, float gain){
  * Returns the address of a parameter in function of its "id".
  */
 const char *getParamAddress(int id) {
-	return strdup(mapUI.getParamPath(id).c_str());
+	return mapUI.getParamPath(id).c_str();
 }

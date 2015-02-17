@@ -29,7 +29,7 @@ class Radio{
 	 */
 	public Radio(Context c, String addr, int currentParameterID,
 			int width, int backgroundColor, String parsedParameters, 
-			int orientation, int init){
+			int orientation, int init, boolean visibility){
 		ID = currentParameterID;
 		address = addr;
 		
@@ -78,10 +78,11 @@ class Radio{
 			}
 			radio.addView(button);
 		}
-		
-		localVerticalGroup.addView(textLabel);
-		localVerticalGroup.addView(radio);
-		frame.addView(localVerticalGroup);
+		if(visibility) {
+            localVerticalGroup.addView(textLabel);
+            localVerticalGroup.addView(radio);
+            frame.addView(localVerticalGroup);
+        }
 	}
 	
 	public void setLabel(String label){
