@@ -35,7 +35,6 @@
 #include "faust/gui/jsonfaustui.h"
 #include "faust/gui/JSONUI.h"
 #include "faust/gui/MapUI.h"
-#include "faust/gui/OSCUI.h"
 
 //**************************************************************
 // DSP class
@@ -70,18 +69,18 @@
 
 using namespace std;
 
-OPENSL_STREAM *p; // the audio engine
-mydsp DSP; // the monophonic Faust object
-mydsp_poly *DSPpoly; // the polyphonic Faust object
-MapUI mapUI; // the UI description
-pthread_t audioThread; // native thread for audio
+OPENSL_STREAM *p;           // the audio engine
+mydsp DSP;                  // the monophonic Faust object
+mydsp_poly *DSPpoly = NULL; // the polyphonic Faust object
+MapUI mapUI;                // the UI description
+pthread_t audioThread;      // native thread for audio
 JSONUI json(DSP.getNumInputs(), DSP.getNumOutputs());
 string jsonString;
 
 // Global variables
 int SR, bufferSize, vecSamps, polyMax, inChanNumb, outChanNumb;
+float **bufferout, **bufferin;
 bool on;
-float **bufferout, **bufferin, polyCoef;
 
 /*
  * init(samplingRate, bufferFrames)
@@ -107,15 +106,14 @@ void init(int samplingRate, int bufferFrames) {
 
 	jsonString = json.JSON();
 
-	if(jsonString.find("keyboard") != std::string::npos ||
-       jsonString.find("poly") != std::string::npos){
-		polyMax = 6;
-		polyCoef = 1.0f / polyMax;
-		DSPpoly = new mydsp_poly(SR, bufferSize, polyMax);
-	}
-	else{
-		polyMax = 0;
-	}
+    if (jsonString.find("keyboard") != std::string::npos ||
+        jsonString.find("poly") != std::string::npos){
+        polyMax = 6;
+        DSPpoly = new mydsp_poly(bufferSize, polyMax);
+        DSPpoly->init(SR);
+    } else {
+        polyMax = 0;
+    }
 
 	// Allocating memory for output channels. Only the first two channels
 	// are played. Additional output channels are ignored.
@@ -143,14 +141,16 @@ void init(int samplingRate, int bufferFrames) {
 void *processDSP(void *threadID) {
 	while (on) {
 		// getting input signal
-		if (inChanNumb >= 1)
+		if (inChanNumb >= 1) {
 			android_AudioIn(p, bufferin[0], vecSamps);
+        }
 
 		// computing...
-		if (polyMax == 0)
+		if (polyMax == 0) {
 			DSP.compute(vecSamps, bufferin, bufferout);
-		else
+		} else {
 			DSPpoly->compute(vecSamps, bufferin, bufferout);
+        }
 
 		// sending output signal
 		android_AudioOut(p, bufferout, vecSamps);
@@ -164,15 +164,11 @@ void *processDSP(void *threadID) {
  * On Android it also creates the native thread where the
  * DSP tasks will be computed.
  */
-int start() {
+bool start() {
 	on = true;
-	p = android_OpenAudioDevice(SR, min(1, inChanNumb),
-			min(2, outChanNumb), bufferSize);
+	p = android_OpenAudioDevice(SR, min(1, inChanNumb), min(2, outChanNumb), bufferSize);
 	pthread_create(&audioThread, NULL, processDSP, NULL);
-	if(p == NULL)
-		return 0;
-	else
-		return 1;
+	return (p != NULL);
 }
 
 /*
@@ -215,12 +211,12 @@ bool isRunning() {
  * polyphonic and 1 otherwise.
  */
 int keyOn(int pitch, int velocity) {
-	if(polyMax > 0){
+	if (polyMax > 0) {
 		DSPpoly->keyOn(0, pitch, velocity);
 		return 1;
-	}
-	else
+	} else {
 		return 0;
+    }
 }
 
 /*
@@ -232,12 +228,12 @@ int keyOn(int pitch, int velocity) {
  * and 1 otherwise.
  */
 int keyOff(int pitch) {
-	if(polyMax > 0){
+	if (polyMax > 0) {
 		DSPpoly->keyOff(0, pitch);
 		return 1;
-	}
-	else
+	} else {
 		return 0;
+    }
 }
 
 /*
@@ -249,12 +245,12 @@ int keyOff(int pitch) {
  * if the object is not polyphonic and 1 otherwise.
  */
 int pitchBend(int refPitch, float pitch){
-	if(polyMax > 0){
-		DSPpoly->pitchBend(0,refPitch, pitch);
+	if (polyMax > 0) {
+		DSPpoly->pitchBend(0, refPitch, pitch);
 		return 1;
-	}
-	else
+	} else {
 		return 0;
+    }
 }
 
 /*
@@ -263,7 +259,7 @@ int pitchBend(int refPitch, float pitch){
  * UI of the Faust object.
  */
 const char *getJSON() {
-	return strdup(jsonString.c_str());
+	return jsonString.c_str();
 }
 
 /*
@@ -280,10 +276,7 @@ int getParamsCount() {
  * value.
  */
 float getParam(const char* address) {
-	if (polyMax == 0)
-		return mapUI.getValue(address);
-	else
-		return DSPpoly->getValue(address);
+	 return (polyMax == 0) ? mapUI.getValue(address) : DSPpoly->getValue(address);
 }
 
 /*
@@ -291,10 +284,11 @@ float getParam(const char* address) {
  * Sets the value of the parameter associated with address.
  */
 void setParam(const char* address, float value) {
-	if (polyMax == 0)
+	if (polyMax == 0) {
 		mapUI.setValue(address, value);
-	else
+	} else {
 		DSPpoly->setValue(address, value);
+    }
 	//__android_log_print(ANDROID_LOG_VERBOSE, "Echo", "Foucou: %s",address);
 }
 
@@ -307,11 +301,12 @@ void setParam(const char* address, float value) {
  * and 1 otherwise.
  */
 int setVoiceParam(const char* address, int pitch, float value) {
-	if(polyMax > 0){
+	if (polyMax > 0) {
 		DSPpoly->setValue(address, pitch, value);
 		return 1;
-	}
-	else return 0;
+	} else {
+        return 0;
+    }
 }
 
 /*
@@ -321,12 +316,13 @@ int setVoiceParam(const char* address, int pitch, float value) {
  * is used in the Faust code. setVoiceGain will return 0 if the
  * object is not polyphonic and 1 otherwise.
  */
-int setVoiceGain(int pitch, float gain){
-	if(polyMax > 0){
-		setVoiceParam(DSPpoly->fGainLabel.c_str(),pitch,gain);
+int setVoiceGain(int pitch, float gain) {
+	if (polyMax > 0) {
+		DSPpoly->setVoiceGain(pitch, gain);
 		return 1;
-	}
-	else return 0;
+	} else {
+        return 0;
+    }
 }
 
 /*
