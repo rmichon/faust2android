@@ -228,6 +228,7 @@ public class UI{
 				String metaDataMulti = parseJSONMetaData(currentObject, "multi");
 				
 				if(!isSavedParameters){
+                    // New accelerometer MetaData
 					String metaDataAccel = parseJSONMetaData(currentObject, "acc");
 					if(!metaDataAccel.equals("")){
 						float[] accelParams = {0,0,0,0,0};
@@ -239,10 +240,33 @@ public class UI{
 						
 						parametersInfo.accelState[parameterNumber] = (int) (accelParams[0]+1);
 						parametersInfo.accelInverterState[parameterNumber] = (int) accelParams[1];
-						parametersInfo.accelMin[parameterNumber] = (int) accelParams[2];
-						parametersInfo.accelMax[parameterNumber] = (int) accelParams[3];
-						parametersInfo.accelCenter[parameterNumber] = (int) accelParams[4];
+						parametersInfo.accelMin[parameterNumber] = accelParams[2];
+						parametersInfo.accelMax[parameterNumber] = accelParams[3];
+						parametersInfo.accelCenter[parameterNumber] = accelParams[4];
 					}
+                    // Old accelerometer MetaData
+                    String[] metaDataAccelOld = new String[3];
+                    metaDataAccelOld[0] = parseJSONMetaData(currentObject, "accx");
+                    metaDataAccelOld[1] = parseJSONMetaData(currentObject, "accy");
+                    metaDataAccelOld[2] = parseJSONMetaData(currentObject, "accz");
+
+                    for(int k=0; k<3; k++){
+                        if(!metaDataAccelOld[k].equals("")){
+                            float[] accelParams = {0,0,0,0};
+                            for(int j=0; j<3; j++){
+                                accelParams[j] = Float.valueOf(metaDataAccelOld[k].substring(0, metaDataAccelOld[k].indexOf(" ")));
+                                metaDataAccelOld[k] = metaDataAccelOld[k].substring(metaDataAccelOld[k].indexOf(" ")+1);
+                            }
+                            accelParams[3] = Float.valueOf(metaDataAccelOld[k]);
+                            parametersInfo.accelState[parameterNumber] = (k+1);
+                            if(accelParams[0]<0) parametersInfo.accelInverterState[parameterNumber] = 1;
+                            else parametersInfo.accelInverterState[parameterNumber] = 0;
+                            parametersInfo.accelMin[parameterNumber] = -100.0f/Math.abs(accelParams[0]);
+                            parametersInfo.accelMax[parameterNumber] = 100.0f/Math.abs(accelParams[0]);
+                            parametersInfo.accelCenter[parameterNumber] = 0.0f;
+                        }
+                    }
+
 				}
 				
 				// Skipping freq, gain and gate if a keyboard interface was specified

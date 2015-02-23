@@ -211,8 +211,9 @@ public class ConfigWindow{
 	}
 	
 	void setValue(SeekBar s, TextView t, String name, float x){
+        System.out.println(x);
 		t.setText(name + String.format("%.1f",x));
-		s.setProgress(Math.round((x+10.0f)*5.0f));
+        s.setProgress(Math.round(x*5+500));
 	}
 	
 	/*
