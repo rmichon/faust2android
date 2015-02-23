@@ -12,6 +12,7 @@ class ParametersInfo{
 	float[] accelMin;
 	float[] accelMax;
 	float[] accelCenter;
+    float[] sliderCenter;
 	int[] accelItemFocus;
 	
 	// Multi interface parameters
@@ -39,6 +40,7 @@ class ParametersInfo{
 		accelMin = new float[nParams];
 		accelMax = new float[nParams];
 		accelCenter = new float[nParams];
+        sliderCenter = new float[nParams];
 		accelItemFocus = new int[nParams];
 		parameterType = new int[nParams]; //0: hslider, 1: vslider
 		localId = new int[nParams];
@@ -54,6 +56,7 @@ class ParametersInfo{
 			accelMin[i] = -100.0f;
 			accelMax[i] = 100.0f;
 			accelCenter[i] = 0.0f;
+            sliderCenter[i] = 0.0f;
 			accelInverterState[i] = 0;
 			accelItemFocus[i] = 0;
 			
@@ -76,6 +79,7 @@ class ParametersInfo{
 			editor.putFloat("accelMin"+i, accelMin[i]);
 			editor.putFloat("accelMax"+i, accelMax[i]);
 			editor.putFloat("accelCenter"+i, accelCenter[i]);
+            editor.putFloat("sliderCenter"+i, sliderCenter[i]);
 			editor.putInt("accelInverterState"+i, accelInverterState[i]);
 			
 			editor.putInt("order"+i, order[i]);
@@ -98,6 +102,7 @@ class ParametersInfo{
 				accelMin[i] = settings.getFloat("accelMin"+i, 0);
 				accelMax[i] = settings.getFloat("accelMax"+i, 0);
 				accelCenter[i] = settings.getFloat("accelCenter"+i, 0);
+                sliderCenter[i] = settings.getFloat("sliderCenter"+i, 0);
 				accelInverterState[i] = settings.getInt("accelInverterState"+i, 0);
 				
 				// TODO perhaps this should be in a separate function for optimization saic...	

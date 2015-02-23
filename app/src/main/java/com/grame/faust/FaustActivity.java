@@ -139,15 +139,15 @@ public class FaustActivity extends Activity {
 						if(parametersInfo.accelState[i] >= 1 && parametersInfo.accelItemFocus[i] == 0){
 							if(parametersInfo.accelState[i] == 1){ 
 								finalParameterValue = accelUtil.transform(rawAccel[0], parametersInfo.accelMin[i], 
-										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.accelInverterState[i]);		
+										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.sliderCenter[i], parametersInfo.accelInverterState[i]);
 							}
 							else if(parametersInfo.accelState[i] == 2){
 								finalParameterValue = accelUtil.transform(rawAccel[1], parametersInfo.accelMin[i], 
-										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.accelInverterState[i]);				
+										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.sliderCenter[i], parametersInfo.accelInverterState[i]);
 							}
 							else if(parametersInfo.accelState[i] == 3){
 								finalParameterValue = accelUtil.transform(rawAccel[2], parametersInfo.accelMin[i], 
-										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.accelInverterState[i]);							
+										parametersInfo.accelMax[i], parametersInfo.accelCenter[i], parametersInfo.sliderCenter[i], parametersInfo.accelInverterState[i]);
 							}	
 							// the slider value is modified by the accelerometer 
 							final float finalParamValue = finalParameterValue;

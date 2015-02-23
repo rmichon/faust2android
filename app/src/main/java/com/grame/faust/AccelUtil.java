@@ -6,28 +6,42 @@ public class AccelUtil{
     }
 	
 	// TODO: curve mode doesn't work properly
-	public float transform(float currentValue, float min, float max, float center, int shape){
+	public float transform(float currentValue, float min, float max, float centerAccel, float centerSlider, int shape){
 		float out = 0.0f;
 
         float accelMax = 100.0f;
 
+        currentValue = currentValue*-1.0f; //For some reasons the accelerometer orientation is reversed
+
         if(shape == 1) currentValue = currentValue*-1.0f;
 
         if(currentValue <= 0.0f) {
-            float downRange = center - min;
+            float downRange = centerAccel - min;
             float downScaler = downRange/accelMax;
             //float shiftThreshold = downRange/2;
-            out = center + currentValue/downScaler;
+            out = centerAccel + currentValue/downScaler;
             //if(shape == 2 && out < shiftThreshold) out = shiftThreshold - out;
         }
         else{
-            float upRange = max - center;
+            float upRange = max - centerAccel;
             float upScaler = upRange/accelMax;
-            out = center + currentValue/upScaler;
+            out = centerAccel + currentValue/upScaler;
         };
 
-        //System.out.println(out);
 
-		return normalize(out);
+        if(out <= 0.0f) {
+            float downRange = centerSlider - 100.0f;
+            float downScaler = Math.abs(downRange)/100.0f;
+            out = centerSlider + out/downScaler;
+        }
+        else{
+            float upRange = 100.0f - centerSlider;
+            float upScaler = upRange/accelMax;
+            out = centerSlider + out/upScaler;
+        };
+
+        out = normalize(out);
+
+		return out;
 	}
 }

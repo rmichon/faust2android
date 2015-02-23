@@ -231,18 +231,19 @@ public class UI{
                     // New accelerometer MetaData
 					String metaDataAccel = parseJSONMetaData(currentObject, "acc");
 					if(!metaDataAccel.equals("")){
-						float[] accelParams = {0,0,0,0,0};
-						for(int j=0; j<4; j++){
+						float[] accelParams = {0,0,0,0,0,0};
+						for(int j=0; j<5; j++){
 							accelParams[j] = Float.valueOf(metaDataAccel.substring(0, metaDataAccel.indexOf(" ")));
 							metaDataAccel = metaDataAccel.substring(metaDataAccel.indexOf(" ")+1);
 						}
-						accelParams[4] = Float.valueOf(metaDataAccel);
+						accelParams[5] = Float.valueOf(metaDataAccel);
 						
 						parametersInfo.accelState[parameterNumber] = (int) (accelParams[0]+1);
 						parametersInfo.accelInverterState[parameterNumber] = (int) accelParams[1];
 						parametersInfo.accelMin[parameterNumber] = accelParams[2];
 						parametersInfo.accelMax[parameterNumber] = accelParams[3];
 						parametersInfo.accelCenter[parameterNumber] = accelParams[4];
+                        parametersInfo.sliderCenter[parameterNumber] = accelParams[5];
 					}
                     // Old accelerometer MetaData
                     String[] metaDataAccelOld = new String[3];
@@ -264,6 +265,7 @@ public class UI{
                             parametersInfo.accelMin[parameterNumber] = -100.0f/Math.abs(accelParams[0]);
                             parametersInfo.accelMax[parameterNumber] = 100.0f/Math.abs(accelParams[0]);
                             parametersInfo.accelCenter[parameterNumber] = 0.0f;
+                            parametersInfo.sliderCenter[parameterNumber] = 0.0f;
                         }
                     }
 
