@@ -303,6 +303,11 @@ public class UI{
 						parametersInfo.min[parameterNumber] = Float.parseFloat(currentObject.getString("min"));
 						parametersInfo.max[parameterNumber] = Float.parseFloat(currentObject.getString("max"));
 						parametersInfo.step[parameterNumber] = Float.parseFloat(currentObject.getString("step"));
+                        if(parametersInfo.accelState[parameterNumber]>0) {
+                            float range = parametersInfo.max[parameterNumber] - parametersInfo.min[parameterNumber];
+                            parametersInfo.sliderCenter[parameterNumber] = (parametersInfo.sliderCenter[parameterNumber] - parametersInfo.min[parameterNumber])/range;
+                            parametersInfo.sliderCenter[parameterNumber] = parametersInfo.sliderCenter[parameterNumber]*200-100;
+                        }
 					}
 					if(metaDataStyle.equals("knob")){
 						knob(c, currentGroup, currentObject.getString("address"),
@@ -345,6 +350,11 @@ public class UI{
 						parametersInfo.min[parameterNumber] = Float.parseFloat(currentObject.getString("min"));
 						parametersInfo.max[parameterNumber] = Float.parseFloat(currentObject.getString("max"));
 						parametersInfo.step[parameterNumber] = Float.parseFloat(currentObject.getString("step"));
+                        if(parametersInfo.accelState[parameterNumber]>0) {
+                            float range = parametersInfo.max[parameterNumber] - parametersInfo.min[parameterNumber];
+                            parametersInfo.sliderCenter[parameterNumber] = (parametersInfo.sliderCenter[parameterNumber] - parametersInfo.min[parameterNumber])/range;
+                            parametersInfo.sliderCenter[parameterNumber] = parametersInfo.sliderCenter[parameterNumber]*200-100;
+                        }
 					}
 					if(metaDataStyle.equals("knob")){
 						knob(c, currentGroup, currentObject.getString("address"),
@@ -387,6 +397,11 @@ public class UI{
 						parametersInfo.min[parameterNumber] = Float.parseFloat(currentObject.getString("min"));
 						parametersInfo.max[parameterNumber] = Float.parseFloat(currentObject.getString("max"));
 						parametersInfo.step[parameterNumber] = Float.parseFloat(currentObject.getString("step"));
+                        if(parametersInfo.accelState[parameterNumber]>0) {
+                            float range = parametersInfo.max[parameterNumber] - parametersInfo.min[parameterNumber];
+                            parametersInfo.sliderCenter[parameterNumber] = (parametersInfo.sliderCenter[parameterNumber] - parametersInfo.min[parameterNumber])/range;
+                            parametersInfo.sliderCenter[parameterNumber] = parametersInfo.sliderCenter[parameterNumber]*200-100;
+                        }
 					}
 					if(metaDataStyle.equals("knob")){
 						knob(c, currentGroup, currentObject.getString("address"),
