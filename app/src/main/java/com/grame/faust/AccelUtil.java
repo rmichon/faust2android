@@ -28,16 +28,15 @@ public class AccelUtil{
             out = centerAccel + currentValue/upScaler;
         };
 
-
         if(out <= 0.0f) {
-            float downRange = centerSlider - 100.0f;
-            float downScaler = Math.abs(downRange)/100.0f;
-            out = centerSlider + out/downScaler;
+            float downRange = centerSlider + 100.0f;
+            float downScaler = downRange/100.0f;
+            out = centerSlider + out*downScaler;
         }
         else{
             float upRange = 100.0f - centerSlider;
             float upScaler = upRange/accelMax;
-            out = centerSlider + out/upScaler;
+            out = centerSlider + out*upScaler;
         };
 
         out = normalize(out);
