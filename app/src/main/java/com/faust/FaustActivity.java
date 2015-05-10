@@ -1,4 +1,4 @@
-package com.grame.faust;
+package com.faust;
 
 /*
  * TODO
@@ -35,7 +35,7 @@ package com.grame.faust;
  * 		is kind of flumsy: this could be improved.
  */
 
-import com.grame.dsp_faust.dsp_faust;
+import com.dsp_faust.dsp_faust;
 import com.illposed.osc.OSCListener;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCPort;

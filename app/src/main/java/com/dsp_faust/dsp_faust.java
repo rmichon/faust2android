@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.grame.dsp_faust;
+package com.dsp_faust;
 
 public class dsp_faust {
   public static void init(int arg0, int arg1) {

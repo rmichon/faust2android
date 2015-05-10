@@ -1,4 +1,4 @@
-package com.grame.faust;
+package com.faust;
 
 public class AccelUtil{
     public float normalize(float accelValue){

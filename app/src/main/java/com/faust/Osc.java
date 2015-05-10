@@ -1,4 +1,4 @@
-package com.grame.faust;
+package com.faust;
 
 import com.illposed.osc.OSCListener;
 import com.illposed.osc.OSCPortIn;

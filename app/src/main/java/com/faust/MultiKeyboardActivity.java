@@ -1,13 +1,14 @@
-package com.grame.faust;
+package com.faust;
 
-import com.grame.faust.MultiParams.OnMultiParamsChangeListener;
-import com.grame.dsp_faust.dsp_faust;
+import com.faust.MultiParams.OnMultiParamsChangeListener;
+import com.faust.PianoKeyboard.OnKeyboardChangeListener;
+import com.dsp_faust.dsp_faust;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-public class MultiActivity extends Activity {
+public class MultiKeyboardActivity extends Activity {
 	int nParams;
 	float[] values;
 	ParametersInfo parametersInfo;
@@ -15,7 +16,26 @@ public class MultiActivity extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.multi);
+        setContentView(R.layout.combined);
+        
+        final PianoKeyboard keyboard = (PianoKeyboard) this.findViewById(R.id.PianoKeyboard);
+        keyboard.setOnKeyboardChangeListener(new OnKeyboardChangeListener(){
+			@Override
+			public void onKeyChanged(int note, int velocity, boolean i) {
+				if(i) dsp_faust.keyOn(note,velocity);
+				else dsp_faust.keyOff(note);
+			}
+			
+			@Override
+			public void onPitchBend(int refPitch, float pitch) {
+				dsp_faust.pitchBend(refPitch, pitch);
+			}
+
+			@Override
+			public void onYChanged(int pitch, float y) {
+				dsp_faust.setVoiceGain(pitch,y);
+			}
+        });
         
         int numberOfParameters = dsp_faust.getParamsCount();
         parametersInfo = new ParametersInfo();

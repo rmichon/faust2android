@@ -6,14 +6,14 @@
     android:layout_height="match_parent"
     android:weightSum="2">
     
-    <com.grame.faust.MultiParams
+    <com.faust.MultiParams
         android:id="@+id/MultiParams"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top"
         android:layout_weight="1"/>
 
-    <com.grame.faust.PianoKeyboard
+    <com.faust.PianoKeyboard
         android:id="@+id/PianoKeyboard"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

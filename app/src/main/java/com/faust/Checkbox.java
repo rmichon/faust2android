@@ -1,6 +1,6 @@
-package com.grame.faust;
+package com.faust;
 
-import com.grame.dsp_faust.dsp_faust;
+import com.dsp_faust.dsp_faust;
 
 import android.content.Context;
 import android.graphics.Color;

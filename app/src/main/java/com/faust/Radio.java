@@ -1,28 +1,22 @@
-package com.grame.faust;
+package com.faust;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.grame.dsp_faust.dsp_faust;
+import com.dsp_faust.dsp_faust;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.ViewGroup;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
-class Menu{
+class Radio{
 	int ID = 0;
 	float[] values;
 	String address = "";
-	Spinner menu;
-	List<String> parametersList;
+	RadioGroup radio;
 	LinearLayout frame, localVerticalGroup;
 	TextView textLabel;
 	
@@ -33,16 +27,17 @@ class Menu{
 	 * width: width of the view in pxs
 	 * backgroundColor: grey level of the background of the view (0-255)
 	 */
-	public Menu(Context c, String addr, int currentParameterID,
-			int width, int backgroundColor, String parsedParameters, boolean visibility){
+	public Radio(Context c, String addr, int currentParameterID,
+			int width, int backgroundColor, String parsedParameters, 
+			int orientation, int init, boolean visibility){
 		ID = currentParameterID;
 		address = addr;
 		
-		parametersList = new ArrayList<String>();
-		
-		menu = new Spinner(c);
-		menu.setLayoutParams(new ViewGroup.LayoutParams(
+		radio = new RadioGroup(c);
+		radio.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		if(orientation == 0) radio.setOrientation(LinearLayout.VERTICAL);
+		else radio.setOrientation(LinearLayout.HORIZONTAL);
 		
 		frame = new LinearLayout(c);
 		frame.setLayoutParams(new ViewGroup.LayoutParams(
@@ -61,8 +56,7 @@ class Menu{
 		textLabel = new TextView(c);
 		textLabel.setGravity(Gravity.CENTER);
 		
-		// length of the elements array
-		int length = parsedParameters.length(); 
+		int length = parsedParameters.length();
 		int nElements = countStringOccurrences(parsedParameters,";")+1;
 		values = new float[nElements];
 		// a menu item with a value assigned to it is created for each element of the array
@@ -75,18 +69,18 @@ class Menu{
 			parsedParameters = parsedParameters.substring(parsedParameters.indexOf(";") + 1, length);
 			length = parsedParameters.length();
 			
-			parametersList.add(parameterName);	
+			RadioButton button = new RadioButton(c);
+			button.setText(parameterName);
+			button.setId(i);
+			if(init == i){ 
+				button.setChecked(true);
+				dsp_faust.setParam(address, values[i]);
+			}
+			radio.addView(button);
 		}
-		// the menu is configured with the list created in the previous step
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>
-        (c, android.R.layout.simple_spinner_item,parametersList);
-        dataAdapter.setDropDownViewResource
-        (android.R.layout.simple_spinner_dropdown_item);
-        menu.setAdapter(dataAdapter);
-
-        if(visibility) {
+		if(visibility) {
             localVerticalGroup.addView(textLabel);
-            localVerticalGroup.addView(menu);
+            localVerticalGroup.addView(radio);
             frame.addView(localVerticalGroup);
         }
 	}
@@ -99,19 +93,14 @@ class Menu{
 		group.addView(frame);
 	}
 	
-	public void setSelection(int item){
-		menu.setSelection(item);
-	}
-	
 	public void linkTo(final ParametersInfo parametersInfo){
-		menu.setOnItemSelectedListener(new OnItemSelectedListener(){
-        	public void onItemSelected(AdapterView parent, View view, int pos, long id) {
-        		parametersInfo.values[ID] = pos;
-        		dsp_faust.setParam(address, values[pos]);
-        	} 
-        	public void onNothingSelected(AdapterView parent) {	 		
-        	}
-        });
+		radio.setOnCheckedChangeListener(new OnCheckedChangeListener() 
+	    {
+	        public void onCheckedChanged(RadioGroup group, int checkedId) {
+	        	parametersInfo.values[ID] = (float) checkedId;
+				dsp_faust.setParam(address, values[checkedId]);
+	        }
+	    });
 	}
 	
 	private int countStringOccurrences(String input, String pattern){

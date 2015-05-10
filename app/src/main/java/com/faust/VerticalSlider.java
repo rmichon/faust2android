@@ -1,13 +1,16 @@
-package com.grame.faust;
+package com.faust;
 
-import com.grame.dsp_faust.dsp_faust;
+import com.dsp_faust.dsp_faust;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.HorizontalScrollView;
@@ -15,18 +18,27 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.VerticalSeekBar;
+
+/*
+ * TODO: with accelerometers, when using setNormalizedValue the handle of the 
+ * slider doesn't move. I think the only way to solve this problem might be
+ * to have our own implementation of vertical slider which obviously would be
+ * a lot of work...
+ */
 
 /*
  * Create a horizontal slider that displays its current value on its left. 
  */
 
-class HorizontalSlider {
+class VerticalSlider {
 	float min = 0.0f, max = 100.0f, step = 1.0f;
 	int id = 0;
 	String decimalsDisplay = "", address = "";
 	LinearLayout frame, sliderLayout, localVerticalGroup;
-	SeekBar slider;
+	VerticalSeekBar slider;
 	TextView textValue, textLabel;
+	Point size;
 	
 	/*
 	 * The constructor.
@@ -34,27 +46,33 @@ class HorizontalSlider {
 	 * currentParameterID: the current parameter id in the parameters tree
 	 * width: width of the view in pxs
 	 * backgroundColor: grey level of the background of the view (0-255)
-	 * padding: padding of the view in pxs
 	 */
-	public HorizontalSlider(Context c, String addr, int currentParameterID, 
-			int width, int backgroundColor, int padding, boolean visibility) {
+	public VerticalSlider(Context c, String addr, int currentParameterID,
+			int width, int backgroundColor, boolean visibility){
+		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		size = new Point();
+		display.getSize(size);
+		
 		id = currentParameterID;
 		address = addr;
 		
-		slider = new SeekBar(c);
+		int sliderHeight = 300*(size.x+size.y)/2080;
+		slider = new VerticalSeekBar(c);
 		slider.setLayoutParams(new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+				ViewGroup.LayoutParams.WRAP_CONTENT, sliderHeight));
 		
 		frame = new LinearLayout(c);
-		setWidth(width);
+		frame.setLayoutParams(new ViewGroup.LayoutParams(
+				width, ViewGroup.LayoutParams.WRAP_CONTENT));
 		frame.setOrientation(LinearLayout.VERTICAL);
 		frame.setBackgroundColor(Color.rgb(backgroundColor, 
 				backgroundColor, backgroundColor));
 		frame.setPadding(2,2,2,2);
 		
 		sliderLayout = new LinearLayout(c);
-		sliderLayout.setOrientation(LinearLayout.HORIZONTAL);
-		sliderLayout.setPadding(padding, 0, padding, 0);
+		sliderLayout.setOrientation(LinearLayout.VERTICAL);
+		sliderLayout.setGravity(Gravity.CENTER);
 		
 		localVerticalGroup = new LinearLayout(c);
 		localVerticalGroup.setOrientation(LinearLayout.VERTICAL);
@@ -66,7 +84,7 @@ class HorizontalSlider {
 		textLabel.setGravity(Gravity.CENTER);
 		
 		textValue = new TextView(c);
-		
+		textValue.setGravity(Gravity.CENTER);
 		if(visibility){
 			sliderLayout.addView(textValue);
 			sliderLayout.addView(slider);
@@ -94,11 +112,6 @@ class HorizontalSlider {
 		else if(step<1 && step>=0.1) decimals = 1;
 		else decimals = 2;
 		decimalsDisplay = "%."+decimals+"f";
-	}
-	
-	public void setWidth(int width){
-		frame.setLayoutParams(new ViewGroup.LayoutParams(
-				width, ViewGroup.LayoutParams.WRAP_CONTENT));
 	}
 	
 	/*

@@ -1,4 +1,4 @@
-package com.grame.faust;
+package com.faust;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,7 +15,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.grame.dsp_faust.dsp_faust;
+import com.dsp_faust.dsp_faust;
 import com.illposed.osc.OSCListener;
 import com.illposed.osc.OSCMessage;
 

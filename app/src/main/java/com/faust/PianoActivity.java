@@ -1,7 +1,7 @@
-package com.grame.faust;
+package com.faust;
 
-import com.grame.faust.PianoKeyboard.OnKeyboardChangeListener;
-import com.grame.dsp_faust.dsp_faust;
+import com.faust.PianoKeyboard.OnKeyboardChangeListener;
+import com.dsp_faust.dsp_faust;
 
 import android.app.Activity;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.grame.faust;
+package com.faust;
 
 import android.content.Context;
 import android.graphics.Canvas;
