@@ -82,7 +82,11 @@ public class FaustActivity extends Activity {
         activityJustCreated = true; // used to load the saved parameters only once
         
         if(!dsp_faust.isRunning()) dsp_faust.init(44100,512);
-        Osc.init(5511);
+
+		// attempting to open a new OSC port, if default not available create a new one
+		int oscPortNumber = 5511;
+		while(!Osc.init(oscPortNumber)) oscPortNumber++;
+		//System.out.println("Osc In Port: " + oscPortNumber);
         
         numberOfParameters = dsp_faust.getParamsCount();
         
@@ -288,7 +292,7 @@ public class FaustActivity extends Activity {
     	super.onDestroy();
     	on = false;
     	// only stops audio when the user press the return button (and not when the screen is rotated)
-    	if(!isChangingConfigurations()){ 
+    	if(!isChangingConfigurations()){
     		dsp_faust.stop();
     	}
     	try {

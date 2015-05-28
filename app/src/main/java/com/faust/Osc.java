@@ -9,13 +9,16 @@ public class Osc{
     public static int port;
     private static OSCPortIn receiver;
 
-    public static void init(int inPort){
+    public static Boolean init(int inPort){
+        Boolean success = true;
         port = inPort;
         try {
             receiver  = new OSCPortIn(port);
         } catch (SocketException e) {
+            success = false;
             e.printStackTrace();
         }
+        return success;
     }
 
     public static void addListener(String address, OSCListener listener){
